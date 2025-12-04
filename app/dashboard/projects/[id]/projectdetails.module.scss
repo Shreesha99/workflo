@@ -1,0 +1,61 @@
+.container {
+  padding: 28px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.client {
+  font-size: 14px;
+  color: var(--text-soft);
+  margin-top: 4px;
+}
+
+.email {
+  font-size: 14px;
+  color: var(--text-soft);
+  margin-bottom: 16px;
+}
+
+.meta {
+  margin: 16px 0;
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+  color: var(--text-soft);
+}
+
+.section {
+  margin-top: 24px;
+  background: var(--card-bg);
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid var(--card-border);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.portalBox {
+  margin-top: 14px;
+  padding: 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    word-break: break-all;
+  }
+}
+

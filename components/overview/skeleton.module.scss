@@ -1,0 +1,20 @@
+.skeleton {
+  background: linear-gradient(135deg, rgba(0,0,0,0.02), rgba(0,0,0,0.03));
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.small { width: 120px; height: 44px; }
+
+.shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(255,255,255,0.00) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.00) 100%);
+  transform: translateX(-100%);
+  animation: shimmer 1.2s linear infinite;
+}
+
+@keyframes shimmer {
+  to { transform: translateX(100%); }
+}

@@ -1,0 +1,15 @@
+.error {
+  background: var(--error-soft);
+  color: var(--error);
+  padding: 12px 14px;
+  border-radius: 6px;
+  border: 1px solid rgba(229, 57, 53, 0.2);
+  font-size: 14px;
+  margin-top: 16px;
+  opacity: 0;
+  animation: fadeIn 0.25s ease forwards;
+}
+
+@keyframes fadeIn {
+  to { opacity: 1; }
+}

@@ -1,0 +1,118 @@
+.container {
+  width: 100%;
+  color: var(--text);
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 28px;
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+  }
+}
+
+.newProjectBtn {
+  background: var(--primary);
+  color: #000;
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+
+  &:hover {
+    filter: brightness(0.9);
+  }
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+/* PROJECT CARD */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 20px;
+  transition: all 0.25s;
+
+  &:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary);
+  }
+}
+
+.topRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+  }
+}
+
+/* STATUS BADGES */
+.status {
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.In\ Progress {
+  background: #fff3c0;
+  color: #7a6300;
+}
+
+.Pending {
+  background: #ffdede;
+  color: #7a0202;
+}
+
+.Completed {
+  background: #d5ffe4;
+  color: #065f2b;
+}
+
+/* CLIENT TEXT */
+.client {
+  margin: 8px 0;
+  color: var(--text-soft);
+  font-size: 14px;
+}
+
+/* META INFO */
+.meta {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  margin-bottom: 10px;
+  color: var(--text-soft);
+}
+
+/* PROGRESS BAR */
+.progressBar {
+  background: var(--bg-soft);
+  height: 6px;
+  width: 100%;
+  border-radius: 10px;
+}
+
+.progressFill {
+  background: var(--primary);
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.4s ease;
+}

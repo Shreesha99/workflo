@@ -1,0 +1,34 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+}
+
+.modal {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: 28px;
+  width: 420px;
+  border-radius: 16px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Prevent GSAP from fading children */
+.modal * {
+  opacity: 1 !important;
+}
+
+.createBtn {
+  margin-top: 6px;
+  width: 100%;
+  display: flex !important;
+  justify-content: center !important;
+}

@@ -1,0 +1,206 @@
+.topbar {
+  height: 60px;
+  background: var(--card-bg);
+  border-bottom: 1px solid var(--card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 22px;
+}
+
+/* SEARCH BAR */
+.searchWrapper {
+  position: relative;
+  width: 420px;
+  max-width: 60%;
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  opacity: 0.5;
+}
+
+.searchInput {
+  width: 100%;
+  height: 38px;
+  background: var(--bg-soft);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 0 14px 0 34px;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: all 0.25s;
+
+  &:focus {
+    border-color: var(--primary);
+    background: var(--bg);
+  }
+}
+
+/* RIGHT SIDE */
+.right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* AVATAR (square with rounded edges) */
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px; /* <- NOT ROUND, more modern */
+  background: var(--primary);
+  color: #000;
+  font-weight: 700;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.25s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* DROPDOWN MENU */
+.menu {
+  position: absolute;
+  top: 65px;
+  right: 22px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 10px 0;
+  width: 150px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+/* MENU ITEM */
+.menuItem {
+  width: 100%;
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 14px;
+  background: none;
+  color: var(--text);
+  border: none;
+  cursor: pointer;
+  transition: 0.2s;
+
+  &:hover {
+    background: var(--bg-soft);
+  }
+}
+
+/* --- AVATAR BUTTON --- */
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--primary);
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- DROPDOWN MENU --- */
+.menu {
+  position: absolute;
+  top: 56px;
+  right: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: 14px;
+  border-radius: 12px;
+  width: 240px;
+  z-index: 200;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+
+/* --- PROFILE SUMMARY --- */
+.profileSection {
+  display: flex;
+  gap: 12px;
+}
+
+.profileAvatarWrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profileAvatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profileInitial {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.username {
+  font-weight: 700;
+  margin: 0;
+}
+
+.email {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+.joined {
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.menuDivider {
+  height: 1px;
+  width: 100%;
+  background: var(--card-border);
+  margin: 12px 0;
+}
+
+/* LOGOUT */
+.menuItem {
+  width: 100%;
+  text-align: left;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: 0.2s;
+
+  &:hover {
+    background: var(--bg-soft);
+  }
+}
+
+

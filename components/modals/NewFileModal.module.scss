@@ -1,0 +1,57 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+}
+
+.modal {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: 26px;
+  width: 420px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+// h2 {
+//   margin: 0 0 6px;
+//   font-size: 22px;
+//   font-weight: 700;
+// }
+
+.fileInput {
+  border: 1px solid var(--card-border);
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--bg-soft);
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.select {
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+}
+
+.uploadBtn {
+  margin-top: 10px;
+  width: 100%;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+/* Prevent GSAP from fading inner elements */
+.modal * {
+  opacity: 1 !important;
+}

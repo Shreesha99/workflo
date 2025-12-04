@@ -1,0 +1,49 @@
+.authPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--text-soft);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.inputWrap {
+  margin: 16px 0;
+}
+
+.actionBtn {
+  width: 100%;
+  margin-top: 20px;
+}
+
+.links {
+  margin-top: 30px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  a {
+    color: var(--text);
+    font-size: 14px;
+    text-decoration: underline;
+    
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}

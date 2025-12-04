@@ -1,0 +1,124 @@
+/* BASE SIDEBAR */
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background: var(--card-bg);
+  border-right: 1px solid var(--card-border);
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 200; 
+  transition: transform 0.35s ease, opacity 0.25s ease;
+
+  transform: translateX(0); /* Default desktop */
+
+  @media (max-width: 900px) {
+    transform: translateX(-100%); /* Fully hidden on mobile */
+  }
+}
+
+/* MOBILE OPEN STATE */
+.open {
+  @media (max-width: 900px) {
+    transform: translateX(0); /* Drawer open */
+  }
+}
+
+/* OVERLAY BEHIND MOBILE DRAWER */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(2px);
+  z-index: 150;
+}
+
+/* HAMBURGER BUTTON */
+.mobileToggle {
+  display: none;
+
+  @media (max-width: 900px) {
+    display: block;
+    position: fixed;
+    top: 12px;
+    left: 14px;
+    z-index: 300;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    padding: 6px;
+    border-radius: 8px;
+  }
+}
+
+/* CLOSE BUTTON (INSIDE DRAWER) */
+.closeBtn {
+  display: none;
+
+  @media (max-width: 900px) {
+    display: block;
+    background: none;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+}
+
+/* BRAND LOGO */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 40px;
+}
+
+.brandDot {
+  width: 10px;
+  height: 10px;
+  background: var(--primary);
+  border-radius: 50%;
+}
+
+.brandLabel {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+/* NAVIGATION ITEMS */
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text);
+  transition: 0.25s ease;
+
+  &:hover {
+    background: var(--bg-soft);
+  }
+}
+
+.active {
+  background: var(--bg-soft);
+  border-left: 3px solid var(--primary);
+}
+
+.icon {
+  opacity: 0.75;
+}
+
+.label {
+  font-size: 15px;
+}
