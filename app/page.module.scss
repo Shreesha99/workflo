@@ -1,16 +1,63 @@
-/* PAGE WRAPPER */
+/* ============================================================
+   PAGE WRAPPER — now includes soft SaaS gradient + blobs
+============================================================ */
 .pageWrapper {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
-  background: var(--bg);
+  background: radial-gradient(circle at 50% 0%, #fff8c6 0%, #fff 65%);
+  position: relative;
+  overflow: hidden;
 }
 
-/* MAIN HERO */
+/* 🔵 Floating SaaS 3D Blobs (background decoration) */
+.pageWrapper::before,
+.pageWrapper::after {
+  content: "";
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  z-index: 0;
+  filter: blur(80px);
+  opacity: 0.55;
+  animation: floatBlob 7s ease-in-out infinite alternate;
+}
 
+/* Left soft yellow glow */
+.pageWrapper::before {
+  background: #ffe45c;
+  top: -120px;
+  left: -120px;
+}
+
+/* Right subtle blue glow */
+.pageWrapper::after {
+  background: #b5d8ff;
+  bottom: -150px;
+  right: -150px;
+}
+
+@keyframes floatBlob {
+  0% {
+    transform: translateY(0px) scale(1);
+  }
+  100% {
+    transform: translateY(30px) scale(1.08);
+  }
+}
+
+/* LIGHT 3D panel effect behind hero */
 .heroSection {
+  position: relative;
+  padding: 40px 32px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255,255,255,0.55);
+  box-shadow: 0 12px 34px rgba(0,0,0,0.06);
   max-width: 720px;
   text-align: center;
   margin: 0 auto;
@@ -18,6 +65,13 @@
   flex-direction: column;
   align-items: center;
   gap: 28px;
+  z-index: 2;
+  animation: fadeUp 0.6s ease-out;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* TEXT BLOCK */
@@ -53,8 +107,7 @@
   flex-wrap: wrap;
 }
 
-/* CTA BUTTONS — untouched functionality, only polished */
-
+/* BUTTONS */
 .primaryBtn {
   padding: 12px 26px;
   background: var(--primary);
@@ -62,11 +115,12 @@
   font-weight: 600;
   color: #000;
   text-decoration: none;
-  transition: opacity 0.22s ease;
+  transition: opacity 0.22s ease, transform 0.24s cubic-bezier(.22, 1, .36, 1);
   box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 
   &:hover {
     opacity: 0.9;
+    transform: translateY(-2px);
   }
 }
 
@@ -78,11 +132,12 @@
   color: var(--text);
   font-weight: 500;
   text-decoration: none;
-  transition: background 0.22s ease, border-color 0.22s ease;
+  transition: background 0.22s ease, border-color 0.22s ease, transform 0.24s ease;
 
   &:hover {
     background: var(--bg-soft);
     border-color: var(--primary);
+    transform: translateY(-2px);
   }
 }
 
@@ -91,20 +146,116 @@
   color: var(--text-soft);
   text-decoration: underline;
   font-size: 14px;
-  transition: opacity 0.22s;
+  transition: opacity 0.22s, transform 0.24s;
 
   &:hover {
     opacity: 0.75;
+    transform: translateY(-1px);
   }
 }
 
-/* Responsive */
+/* RESPONSIVE */
 @media (max-width: 600px) {
   .title {
     font-size: 34px;
   }
 
+  .heroSection {
+    padding: 28px 20px;
+  }
+
   .subtitle {
     font-size: 16px;
   }
+}
+
+
+/* =========================
+   3D FLOATING BACKGROUND BLOBS
+   ========================= */
+
+.decorLayer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Golden Blob (Big) */
+.blob1 {
+  position: absolute;
+  top: -120px;
+  right: -120px;
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle at 30% 30%, #ffe55c, #ffd600);
+  filter: blur(40px);
+  opacity: 0.45;
+  border-radius: 50%;
+  transform: rotate(15deg);
+}
+
+/* Neutral Soft Blob (Bottom Left) */
+.blob2 {
+  position: absolute;
+  bottom: -140px;
+  left: -140px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle at 70% 70%, #dfe3e6, #b9c0c4);
+  filter: blur(45px);
+  opacity: 0.35;
+  border-radius: 50%;
+}
+
+/* Ensure hero stays above blobs */
+.heroSection {
+  position: relative;
+  z-index: 2;
+}
+
+/* Floating 3D Elements */
+.cursor,
+.chart,
+.message,
+.spark {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.85;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.15));
+}
+
+/* Positions */
+.cursor {
+  top: 12%;
+  left: 6%;
+  width: 300px;
+}
+
+.chart {
+  top: 18%;
+  right: 10%;
+  width: 300px;
+  opacity: 0.95;
+}
+
+.message {
+  bottom: 14%;
+  left: 12%;
+  width: 300px;
+}
+
+.spark {
+  bottom: 20%;
+  right: 18%;
+  width: 300px;
+  opacity: 0.7;
+}
+
+/* Ensure hero content stays above decorations */
+.heroSection {
+  position: relative;
+  z-index: 5;
 }
