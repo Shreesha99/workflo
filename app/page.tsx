@@ -9,25 +9,27 @@ import Link from "next/link";
 export default function Home() {
   useEffect(() => {
     gsap.fromTo(
-      ".hero",
+      ".hero-section",
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, duration: 0.6, ease: "power2.out" }
     );
   }, []);
 
   return (
-    <div className={styles.container}>
-      <main className={`${styles.hero} hero`}>
+    <div className={styles.pageWrapper}>
+      <main className={`${styles.heroSection} hero-section`}>
         <Proflo />
 
-        <h1 className={styles.title}>
-          The simplest way to manage <br /> client work.
-        </h1>
+        <div className={styles.textBlock}>
+          <h1 className={styles.title}>
+            The simplest way to manage <br /> client work.
+          </h1>
 
-        <p className={styles.subtitle}>
-          A clean, modern workspace for freelancers & agencies. Share progress,
-          tasks, files, and approvals with clients — effortlessly.
-        </p>
+          <p className={styles.subtitle}>
+            A clean, modern workspace for freelancers & agencies. Share
+            progress, tasks, files and approvals with clients — effortlessly.
+          </p>
+        </div>
 
         <div className={styles.actions}>
           <Link href="/auth/register" className={styles.primaryBtn}>

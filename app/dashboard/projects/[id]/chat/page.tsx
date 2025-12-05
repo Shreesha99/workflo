@@ -47,7 +47,10 @@ export default function ProjectChat({ params }) {
       )
       .subscribe();
 
-    return () => supabase.removeChannel(channel);
+    return () => {
+      // cleanup cannot be async, so call without awaiting
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   function scrollToBottom() {

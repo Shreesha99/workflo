@@ -1,3 +1,4 @@
+/* Input.module.scss (append these) */
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -5,21 +6,40 @@
 }
 
 .label {
-  font-size: 14px;
+  font-size: 13px;
+  color: var(--text-soft);
   font-weight: 600;
-  color: var(--text);
+}
+
+.inputWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
 .input {
-  padding: 12px 14px;
+  width: 100%;
+  padding: 10px 12px;
+  padding-right: 44px; /* room for right icon */
   border: 1px solid var(--border);
   border-radius: 8px;
-  font-size: 15px;
-  background: #fff;
-  transition: border-color 0.2s ease;
+  background: var(--card-bg);
+  color: var(--text);
+  outline: none;
+  font-size: 14px;
+}
 
-  &:focus {
-    border-color: var(--primary);
-    outline: none;
-  }
+.rightIconBtn {
+  position: absolute;
+  right: 8px;
+  height: 32px;
+  width: 32px;
+  border: none;
+  background: transparent;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text);
+  padding: 0;
 }

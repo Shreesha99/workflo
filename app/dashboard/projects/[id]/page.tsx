@@ -1,27 +1,22 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { supabaseClient } from "@/lib/supabase/client";
 import gsap from "gsap";
 import styles from "./projectdetails.module.scss";
 
-export default function ProjectDetails(props) {
+export default function ProjectDetails() {
   const supabase = supabaseClient();
 
-  // ⬅️ FIX: unwrap params promise
-  const { id } = use(props.params);
+  // ✅ CORRECT WAY TO READ DYNAMIC ROUTE PARAMS
+  const { id } = useParams() as { id: string };
 
   const [project, setProject] = useState(null);
   const [portalUrl, setPortalUrl] = useState("");
   const [copied, setCopied] = useState(false);
-  async function test() {
-    const { data } = await supabase.auth.getUser();
-    console.log(data.user.id);
-  }
-  test();
-  useEffect(() => {
-    let mounted = true;
 
+  useEffect(() => {
     async function fetchProject() {
       const { data } = await supabase
         .from("projects")
@@ -29,41 +24,25 @@ export default function ProjectDetails(props) {
         .eq("id", id)
         .single();
 
-      if (mounted) {
-        setProject(data);
+      setProject(data);
 
-        gsap.fromTo(
-          ".project-detail",
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
-        );
-      }
+      gsap.fromTo(
+        ".project-detail",
+        { opacity: 0, y: 10 },
+        { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
+      );
     }
 
     fetchProject();
-
-    return () => (mounted = false);
   }, [id]);
 
-  // ------------------------------------
-  // ⭐ GENERATE CLIENT PORTAL LINK
-  // ------------------------------------
   async function generatePortalLink() {
     const res = await fetch(`/api/projects/${id}/portal`);
+    const data = await res.json();
 
-    if (!res.ok) {
-      console.error("Portal link error", res.status);
-      return;
+    if (data?.url) {
+      setPortalUrl(data.url);
     }
-
-    const data = await res.json().catch(() => null);
-
-    if (!data?.url) {
-      console.error("Invalid JSON response");
-      return;
-    }
-
-    setPortalUrl(data.url);
   }
 
   function copyToClipboard() {
@@ -72,24 +51,19 @@ export default function ProjectDetails(props) {
     setTimeout(() => setCopied(false), 1200);
   }
 
-  // ------------------------------------
-
   if (!project) return <p>Loading...</p>;
 
   return (
     <div className={`project-detail ${styles.container}`}>
       <h1>{project.name}</h1>
 
-      {/* ⭐ BUTTON TO GENERATE CLIENT PORTAL LINK */}
       <button className={styles.portalBtn} onClick={generatePortalLink}>
         Generate Client Portal Link
       </button>
 
-      {/* ⭐ SHOW LINK IF GENERATED */}
       {portalUrl && (
-        <div className={`portal-box ${styles.portalBox}`}>
+        <div className={styles.portalBox}>
           <p>{portalUrl}</p>
-
           <button className={styles.copyBtn} onClick={copyToClipboard}>
             {copied ? "Copied!" : "Copy"}
           </button>

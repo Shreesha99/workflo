@@ -1,48 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
+import styles from "./Proflo.module.scss";
 
+/**
+ * Proflo brand pill.
+ * - Uses CSS module for all styles (avoids inline style typing issues).
+ * - Adds hover lift & shadow on pointer devices.
+ * - Brief touch feedback on touch devices via onTouchStart.
+ */
 export default function Proflo() {
-  const [hover, setHover] = useState(false);
+  const [touchActive, setTouchActive] = useState(false);
 
   return (
     <div
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
+      className={`${styles.pill} ${touchActive ? styles.active : ""}`}
+      onMouseEnter={() => setTouchActive(true)}
+      onMouseLeave={() => setTouchActive(false)}
       onTouchStart={() => {
-        setHover(true);
-        setTimeout(() => setHover(false), 180);
+        // brief visual feedback for touch devices
+        setTouchActive(true);
+        window.setTimeout(() => setTouchActive(false), 180);
       }}
-      style={{
-        background: "#FFD600",
-        padding: "12px 22px",
-        borderRadius: "999px",
-        display: "inline-flex",
-        alignItems: "center",
-        justifyContent: "center",
-        cursor: "pointer",
-
-        // ✨ Hover Animation
-        transform: hover
-          ? "translateY(-3px) scale(1.03)"
-          : "translateY(0) scale(1)",
-        boxShadow: hover
-          ? "0 8px 18px rgba(0,0,0,0.15)"
-          : "0 2px 6px rgba(0,0,0,0.05)",
-        transition: "all 0.25s cubic-bezier(0.22, 1, 0.36, 1)",
-      }}
+      role="img"
+      aria-label="Proflo"
     >
-      <img
-        src="/logo.svg"
-        alt="Proflo Logo"
-        style={{
-          height: "32px",
-          width: "auto",
-          display: "block",
-          userSelect: "none",
-          pointerEvents: "none",
-        }}
-      />
+      <img src="/logo.svg" alt="Proflo" className={styles.logo} />
     </div>
   );
 }

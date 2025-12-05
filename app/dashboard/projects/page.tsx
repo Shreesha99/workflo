@@ -22,9 +22,9 @@ export default function ProjectsPage() {
     setProjects(data || []);
   }
 
-  useEffect(() => {
-    loadProjects();
-  }, []);
+  // useEffect(() => {
+  //   loadProjects();
+  // }, []);
 
   useEffect(() => {
     gsap.fromTo(
@@ -68,13 +68,6 @@ export default function ProjectsPage() {
             <div className={styles.meta}>
               <span>Status: {p.status}</span>
               <span>Due: {p.due_date || "—"}</span>
-            </div>
-
-            <div className={styles.progressBar}>
-              <div
-                className={styles.progressFill}
-                style={{ width: `${p.progress}%` }}
-              ></div>
             </div>
           </a>
         ))}

@@ -3,24 +3,26 @@
 import { useEffect } from "react";
 import { supabaseClient } from "@/lib/supabase/client";
 
-export default function Callback() {
-  const supabase = supabaseClient();
-
+export default function SuccessCallback() {
   useEffect(() => {
-    async function finishLogin() {
-      const { data } = await supabase.auth.getSession();
+    async function handle() {
+      const supabase = supabaseClient();
+      const { data } = await supabase.auth.getUser();
 
-      if (data?.session) {
-        window.location.href = "/dashboard";
-      } else {
-        window.location.href = "/auth/login";
+      const user = data.user;
+      if (!user) return;
+
+      const hasPassword = !!user.user_metadata?.has_password;
+      if (!hasPassword) {
+        window.location.href = "/auth/set-password";
+        return;
       }
+
+      window.location.href = "/dashboard";
     }
 
-    finishLogin();
+    handle();
   }, []);
 
-  return (
-    <p style={{ textAlign: "center", marginTop: 40 }}>Finishing login...</p>
-  );
+  return <p>Loading…</p>;
 }

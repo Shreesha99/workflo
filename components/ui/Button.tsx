@@ -26,7 +26,9 @@ export default function Button({
   useEffect(() => {
     if (!btnRef.current) return;
 
-    // Subtle entrance animation
+    // 🟡 FIX: Ensure button is visible before GSAP animation
+    btnRef.current.style.opacity = "1";
+
     gsap.from(btnRef.current, {
       opacity: 0,
       y: 6,

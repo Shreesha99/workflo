@@ -74,7 +74,7 @@ export default function OTPPage() {
           <ErrorMessage message={error} />
           <SuccessMessage message={success} />
 
-          <div style={{ marginTop: 24 }}>
+          <div>
             <Input
               label="Email Address"
               value={email}
@@ -83,7 +83,7 @@ export default function OTPPage() {
             />
           </div>
 
-          <div style={{ marginTop: 30 }}>
+          <div>
             <Button onClick={sendOTP} loading={loading} disabled={loading}>
               Send Link
             </Button>

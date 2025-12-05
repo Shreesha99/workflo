@@ -16,6 +16,7 @@ import {
   PointElement,
   LineElement,
   Filler,
+  ChartOptions,
 } from "chart.js";
 
 import SkeletonCard from "@/components/overview/SkeletonCard";
@@ -236,17 +237,13 @@ export default function OverviewPage() {
     };
   }, [tasksOverTime]);
 
-  const doughnutOptions = {
-    cutout: "70%",
-    plugins: {
-      legend: { display: true, position: "bottom" },
-      tooltip: {
-        padding: 8,
-        cornerRadius: 8,
-      },
-    },
-  };
-
+const doughnutOptions: ChartOptions<"doughnut"> = {
+  cutout: "70%",
+  plugins: {
+    legend: { display: true, position: "bottom" },
+    tooltip: { padding: 8, cornerRadius: 8 },
+  },
+};
   const lineOptions = {
     plugins: { legend: { display: false } },
     scales: {
