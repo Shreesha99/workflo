@@ -1,48 +1,60 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { supabaseClient } from "@/lib/supabase/client";
-import gsap from "gsap";
 import styles from "./projectdetails.module.scss";
 
 export default function ProjectDetails() {
+  const router = useRouter();
+  const { id } = useParams() as { id: string };
   const supabase = supabaseClient();
 
-  // ✅ CORRECT WAY TO READ DYNAMIC ROUTE PARAMS
-  const { id } = useParams() as { id: string };
-
-  const [project, setProject] = useState(null);
+  const [project, setProject] = useState<any>(null);
   const [portalUrl, setPortalUrl] = useState("");
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState("");
+
+  // NEW — edit modal
+  const [editOpen, setEditOpen] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editClient, setEditClient] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    async function fetchProject() {
-      const { data } = await supabase
+    async function load() {
+      const { data, error } = await supabase
         .from("projects")
         .select("*")
         .eq("id", id)
         .single();
 
-      setProject(data);
+      if (error) {
+        setError("Failed to load project.");
+        return;
+      }
 
-      gsap.fromTo(
-        ".project-detail",
-        { opacity: 0, y: 10 },
-        { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
-      );
+      setProject(data);
+      setEditName(data.name);
+      setEditClient(data.client_name || "");
+      setEditEmail(data.client_email || "");
     }
 
-    fetchProject();
+    load();
   }, [id]);
 
   async function generatePortalLink() {
     const res = await fetch(`/api/projects/${id}/portal`);
-    const data = await res.json();
 
-    if (data?.url) {
-      setPortalUrl(data.url);
+    if (!res.ok) {
+      console.error("Portal link error", res.status);
+      setError("Failed to generate portal link.");
+      return;
     }
+
+    const data = await res.json();
+    setPortalUrl(data.url);
   }
 
   function copyToClipboard() {
@@ -51,44 +63,148 @@ export default function ProjectDetails() {
     setTimeout(() => setCopied(false), 1200);
   }
 
-  if (!project) return <p>Loading...</p>;
+  async function saveEdits() {
+    setSaving(true);
+
+    const { error } = await supabase
+      .from("projects")
+      .update({
+        name: editName,
+        client_name: editClient,
+        client_email: editEmail,
+      })
+      .eq("id", id);
+
+    setSaving(false);
+
+    if (error) {
+      setError("Failed to update project.");
+      return;
+    }
+
+    // Refresh UI
+    setProject({
+      ...project,
+      name: editName,
+      client_name: editClient,
+      client_email: editEmail,
+    });
+
+    setEditOpen(false);
+  }
+
+  if (error) return <p className={styles.error}>{error}</p>;
+  if (!project) return <p className={styles.loading}>Loading…</p>;
 
   return (
-    <div className={`project-detail ${styles.container}`}>
-      <h1>{project.name}</h1>
-
-      <button className={styles.portalBtn} onClick={generatePortalLink}>
-        Generate Client Portal Link
+    <div className={styles.container}>
+      {/* BACK BUTTON */}
+      <button
+        className={styles.backBtn}
+        onClick={() => router.push("/dashboard/projects")}
+      >
+        ← Back to Projects
       </button>
 
-      {portalUrl && (
-        <div className={styles.portalBox}>
-          <p>{portalUrl}</p>
-          <button className={styles.copyBtn} onClick={copyToClipboard}>
-            {copied ? "Copied!" : "Copy"}
+      {/* HEADER */}
+      <div className={styles.header}>
+        <h1>{project.name}</h1>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <span className={`${styles.badge} ${styles[project.status]}`}>
+            {project.status}
+          </span>
+
+          {/* ✏️ EDIT BUTTON */}
+          <button className={styles.editBtn} onClick={() => setEditOpen(true)}>
+            Edit
           </button>
         </div>
-      )}
-
-      {project.client_name && (
-        <p className={styles.client}>Client: {project.client_name}</p>
-      )}
-
-      {project.client_email && (
-        <p className={styles.email}>Email: {project.client_email}</p>
-      )}
-
-      <div className={styles.meta}>
-        <span>Status: {project.status}</span>
-        <span>
-          Created: {new Date(project.created_at).toLocaleDateString()}
-        </span>
       </div>
 
+      {/* INFO CARD */}
+      <div className={styles.infoCard}>
+        <p>
+          <strong>Client:</strong> {project.client_name || "—"}
+        </p>
+        <p>
+          <strong>Email:</strong> {project.client_email || "—"}
+        </p>
+        <p>
+          <strong>Created:</strong>{" "}
+          {new Date(project.created_at).toLocaleDateString()}
+        </p>
+      </div>
+
+      {/* PORTAL SECTION */}
+      <div className={styles.portalSection}>
+        <button className={styles.portalBtn} onClick={generatePortalLink}>
+          Generate Client Portal Link
+        </button>
+
+        {portalUrl && (
+          <div className={styles.portalBox}>
+            <p>{portalUrl}</p>
+            <button className={styles.copyBtn} onClick={copyToClipboard}>
+              {copied ? "Copied!" : "Copy"}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* NOTES */}
       <div className={styles.section}>
         <h2>Project Notes</h2>
         <p>Coming soon…</p>
       </div>
+
+      {/* -------------------------
+          EDIT MODAL
+      -------------------------- */}
+      {editOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <h2>Edit Project</h2>
+
+            <label>Project Name</label>
+            <input
+              className={styles.input}
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+            />
+
+            <label>Client Name</label>
+            <input
+              className={styles.input}
+              value={editClient}
+              onChange={(e) => setEditClient(e.target.value)}
+            />
+
+            <label>Client Email</label>
+            <input
+              className={styles.input}
+              value={editEmail}
+              onChange={(e) => setEditEmail(e.target.value)}
+            />
+
+            <div className={styles.modalActions}>
+              <button
+                className={styles.cancelBtn}
+                onClick={() => setEditOpen(false)}
+              >
+                Cancel
+              </button>
+
+              <button
+                className={styles.saveBtn}
+                disabled={saving}
+                onClick={saveEdits}
+              >
+                {saving ? "Saving…" : "Save Changes"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

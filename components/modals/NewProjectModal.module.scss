@@ -32,3 +32,25 @@
   display: flex !important;
   justify-content: center !important;
 }
+
+.selectWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+
+  label {
+    font-size: 14px;
+    color: var(--text-soft);
+  }
+
+  select {
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: var(--bg-soft);
+    font-size: 14px;
+    cursor: not-allowed;
+    color: var(--text);
+  }
+}

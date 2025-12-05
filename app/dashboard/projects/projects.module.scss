@@ -1,6 +1,7 @@
 .container {
   width: 100%;
   color: var(--text);
+  padding-top: 12px;
 }
 
 /* HEADER */
@@ -8,14 +9,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 28px;
+  margin-bottom: 22px;
 
   h1 {
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 700;
   }
 }
 
+.subtitle {
+  font-size: 14px;
+  color: var(--text-soft);
+  margin-top: 6px;
+}
+
+/* NEW PROJECT BUTTON */
 .newProjectBtn {
   background: var(--primary);
   color: #000;
@@ -25,94 +33,138 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.25s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 
   &:hover {
     filter: brightness(0.9);
+    transform: translateY(-2px);
   }
+}
+
+/* ============================
+   SEARCH + FILTER AREA
+============================ */
+.searchFilters {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+
+/* SEARCH BAR */
+.searchBar {
+  position: relative;
+  max-width: 360px;
+  width: 100%;
+
+  input {
+    width: 100%;
+    padding: 12px 44px 12px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--bg-soft);
+    font-size: 15px;
+    transition: 0.25s ease;
+
+    &:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(255, 220, 50, 0.35);
+    }
+  }
+}
+
+.icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  opacity: 0.55;
+}
+
+/* Swiggy-like pills */
+.pills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-bottom: 4px;
+}
+
+.pill {
+  padding: 6px 16px;
+  background: var(--bg-soft);
+  border-radius: 30px;
+  border: 1px solid var(--card-border);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.22s ease;
+
+  &:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: black;
+  }
+}
+
+.pillActive {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: black;
 }
 
 /* GRID */
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  gap: 22px;
 }
 
 /* PROJECT CARD */
 .card {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-radius: 14px;
+  border-radius: 16px;
   padding: 20px;
   transition: all 0.25s;
+  position: relative;
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-5px);
     border-color: var(--primary);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   }
 }
 
-.topRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  h3 {
-    margin: 0;
-    font-size: 18px;
-  }
-}
-
-/* STATUS BADGES */
-.status {
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.In\ Progress {
-  background: #fff3c0;
-  color: #7a6300;
-}
-
-.Pending {
-  background: #ffdede;
-  color: #7a0202;
-}
-
-.Completed {
-  background: #d5ffe4;
-  color: #065f2b;
-}
-
-/* CLIENT TEXT */
+/* CARD CONTENT */
 .client {
-  margin: 8px 0;
+  margin: 12px 0 8px 0;
   color: var(--text-soft);
   font-size: 14px;
 }
 
-/* META INFO */
 .meta {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
-  margin-bottom: 10px;
   color: var(--text-soft);
+  margin-bottom: 14px;
 }
 
-/* PROGRESS BAR */
-.progressBar {
-  background: var(--bg-soft);
-  height: 6px;
-  width: 100%;
-  border-radius: 10px;
-}
+.deleteBtn {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 6px 12px;
+  background: #ffebee;
+  color: #b71c1c;
+  border: 1px solid #ffcdd2;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: 0.2s;
 
-.progressFill {
-  background: var(--primary);
-  height: 100%;
-  border-radius: 10px;
-  transition: width 0.4s ease;
+  &:hover {
+    background: #ffcdd2;
+  }
 }

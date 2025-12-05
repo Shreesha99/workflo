@@ -19,11 +19,15 @@ export default function NewProjectModal({ open, onClose, onCreated }) {
   const [clientName, setClientName] = useState("");
   const [clientEmail, setClientEmail] = useState("");
 
+  // ⭐ NEW FIELDS
+  const [dueDate, setDueDate] = useState("");
+  const [status, setStatus] = useState("active");
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Animate the modal ONLY (not its children)
+  // Animate modal only
   useEffect(() => {
     if (open && modalRef.current) {
       gsap.fromTo(
@@ -40,6 +44,11 @@ export default function NewProjectModal({ open, onClose, onCreated }) {
 
     if (!name.trim()) {
       setError("Project name is required.");
+      return;
+    }
+
+    if (status !== "active") {
+      setError("New project must start as Active — cannot change status.");
       return;
     }
 
@@ -60,7 +69,8 @@ export default function NewProjectModal({ open, onClose, onCreated }) {
       client_email: clientEmail || null,
       created_by: user.id,
       agency_id: null,
-      status: "active",
+      status: "active", // always active
+      due_date: dueDate || null,
     });
 
     setLoading(false);
@@ -78,6 +88,8 @@ export default function NewProjectModal({ open, onClose, onCreated }) {
       setName("");
       setClientName("");
       setClientEmail("");
+      setDueDate("");
+      setStatus("active");
       setSuccess("");
     }, 700);
   }
@@ -117,6 +129,28 @@ export default function NewProjectModal({ open, onClose, onCreated }) {
           onChange={(e) => setClientEmail(e.target.value)}
           placeholder="client@example.com"
         />
+
+        {/* ⭐ NEW FIELD: DUE DATE */}
+        <Input
+          label="Due Date"
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+        />
+
+        {/* ⭐ NEW FIELD: STATUS DROPDOWN (disabled but visible) */}
+        <div className={styles.selectWrap}>
+          <label>Status (New projects must start as Active)</label>
+          <select
+            value={status}
+            disabled // cannot change
+            onChange={(e) => setStatus(e.target.value)}
+          >
+            <option value="active">Active</option>
+            <option value="pending">Pending</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
 
         <Button
           loading={loading}
