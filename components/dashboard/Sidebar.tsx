@@ -15,6 +15,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import Proflo from "@/components/brand/Proflo";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -93,8 +94,7 @@ export default function Sidebar() {
 
         {/* BRAND */}
         <div className={styles.brand}>
-          <span className={styles.brandDot}></span>
-          <span className={styles.brandLabel}>Proflo</span>
+          <Proflo />
         </div>
 
         {/* NAVIGATION */}

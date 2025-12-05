@@ -8,6 +8,11 @@ import ErrorMessage from "@/components/ui/ErrorMessage";
 import SuccessMessage from "@/components/ui/SuccessMessage";
 import gsap from "gsap";
 
+type OTPResponse = {
+  error?: string;
+  message?: string;
+};
+
 export default function OTPPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -35,17 +40,28 @@ export default function OTPPage() {
 
     const res = await fetch("/api/auth/otp", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
     });
 
-    const data = await res.json();
+    let data: OTPResponse = {};
+
+    try {
+      data = await res.json();
+    } catch {
+      setError("Server error. Try again later.");
+      setLoading(false);
+      return;
+    }
+
     setLoading(false);
 
-    if (data.error) {
-      setError(data.error);
-    } else {
-      setSuccess("Magic login link sent! Please check your email.");
+    if (!res.ok) {
+      setError(data.error || "Failed to send magic link.");
+      return;
     }
+
+    setSuccess("Magic login link sent! Check your email.");
   }
 
   return (

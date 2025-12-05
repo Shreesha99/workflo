@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import gsap from "gsap";
 import styles from "@/app/page.module.scss";
+import Proflo from "@/components/brand/Proflo";
+import Link from "next/link";
 
 export default function Home() {
   useEffect(() => {
@@ -15,8 +17,8 @@ export default function Home() {
 
   return (
     <div className={styles.container}>
-      <main className={styles.hero}>
-        <span className={styles.badge}>Proflo</span>
+      <main className={`${styles.hero} hero`}>
+        <Proflo />
 
         <h1 className={styles.title}>
           The simplest way to manage <br /> client work.
@@ -28,17 +30,17 @@ export default function Home() {
         </p>
 
         <div className={styles.actions}>
-          <a href="/auth/register" className={styles.primaryBtn}>
+          <Link href="/auth/register" className={styles.primaryBtn}>
             Get Started
-          </a>
+          </Link>
 
-          <a href="/auth/login" className={styles.secondaryBtn}>
+          <Link href="/auth/login" className={styles.secondaryBtn}>
             Login
-          </a>
+          </Link>
 
-          <a href="/auth/otp" className={styles.linkBtn}>
-            Login with OTP
-          </a>
+          <Link href="/auth/otp" className={styles.linkBtn}>
+            Login with Link
+          </Link>
         </div>
       </main>
     </div>
