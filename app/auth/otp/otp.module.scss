@@ -1,0 +1,101 @@
+.pageWrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: radial-gradient(circle at 50% 0%, #fff8c6 0%, #fff 65%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Floating blobs (subtle background ambiance) */
+.pageWrapper::before,
+.pageWrapper::after {
+  content: "";
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+}
+
+.pageWrapper::before {
+  top: -120px;
+  left: -120px;
+  background: #ffe45c;
+}
+
+.pageWrapper::after {
+  bottom: -130px;
+  right: -130px;
+  background: #b5d8ff;
+}
+
+/* Floating 3D illustration positions */
+.float1 {
+  position: absolute;
+  top: 12%;
+  left: 6%;
+  opacity: 0.9;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15));
+  pointer-events: none;
+}
+
+.float2 {
+  position: absolute;
+  bottom: 12%;
+  right: 8%;
+  opacity: 0.8;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.15));
+}
+
+/* Card styling */
+.card {
+  position: relative;
+  z-index: 5;
+  padding: 28px;
+  border-radius: 18px;
+  backdrop-filter: saturate(180%) blur(20px);
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255,255,255,0.5);
+  box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.inputWrap {
+  margin-bottom: 16px;
+}
+
+.authLink {
+  margin-top: 16px;
+  text-align: center;
+
+  a {
+    color: var(--text-soft);
+    text-decoration: underline;
+
+    &:hover {
+      opacity: 0.75;
+    }
+  }
+}
+
+.fullWidthBtn {
+  width: 100%;
+}

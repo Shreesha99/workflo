@@ -1,15 +1,41 @@
-.error {
-  background: var(--error-soft);
-  color: var(--error);
-  padding: 12px 14px;
-  border-radius: 6px;
-  border: 1px solid rgba(229, 57, 53, 0.2);
-  font-size: 14px;
+.errorBox {
+  --error-bg: rgba(255, 228, 230, 0.6);  // soft red glass
+  --error-border: rgba(255, 98, 102, 0.35);
+  --error-text: #d32f2f;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 14px 16px;
   margin-top: 16px;
+
+  background: var(--error-bg);
+  border: 1px solid var(--error-border);
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--error-text);
+
+  backdrop-filter: blur(10px) saturate(160%);
+  -webkit-backdrop-filter: blur(10px) saturate(160%);
+
+  box-shadow: 0 4px 12px rgba(255, 0, 0, 0.08);
+
   opacity: 0;
-  animation: fadeIn 0.25s ease forwards;
+  transform: translateY(6px);
+  animation: slideFadeIn 0.35s ease forwards;
 }
 
-@keyframes fadeIn {
-  to { opacity: 1; }
+.icon {
+  color: var(--error-text);
+  flex-shrink: 0;
+}
+
+@keyframes slideFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
