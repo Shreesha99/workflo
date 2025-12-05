@@ -19,6 +19,7 @@ export default function Home() {
     // Floating 3D elements animation
     gsap.to(".float1", {
       y: -12,
+      x: 10,
       duration: 2,
       repeat: -1,
       yoyo: true,
@@ -26,7 +27,8 @@ export default function Home() {
     });
 
     gsap.to(".float2", {
-      y: 50,
+      y: 10,
+      x: -30,
       duration: 2,
       repeat: -1,
       yoyo: true,
@@ -34,7 +36,8 @@ export default function Home() {
     });
 
     gsap.to(".float3", {
-      y: 30,
+      y: -50,
+      x: -30,
       duration: 2,
       repeat: -1,
       yoyo: true,
@@ -48,17 +51,23 @@ export default function Home() {
       <Image
         src="/illustrations/house.svg"
         className={`${styles.cursor} float1`}
+        width={"300"}
+        height={"300"}
         alt={""}
       />
       <Image
         src="/illustrations/income.svg"
         className={`${styles.message} float2`}
         alt={""}
+        width={"300"}
+        height={"300"}
       />
       <Image
         src="/illustrations/money.svg"
         className={`${styles.spark} float3`}
         alt={""}
+        width={"300"}
+        height={"300"}
       />
 
       <main className={`${styles.heroSection} hero-section`}>
