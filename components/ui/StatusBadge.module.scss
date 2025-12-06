@@ -1,0 +1,25 @@
+.badge {
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+/* ACTIVE */
+.active {
+  background: rgba(40, 199, 111, 0.15);
+  color: rgb(28, 130, 73);
+}
+
+/* PENDING */
+.pending {
+  background: rgba(255, 193, 7, 0.16);
+  color: #8a6d00;
+}
+
+/* COMPLETED */
+.completed {
+  background: rgba(0, 123, 255, 0.16);
+  color: #003c97;
+}

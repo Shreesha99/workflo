@@ -12,17 +12,17 @@
 .modal {
   background: var(--card-bg);
   padding: 26px;
-  width: 400px;
-  border-radius: 16px;
+  width: 420px;
+  border-radius: 18px;
   border: 1px solid var(--card-border);
   display: flex;
   flex-direction: column;
   gap: 14px;
   animation: fadeIn 0.26s ease-out;
 
-  /* All element styles MUST be inside a class — FIXED */
   h2 {
     margin-bottom: 4px;
+    font-size: 20px;
   }
 
   label {
@@ -46,6 +46,20 @@
   }
 }
 
+.datePickerWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dateInput {
+  padding: 10px 12px;
+  background: var(--bg-soft);
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+}
+
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -59,11 +73,6 @@
   border: 1px solid var(--card-border);
   background: var(--bg-soft);
   cursor: pointer;
-  transition: 0.15s ease;
-}
-
-.cancel:hover {
-  background: var(--bg);
 }
 
 .save {
@@ -73,11 +82,10 @@
   color: black;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.15s ease;
-}
 
-.save:hover {
-  filter: brightness(1.1);
+  &:hover {
+    filter: brightness(1.1);
+  }
 }
 
 @keyframes fadeIn {
@@ -87,6 +95,5 @@
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }

@@ -4,8 +4,12 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabaseClient } from "@/lib/supabase/client";
 import ErrorMessage from "@/components/ui/ErrorMessage";
-import EditProjectModal from "@/components/modals/EditProjectModal"; // ✅ NEW IMPORT
+import EditProjectModal from "@/components/modals/EditProjectModal";
+
+import { ArrowLeft, Pencil, Trash2, Copy, Link2, Check } from "lucide-react";
+
 import styles from "./projectdetails.module.scss";
+import StatusBadge from "@/components/ui/StatusBadge";
 
 export default function ProjectDetails() {
   const router = useRouter();
@@ -33,10 +37,31 @@ export default function ProjectDetails() {
       }
 
       setProject(data);
+      await loadPortalLink();
     }
 
     load();
   }, [id]);
+
+  async function loadPortalLink() {
+    const { data } = await supabase
+      .from("project_portal_links")
+      .select("token")
+      .eq("project_id", id)
+      .maybeSingle();
+
+    if (data?.token) {
+      const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+      setPortalUrl(`${base}/portal/${data.token}`);
+    }
+  }
+
+  async function generatePortalLink() {
+    const res = await fetch(`/api/projects/${id}`);
+    if (!res.ok) return setError("Failed to generate portal link.");
+    const data = await res.json();
+    setPortalUrl(data.url);
+  }
 
   async function deletePortalLink() {
     const { error } = await supabase
@@ -44,23 +69,8 @@ export default function ProjectDetails() {
       .delete()
       .eq("project_id", id);
 
-    if (error) {
-      setError("Failed to delete portal link.");
-      return;
-    }
+    if (error) return setError("Failed to delete portal link.");
     setPortalUrl("");
-  }
-
-  async function generatePortalLink() {
-    const res = await fetch(`/api/projects/${id}`);
-
-    if (!res.ok) {
-      setError("Failed to generate portal link.");
-      return;
-    }
-
-    const data = await res.json();
-    setPortalUrl(data.url);
   }
 
   function copyToClipboard() {
@@ -76,27 +86,30 @@ export default function ProjectDetails() {
     <div className={styles.container}>
       <ErrorMessage message={error} />
 
+      {/* BACK BUTTON WITH ICON */}
       <button
         className={styles.backBtn}
         onClick={() => router.push("/dashboard/projects")}
       >
-        Back to Projects
+        <ArrowLeft size={16} />
+        Back
       </button>
 
+      {/* HEADER */}
       <div className={styles.header}>
         <h1>{project.name}</h1>
 
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <span className={`${styles.badge} ${styles[project.status]}`}>
-            {project.status}
-          </span>
+        <div className={styles.headerRight}>
+          <StatusBadge status={project.status} />
 
-          <button className={styles.editBtn} onClick={() => setEditOpen(true)}>
-            Edit
+          {/* EDIT ICON BUTTON */}
+          <button className={styles.iconBtn} onClick={() => setEditOpen(true)}>
+            <Pencil size={18} />
           </button>
         </div>
       </div>
 
+      {/* PROJECT INFO */}
       <div className={styles.infoCard}>
         <p>
           <strong>Client:</strong> {project.client_name || "—"}
@@ -110,40 +123,48 @@ export default function ProjectDetails() {
         </p>
       </div>
 
+      {/* PORTAL AREA */}
       <div className={styles.portalSection}>
-        <button className={styles.portalBtn} onClick={generatePortalLink}>
-          Generate Client Portal Link
-        </button>
-
+        {/* GENERATE LINK (ICON BUTTON) */}
         <button
-          className={styles.deletePortalBtn}
-          onClick={deletePortalLink}
-          style={{
-            background: "red",
-            color: "white",
-            padding: "8px 12px",
-            marginTop: "10px",
-          }}
+          className={styles.primaryIconBtn}
+          onClick={generatePortalLink}
+          disabled={!!portalUrl}
         >
-          Delete Portal Link
+          <Link2 size={17} />
+          {portalUrl ? "Link Ready" : "Generate Link"}
         </button>
 
+        {/* PORTAL BOX */}
         {portalUrl && (
           <div className={styles.portalBox}>
             <p>{portalUrl}</p>
-            <button className={styles.copyBtn} onClick={copyToClipboard}>
-              {copied ? "Copied!" : "Copy"}
-            </button>
+
+            <div className={styles.portalActions}>
+              {/* COPY ICON */}
+              <button className={styles.smallIconBtn} onClick={copyToClipboard}>
+                {copied ? <Check size={17} /> : <Copy size={17} />}
+              </button>
+
+              {/* DELETE ICON */}
+              <button
+                className={styles.smallIconDangerBtn}
+                onClick={deletePortalLink}
+              >
+                <Trash2 size={17} />
+              </button>
+            </div>
           </div>
         )}
       </div>
 
+      {/* NOTES SECTION */}
       <div className={styles.section}>
         <h2>Project Notes</h2>
         <p>Coming soon…</p>
       </div>
 
-      {/* ✅ Replace old inline edit UI with clean modal */}
+      {/* EDIT MODAL */}
       {editOpen && (
         <EditProjectModal
           project={project}

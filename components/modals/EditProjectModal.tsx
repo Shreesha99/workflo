@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ErrorMessage from "@/components/ui/ErrorMessage";
+import Calendar from "@/components/ui/Calendar";
 import styles from "./EditProjectModal.module.scss";
 
 export default function EditProjectModal({ project, onClose, onUpdated }) {
@@ -13,6 +14,7 @@ export default function EditProjectModal({ project, onClose, onUpdated }) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showCal, setShowCal] = useState(false);
 
   async function save() {
     setError("");
@@ -47,32 +49,19 @@ export default function EditProjectModal({ project, onClose, onUpdated }) {
 
         <ErrorMessage message={error} />
 
-        {/* NAME */}
         <label>Project Name</label>
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Project Name"
-        />
+        <input value={name} onChange={(e) => setName(e.target.value)} />
 
-        {/* CLIENT NAME */}
         <label>Client Name</label>
-        <input
-          value={client}
-          onChange={(e) => setClient(e.target.value)}
-          placeholder="Client Name"
-        />
+        <input value={client} onChange={(e) => setClient(e.target.value)} />
 
-        {/* CLIENT EMAIL */}
         <label>Client Email</label>
         <input
           value={email}
           type="email"
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="email@example.com"
         />
 
-        {/* STATUS */}
         <label>Status</label>
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
           <option value="active">active</option>
@@ -80,13 +69,26 @@ export default function EditProjectModal({ project, onClose, onUpdated }) {
           <option value="completed">completed</option>
         </select>
 
-        {/* DUE DATE */}
-        <label>Due Date</label>
-        <input
-          type="date"
-          value={dueDate || ""}
-          onChange={(e) => setDueDate(e.target.value)}
-        />
+        {/* DATE */}
+        <div className={styles.datePickerWrap}>
+          <label>Due Date</label>
+
+          <div
+            className={styles.dateInput}
+            onClick={() => setShowCal(!showCal)}
+          >
+            {dueDate || "Select a date"}
+          </div>
+
+          {showCal && (
+            <Calendar
+              value={dueDate}
+              onChange={(d) => setDueDate(d)}
+              onClose={() => setShowCal(false)}
+              showWarningCheck={true}
+            />
+          )}
+        </div>
 
         <div className={styles.actions}>
           <button onClick={onClose} className={styles.cancel}>
