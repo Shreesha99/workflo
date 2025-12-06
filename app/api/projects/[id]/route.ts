@@ -2,26 +2,34 @@ import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { randomUUID } from "crypto";
 
-/* ---------------------- UPDATE PROJECT (POST) ---------------------- */
-export async function POST(req: Request, context: any) {
-  const { id } = await context.params; // ← IMPORTANT
-  const body = await req.json();
+export async function POST(req, context) {
+  const params = await context.params; // ← correct
+  const id = params.id; // ← now works
 
   const supabase = await supabaseServer();
+  const body = await req.json();
+
+  console.log("🆔 PROJECT ID:", id);
+
+  const updatePayload = {
+    name: body.name,
+    client_name: body.client,
+    client_email: body.email,
+    status: body.status,
+    due_date: body.due_date,
+  };
+
+  console.log("🔧 UPDATE PAYLOAD:", updatePayload);
 
   const { data, error } = await supabase
     .from("projects")
-    .update({
-      name: body.name,
-      client_name: body.client,
-      client_email: body.email,
-      status: body.status,
-    })
+    .update(updatePayload)
     .eq("id", id)
-    .select()
+    .select("*")
     .single();
 
   if (error) {
+    console.error("❌ UPDATE ERROR:", error);
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabaseClient } from "@/lib/supabase/client";
-import ErrorMessage from "@/components/ui/ErrorMessage"; // ✅ ADDED
+import ErrorMessage from "@/components/ui/ErrorMessage";
+import EditProjectModal from "@/components/modals/EditProjectModal"; // ✅ NEW IMPORT
 import styles from "./projectdetails.module.scss";
 
 export default function ProjectDetails() {
@@ -14,14 +15,9 @@ export default function ProjectDetails() {
   const [project, setProject] = useState<any>(null);
   const [portalUrl, setPortalUrl] = useState("");
   const [copied, setCopied] = useState(false);
-  const [error, setError] = useState(""); // will be shown using ErrorMessage
+  const [error, setError] = useState("");
 
-  // NEW — edit modal
   const [editOpen, setEditOpen] = useState(false);
-  const [editName, setEditName] = useState("");
-  const [editClient, setEditClient] = useState("");
-  const [editEmail, setEditEmail] = useState("");
-  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -37,9 +33,6 @@ export default function ProjectDetails() {
       }
 
       setProject(data);
-      setEditName(data.name);
-      setEditClient(data.client_name || "");
-      setEditEmail(data.client_email || "");
     }
 
     load();
@@ -76,50 +69,23 @@ export default function ProjectDetails() {
     setTimeout(() => setCopied(false), 1200);
   }
 
-  async function saveEdits() {
-    setSaving(true);
-
-    const { error } = await supabase
-      .from("projects")
-      .update({
-        name: editName,
-        client_name: editClient,
-        client_email: editEmail,
-      })
-      .eq("id", id);
-
-    setSaving(false);
-
-    if (error) {
-      setError("Failed to update project.");
-      return;
-    }
-
-    setProject({
-      ...project,
-      name: editName,
-      client_name: editClient,
-      client_email: editEmail,
-    });
-
-    setEditOpen(false);
-  }
-
   if (error) return <ErrorMessage message={error} />;
-
   if (!project) return <p className={styles.loading}>Loading…</p>;
 
   return (
     <div className={styles.container}>
       <ErrorMessage message={error} />
+
       <button
         className={styles.backBtn}
         onClick={() => router.push("/dashboard/projects")}
       >
         Back to Projects
       </button>
+
       <div className={styles.header}>
         <h1>{project.name}</h1>
+
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
           <span className={`${styles.badge} ${styles[project.status]}`}>
             {project.status}
@@ -130,6 +96,7 @@ export default function ProjectDetails() {
           </button>
         </div>
       </div>
+
       <div className={styles.infoCard}>
         <p>
           <strong>Client:</strong> {project.client_name || "—"}
@@ -142,6 +109,7 @@ export default function ProjectDetails() {
           {new Date(project.created_at).toLocaleDateString()}
         </p>
       </div>
+
       <div className={styles.portalSection}>
         <button className={styles.portalBtn} onClick={generatePortalLink}>
           Generate Client Portal Link
@@ -169,56 +137,22 @@ export default function ProjectDetails() {
           </div>
         )}
       </div>
-      {/* NOTES */}
+
       <div className={styles.section}>
         <h2>Project Notes</h2>
         <p>Coming soon…</p>
       </div>
-      {/* EDIT MODAL */}
+
+      {/* ✅ Replace old inline edit UI with clean modal */}
       {editOpen && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <h2>Edit Project</h2>
-
-            <label>Project Name</label>
-            <input
-              className={styles.input}
-              value={editName}
-              onChange={(e) => setEditName(e.target.value)}
-            />
-
-            <label>Client Name</label>
-            <input
-              className={styles.input}
-              value={editClient}
-              onChange={(e) => setEditClient(e.target.value)}
-            />
-
-            <label>Client Email</label>
-            <input
-              className={styles.input}
-              value={editEmail}
-              onChange={(e) => setEditEmail(e.target.value)}
-            />
-
-            <div className={styles.modalActions}>
-              <button
-                className={styles.cancelBtn}
-                onClick={() => setEditOpen(false)}
-              >
-                Cancel
-              </button>
-
-              <button
-                className={styles.saveBtn}
-                disabled={saving}
-                onClick={saveEdits}
-              >
-                {saving ? "Saving…" : "Save Changes"}
-              </button>
-            </div>
-          </div>
-        </div>
+        <EditProjectModal
+          project={project}
+          onClose={() => setEditOpen(false)}
+          onUpdated={(updated) => {
+            setProject(updated);
+            setEditOpen(false);
+          }}
+        />
       )}
     </div>
   );
