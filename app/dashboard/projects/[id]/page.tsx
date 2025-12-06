@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabaseClient } from "@/lib/supabase/client";
+import ErrorMessage from "@/components/ui/ErrorMessage"; // ✅ ADDED
 import styles from "./projectdetails.module.scss";
 
 export default function ProjectDetails() {
@@ -13,7 +14,7 @@ export default function ProjectDetails() {
   const [project, setProject] = useState<any>(null);
   const [portalUrl, setPortalUrl] = useState("");
   const [copied, setCopied] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(""); // will be shown using ErrorMessage
 
   // NEW — edit modal
   const [editOpen, setEditOpen] = useState(false);
@@ -44,11 +45,23 @@ export default function ProjectDetails() {
     load();
   }, [id]);
 
+  async function deletePortalLink() {
+    const { error } = await supabase
+      .from("project_portal_links")
+      .delete()
+      .eq("project_id", id);
+
+    if (error) {
+      setError("Failed to delete portal link.");
+      return;
+    }
+    setPortalUrl("");
+  }
+
   async function generatePortalLink() {
-    const res = await fetch(`/api/projects/${id}/portal`);
+    const res = await fetch(`/api/projects/${id}`);
 
     if (!res.ok) {
-      console.error("Portal link error", res.status);
       setError("Failed to generate portal link.");
       return;
     }
@@ -82,7 +95,6 @@ export default function ProjectDetails() {
       return;
     }
 
-    // Refresh UI
     setProject({
       ...project,
       name: editName,
@@ -93,20 +105,19 @@ export default function ProjectDetails() {
     setEditOpen(false);
   }
 
-  if (error) return <p className={styles.error}>{error}</p>;
+  if (error) return <ErrorMessage message={error} />;
+
   if (!project) return <p className={styles.loading}>Loading…</p>;
 
   return (
     <div className={styles.container}>
-      {/* BACK BUTTON */}
+      <ErrorMessage message={error} />
       <button
         className={styles.backBtn}
         onClick={() => router.push("/dashboard/projects")}
       >
-        ← Back to Projects
+        Back to Projects
       </button>
-
-      {/* HEADER */}
       <div className={styles.header}>
         <h1>{project.name}</h1>
         <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
@@ -114,14 +125,11 @@ export default function ProjectDetails() {
             {project.status}
           </span>
 
-          {/* ✏️ EDIT BUTTON */}
           <button className={styles.editBtn} onClick={() => setEditOpen(true)}>
             Edit
           </button>
         </div>
       </div>
-
-      {/* INFO CARD */}
       <div className={styles.infoCard}>
         <p>
           <strong>Client:</strong> {project.client_name || "—"}
@@ -134,11 +142,22 @@ export default function ProjectDetails() {
           {new Date(project.created_at).toLocaleDateString()}
         </p>
       </div>
-
-      {/* PORTAL SECTION */}
       <div className={styles.portalSection}>
         <button className={styles.portalBtn} onClick={generatePortalLink}>
           Generate Client Portal Link
+        </button>
+
+        <button
+          className={styles.deletePortalBtn}
+          onClick={deletePortalLink}
+          style={{
+            background: "red",
+            color: "white",
+            padding: "8px 12px",
+            marginTop: "10px",
+          }}
+        >
+          Delete Portal Link
         </button>
 
         {portalUrl && (
@@ -150,16 +169,12 @@ export default function ProjectDetails() {
           </div>
         )}
       </div>
-
       {/* NOTES */}
       <div className={styles.section}>
         <h2>Project Notes</h2>
         <p>Coming soon…</p>
       </div>
-
-      {/* -------------------------
-          EDIT MODAL
-      -------------------------- */}
+      {/* EDIT MODAL */}
       {editOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modal}>

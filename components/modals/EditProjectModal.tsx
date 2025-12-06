@@ -13,7 +13,7 @@ export default function EditProjectModal({ project, onClose, onUpdated }) {
   async function save() {
     setLoading(true);
 
-    const res = await fetch(`/api/projects/${project.id}/edit`, {
+    const res = await fetch(`/api/projects/${project.id}`, {
       method: "POST",
       body: JSON.stringify({ name, client, email, status }),
     });

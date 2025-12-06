@@ -5,6 +5,7 @@ import gsap from "gsap";
 import styles from "./projects.module.scss";
 import NewProjectModal from "@/components/modals/NewProjectModal";
 import DeleteProjectModal from "@/components/modals/DeleteProjectModal";
+import ErrorMessage from "@/components/ui/ErrorMessage";
 import { supabaseClient } from "@/lib/supabase/client";
 
 export default function ProjectsPage() {
@@ -15,26 +16,57 @@ export default function ProjectsPage() {
   const [search, setSearch] = useState("");
   const [activeFilter, setActiveFilter] = useState("");
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   async function loadProjects() {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("projects")
       .select("*")
       .order("created_at", { ascending: false });
 
+    if (error) {
+      setApiError("Failed to load projects");
+      return;
+    }
+
+    setApiError(null);
     setProjects(data || []);
   }
 
+  // delete by id — calls server route at /api/projects/:id (DELETE)
   async function deleteProject(id: string) {
-    const res = await fetch(`/api/projects/${id}/delete`, {
-      method: "DELETE",
-    });
+    try {
+      const res = await fetch(`/api/projects/${id}`, {
+        method: "DELETE",
+      });
 
-    if (res.ok) {
+      const json = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        let msg = json?.error || "Delete failed";
+        if (msg.includes("tasks_project_id_fkey")) {
+          msg =
+            "Cannot delete this project because tasks are still linked to it. Delete or reassign the tasks first.";
+        } else if (msg.includes("files_project_id_fkey")) {
+          msg =
+            "Cannot delete this project because files are attached to it. Remove those files first.";
+        } else if (msg.includes("approvals_project_id_fkey")) {
+          msg =
+            "Cannot delete this project because approvals exist for it. Remove those approvals first.";
+        } else if (msg.includes("project_portal_links_project_id_fkey")) {
+          msg =
+            "Cannot delete this project because a portal link exists. Delete the portal link first.";
+        }
+
+        setApiError(msg);
+        return;
+      }
+
+      // SUCCESS → remove from UI
       setProjects((prev) => prev.filter((p) => p.id !== id));
       setDeleteTarget(null);
-    } else {
-      console.error("Delete failed");
+    } catch (err) {
+      setApiError("Network error while deleting project.");
     }
   }
 
@@ -60,9 +92,14 @@ export default function ProjectsPage() {
 
   return (
     <div className={styles.container}>
-      {/* HEADER */}
       <div className={styles.header}>
-        <h1>Projects</h1>
+        <div>
+          <h1>Projects</h1>
+
+          {/* 🔥 Styled error message using your component */}
+          <ErrorMessage message={apiError || ""} />
+        </div>
+
         <button
           className={styles.newProjectBtn}
           onClick={() => setOpenModal(true)}
@@ -71,7 +108,6 @@ export default function ProjectsPage() {
         </button>
       </div>
 
-      {/* SEARCH + FILTER */}
       <div className={styles.searchFilters}>
         <div className={styles.searchBar}>
           <input
@@ -98,14 +134,12 @@ export default function ProjectsPage() {
         </div>
       </div>
 
-      {/* GRID */}
       <div className={styles.grid}>
         {filtered.map((p) => (
           <div key={p.id} className={`project-card ${styles.card}`}>
             <a href={`/dashboard/projects/${p.id}`}>
               <h3>{p.name}</h3>
               <p className={styles.client}>Client: {p.client_name}</p>
-
               <div className={styles.meta}>
                 <span>Status: {p.status}</span>
                 <span>Due: {p.due_date || "—"}</span>
@@ -120,6 +154,10 @@ export default function ProjectsPage() {
             </button>
           </div>
         ))}
+
+        {filtered.length === 0 && (
+          <div className={styles.emptyState}>No projects found.</div>
+        )}
       </div>
 
       <NewProjectModal
@@ -131,7 +169,7 @@ export default function ProjectsPage() {
       <DeleteProjectModal
         project={deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        onConfirm={deleteProject}
+        onConfirm={(id) => deleteProject(id)}
       />
     </div>
   );

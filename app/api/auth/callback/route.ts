@@ -13,10 +13,11 @@ export async function GET(req: Request) {
 
   // Let Supabase exchange the code for a session
   const supabase = await supabaseServer();
-  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code ?? "");
+  const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(
+    code ?? ""
+  );
 
   if (exchangeError) {
-    console.error("Exchange failed:", exchangeError.message);
     return NextResponse.redirect("/auth/callback/expired");
   }
 
