@@ -15,8 +15,6 @@ export async function POST(req: Request, context: any) {
 
   /* --------------------- CHAT MESSAGE --------------------- */
   if (isChat) {
-    console.log("[API] POST CHAT:", body);
-
     const { message, author = "Admin" } = body;
 
     const { data, error } = await supabase
@@ -36,7 +34,6 @@ export async function POST(req: Request, context: any) {
   }
 
   /* --------------------- PROJECT UPDATE --------------------- */
-  console.log("[API] POST update project:", id, body);
 
   const updatePayload = {
     name: body.name,
@@ -76,8 +73,6 @@ export async function GET(req: Request, context: any) {
 
   /* -------------------- CHAT --------------------- */
   if (wantChat) {
-    console.log(`[API] GET CHAT for project ${projectId}`);
-
     const { data, error } = await supabase
       .from("project_chat")
       .select("*")
@@ -85,7 +80,6 @@ export async function GET(req: Request, context: any) {
       .order("created_at", { ascending: true });
 
     if (error) {
-      console.error("[API] chat load error:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -94,8 +88,6 @@ export async function GET(req: Request, context: any) {
 
   /* -------------------- NOTES --------------------- */
   if (wantNotes) {
-    console.log(`[API] GET NOTES for ${projectId}`);
-
     const { data, error } = await supabase
       .from("project_notes")
       .select("*")
@@ -103,7 +95,6 @@ export async function GET(req: Request, context: any) {
       .order("created_at", { ascending: false });
 
     if (error) {
-      console.error("[API] notes load error:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
@@ -156,8 +147,6 @@ export async function DELETE(req: Request, context: any) {
   const { id } = await context.params;
   const supabase = await supabaseServer();
 
-  console.log("[API] DELETE project:", id);
-
   await supabase.from("project_portal_links").delete().eq("project_id", id);
 
   const { error } = await supabase.from("projects").delete().eq("id", id);
@@ -178,8 +167,6 @@ export async function PATCH(req: Request, context: any) {
   const { id: projectId } = await context.params;
   const supabase = await supabaseServer();
   const body = await req.json();
-
-  console.log("[API] PATCH add note:", body);
 
   const { note_text } = body;
 
@@ -241,8 +228,6 @@ export async function POST_CHAT(req: Request, context: any) {
   const body = await req.json();
 
   const { message, author = "Admin" } = body;
-
-  console.log("[API] POST CHAT:", body);
 
   const { data, error } = await supabase
     .from("project_chat")

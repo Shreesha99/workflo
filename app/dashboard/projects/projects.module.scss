@@ -1,3 +1,9 @@
+/* =================================================================== */
+/* File: app/dashboard/projects/projects.module.scss (same styles as before + small dnd additions) */
+/* paste into the same-path SCSS file */
+
+/* You should copy this SCSS into projects.module.scss in the same folder. */
+
 .container {
   width: 100%;
   padding: 24px 32px;
@@ -15,6 +21,34 @@
     font-weight: 700;
     margin-bottom: 4px;
   }
+}
+
+/* top-right small toggle */
+.viewToggle {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.smallIconBtn {
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--bg-soft);
+  border: 1px solid var(--card-border);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background: var(--card-bg);
+  }
+}
+
+.smallIconBtnActive {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: black;
 }
 
 /* NEW PROJECT BUTTON */
@@ -298,5 +332,121 @@
   &:hover {
     transform: translateX(-50%) translateY(-4px);
     filter: brightness(0.92);
+  }
+}
+
+/* ============================= */
+/*            KANBAN             */
+/* ============================= */
+
+.kanbanBoard {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  align-items: start;
+  margin-top: 6px;
+}
+
+/* each column */
+.kanbanColumn {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: box-shadow 0.15s, transform 0.12s;
+}
+
+.kanbanColumnDragOver {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+  border-color: var(--primary);
+}
+
+/* column header */
+.kanbanHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.kanbanHeader h4 {
+  margin: 0;
+  text-transform: capitalize;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.kanbanCount {
+  background: var(--bg-soft);
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  border: 1px solid var(--card-border);
+}
+
+/* list inside column */
+.kanbanList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+/* wrapper for card to keep consistent spacing */
+.kanbanCardWrapper {
+  cursor: grab;
+}
+
+/* reuse .card styling but tweak for kanban */
+.kanbanCardWrapper .card {
+  margin: 0;
+}
+
+/* when dragging */
+.dragging {
+  opacity: 0.6;
+  transform: scale(0.99);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+/* empty column message */
+.kanbanEmpty {
+  color: var(--text-soft);
+  font-style: italic;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--bg-soft);
+  text-align: center;
+}
+
+/* small overlay style for the DragOverlay */
+.dragOverlay {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  transform: scale(1.02);
+}
+
+/* small visual cue for droppable column (you can toggle class via JS if needed) */
+.columnDroppable {
+  border: 1px dashed rgba(255, 255, 255, 0.04);
+}
+
+.filterCloseBtn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--text-soft);
+  transition: 0.15s ease;
+
+  &:hover {
+    color: var(--text);
+    transform: scale(1.15);
   }
 }
