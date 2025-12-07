@@ -1,0 +1,87 @@
+.portalContainer {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 40px 26px;
+  color: var(--text);
+}
+
+/* HEADER */
+.portalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 26px;
+
+  h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+  }
+}
+
+/* STATUS BADGE */
+.status {
+  padding: 6px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  text-transform: capitalize;
+
+  &.active {
+    background: rgba(40, 199, 111, 0.15);
+    color: rgb(28, 130, 73);
+  }
+
+  &.pending {
+    background: rgba(255, 193, 7, 0.2);
+    color: #8a6d00;
+  }
+
+  &.completed {
+    background: rgba(0, 123, 255, 0.2);
+    color: #003c97;
+  }
+}
+
+/* INFO CARD */
+.infoCard {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 32px;
+
+  p {
+    margin: 6px 0;
+    font-size: 15px;
+    color: var(--text-soft);
+
+    strong {
+      color: var(--text);
+    }
+  }
+}
+
+/* SECTION */
+.section {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 22px 24px;
+
+  h2 {
+    margin: 0 0 10px 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
+
+/* ERROR */
+.errorBox {
+  background: var(--error-soft);
+  border: 1px solid #ffaaaa;
+  padding: 14px 16px;
+  border-radius: 10px;
+  font-size: 15px;
+  color: var(--error-text);
+}
