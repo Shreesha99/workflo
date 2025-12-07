@@ -3,13 +3,23 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { supabaseClient } from "@/lib/supabase/client";
+
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import EditProjectModal from "@/components/modals/EditProjectModal";
+import StatusBadge from "@/components/ui/StatusBadge";
 
-import { ArrowLeft, Pencil, Trash2, Copy, Link2, Check } from "lucide-react";
+import {
+  ArrowLeft,
+  Pencil,
+  Trash2,
+  Copy,
+  Link2,
+  Check,
+  XCircle,
+} from "lucide-react";
 
 import styles from "./projectdetails.module.scss";
-import StatusBadge from "@/components/ui/StatusBadge";
+import DeleteProjectModal from "@/components/modals/DeleteProjectModal";
 
 export default function ProjectDetails() {
   const router = useRouter();
@@ -22,26 +32,40 @@ export default function ProjectDetails() {
   const [error, setError] = useState("");
 
   const [editOpen, setEditOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function load() {
-      const { data, error } = await supabase
-        .from("projects")
-        .select("*")
-        .eq("id", id)
-        .single();
-
-      if (error) {
-        setError("Failed to load project.");
-        return;
-      }
-
-      setProject(data);
-      await loadPortalLink();
-    }
-
-    load();
-  }, [id]);
+  const steps = [
+    {
+      id: "back",
+      text: "Use this to go back to Projects.",
+      attachTo: { element: ".backBtn", on: "right" },
+      buttons: [{ text: "Next", action: (t) => t.next() }],
+    },
+    {
+      id: "title",
+      text: "This is your project name and status.",
+      attachTo: { element: ".header", on: "bottom" },
+      buttons: [{ text: "Next", action: (t) => t.next() }],
+    },
+    {
+      id: "info",
+      text: "Basic client info is displayed here.",
+      attachTo: { element: ".infoCard", on: "top" },
+      buttons: [{ text: "Next", action: (t) => t.next() }],
+    },
+    {
+      id: "portal",
+      text: "Generate or manage a client portal link here.",
+      attachTo: { element: ".portalDisplay, .actionBarFloating", on: "top" },
+      buttons: [{ text: "Next", action: (t) => t.next() }],
+    },
+    {
+      id: "actions",
+      text: "All project actions appear here.",
+      attachTo: { element: ".actionBarFloating", on: "top" },
+      buttons: [{ text: "Finish", action: (t) => t.complete() }],
+    },
+  ];
 
   async function loadPortalLink() {
     const { data } = await supabase
@@ -56,20 +80,35 @@ export default function ProjectDetails() {
     }
   }
 
+  useEffect(() => {
+    async function load() {
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", id)
+        .single();
+
+      if (error) return setError("Failed to load project.");
+
+      setProject(data);
+      loadPortalLink();
+    }
+
+    load();
+  }, [id]);
+
+  // ACTIONS
   async function generatePortalLink() {
     const res = await fetch(`/api/projects/${id}`);
     if (!res.ok) return setError("Failed to generate portal link.");
-    const data = await res.json();
-    setPortalUrl(data.url);
+
+    const json = await res.json();
+    setPortalUrl(json.url);
   }
 
-  async function deletePortalLink() {
-    const { error } = await supabase
-      .from("project_portal_links")
-      .delete()
-      .eq("project_id", id);
+  async function removePortalLink() {
+    await supabase.from("project_portal_links").delete().eq("project_id", id);
 
-    if (error) return setError("Failed to delete portal link.");
     setPortalUrl("");
   }
 
@@ -79,14 +118,11 @@ export default function ProjectDetails() {
     setTimeout(() => setCopied(false), 1200);
   }
 
-  if (error) return <ErrorMessage message={error} />;
   if (!project) return <p className={styles.loading}>Loading…</p>;
 
   return (
     <div className={styles.container}>
-      <ErrorMessage message={error} />
-
-      {/* BACK BUTTON WITH ICON */}
+      {/* BACK BUTTON */}
       <button
         className={styles.backBtn}
         onClick={() => router.push("/dashboard/projects")}
@@ -97,19 +133,13 @@ export default function ProjectDetails() {
 
       {/* HEADER */}
       <div className={styles.header}>
-        <h1>{project.name}</h1>
-
-        <div className={styles.headerRight}>
+        <div>
+          <h1>{project.name}</h1>
           <StatusBadge status={project.status} />
-
-          {/* EDIT ICON BUTTON */}
-          <button className={styles.iconBtn} onClick={() => setEditOpen(true)}>
-            <Pencil size={18} />
-          </button>
         </div>
       </div>
 
-      {/* PROJECT INFO */}
+      {/* INFO CARD */}
       <div className={styles.infoCard}>
         <p>
           <strong>Client:</strong> {project.client_name || "—"}
@@ -121,47 +151,54 @@ export default function ProjectDetails() {
           <strong>Created:</strong>{" "}
           {new Date(project.created_at).toLocaleDateString()}
         </p>
+        <p>
+          <strong>Due Date:</strong>{" "}
+          {project.due_date
+            ? new Date(project.due_date).toLocaleDateString()
+            : "—"}
+        </p>
       </div>
 
-      {/* PORTAL AREA */}
-      <div className={styles.portalSection}>
-        {/* GENERATE LINK (ICON BUTTON) */}
-        <button
-          className={styles.primaryIconBtn}
-          onClick={generatePortalLink}
-          disabled={!!portalUrl}
-        >
-          <Link2 size={17} />
-          {portalUrl ? "Link Ready" : "Generate Link"}
+      {/* PORTAL LINK DISPLAY (centered above action bar) */}
+      {portalUrl && (
+        <div className={styles.portalDisplay}>
+          <p>{portalUrl}</p>
+        </div>
+      )}
+
+      {/* FLOATING ACTION BAR */}
+      <div className={styles.actionBarFloating}>
+        {/* EDIT */}
+        <button className={styles.actionBtn} onClick={() => setEditOpen(true)}>
+          <Pencil size={16} /> Edit
         </button>
 
-        {/* PORTAL BOX */}
-        {portalUrl && (
-          <div className={styles.portalBox}>
-            <p>{portalUrl}</p>
-
-            <div className={styles.portalActions}>
-              {/* COPY ICON */}
-              <button className={styles.smallIconBtn} onClick={copyToClipboard}>
-                {copied ? <Check size={17} /> : <Copy size={17} />}
-              </button>
-
-              {/* DELETE ICON */}
-              <button
-                className={styles.smallIconDangerBtn}
-                onClick={deletePortalLink}
-              >
-                <Trash2 size={17} />
-              </button>
-            </div>
-          </div>
+        {/* GENERATE / COPY LINK */}
+        {!portalUrl ? (
+          <button className={styles.actionBtn} onClick={generatePortalLink}>
+            <Link2 size={16} /> Generate Link
+          </button>
+        ) : (
+          <button className={styles.actionBtn} onClick={copyToClipboard}>
+            {copied ? <Check size={16} /> : <Copy size={16} />}
+            {copied ? "Copied!" : "Copy Link"}
+          </button>
         )}
-      </div>
 
-      {/* NOTES SECTION */}
-      <div className={styles.section}>
-        <h2>Project Notes</h2>
-        <p>Coming soon…</p>
+        {/* REMOVE LINK (only if exists) */}
+        {portalUrl && (
+          <button className={styles.actionBtnDanger} onClick={removePortalLink}>
+            <XCircle size={16} /> Remove Link
+          </button>
+        )}
+
+        {/* DELETE PROJECT */}
+        <button
+          className={styles.actionBtnDanger}
+          onClick={() => setDeleteTarget(project.id)}
+        >
+          <Trash2 size={16} /> Delete
+        </button>
       </div>
 
       {/* EDIT MODAL */}
@@ -175,6 +212,15 @@ export default function ProjectDetails() {
           }}
         />
       )}
+
+      <DeleteProjectModal
+        project={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={async (id) => {
+          await fetch(`/api/projects/${id}`, { method: "DELETE" });
+          router.push("/dashboard/projects");
+        }}
+      />
     </div>
   );
 }

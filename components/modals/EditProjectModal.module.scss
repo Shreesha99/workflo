@@ -1,62 +1,109 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.38);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(3px);
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 2000;
+  justify-content: center;
+  z-index: 900;
 }
 
 .modal {
   background: var(--card-bg);
-  padding: 26px;
-  width: 420px;
-  border-radius: 18px;
   border: 1px solid var(--card-border);
+  padding: 28px;
+  width: 420px;
+  border-radius: 16px;
+
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  animation: fadeIn 0.26s ease-out;
+  gap: 16px;
+
+  transition: all 0.25s ease-out;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 
   h2 {
-    margin-bottom: 4px;
+    margin: 0;
     font-size: 20px;
   }
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-soft);
+
+  &:hover {
+    color: var(--text);
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 
   label {
     font-size: 14px;
     color: var(--text-soft);
   }
+}
 
-  input,
-  select {
-    padding: 10px 12px;
-    border-radius: 10px;
-    border: 1px solid var(--card-border);
-    background: var(--bg-soft);
-    font-size: 14px;
-    transition: 0.15s ease;
-  }
+.input {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--bg-soft);
+  border: 1px solid var(--card-border);
+  font-size: 14px;
+}
 
-  input:focus,
-  select:focus {
+.selectWrap {
+  position: relative;
+}
+
+.select {
+  width: 100%;
+  height: 44px;
+  padding: 0 40px 0 14px;
+
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--bg-soft);
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+
+  /* Full reset */
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+
+  /* Custom arrow */
+  background-image: url("data:image/svg+xml;utf8,<svg fill='%23aaa' height='18' width='18' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+
+  transition: border-color 0.2s ease;
+
+  &:focus {
     border-color: var(--primary);
   }
 }
 
-.datePickerWrap {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
+/* DATE INPUT */
 .dateInput {
   padding: 10px 12px;
   background: var(--bg-soft);
-  border-radius: 10px;
   border: 1px solid var(--card-border);
+  border-radius: 10px;
   cursor: pointer;
 }
 
@@ -64,36 +111,26 @@
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 8px;
 }
 
-.cancel {
-  padding: 8px 14px;
+.cancelBtn {
+  padding: 10px 16px;
   border-radius: 10px;
-  border: 1px solid var(--card-border);
   background: var(--bg-soft);
+  border: 1px solid var(--card-border);
   cursor: pointer;
 }
 
-.save {
-  padding: 8px 14px;
+.saveBtn {
+  padding: 10px 16px;
   border-radius: 10px;
   background: var(--primary);
   color: black;
   font-weight: 600;
+  border: none;
   cursor: pointer;
 
   &:hover {
     filter: brightness(1.1);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(12px) scale(0.96);
-  }
-  to {
-    opacity: 1;
   }
 }

@@ -26,6 +26,29 @@
   opacity: 1 !important;
 }
 
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-soft);
+
+  &:hover {
+    color: var(--text);
+  }
+}
+
 .createBtn {
   margin-top: 6px;
   width: 100%;
@@ -42,16 +65,29 @@
   label {
     font-size: 14px;
     color: var(--text-soft);
+
+    span {
+      color: var(--text-soft);
+    }
   }
 
   select {
     padding: 10px 12px;
+    padding-right: 32px;
     border-radius: 10px;
     border: 1px solid var(--card-border);
     background: var(--bg-soft);
     font-size: 14px;
     cursor: not-allowed;
     color: var(--text);
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='18' viewBox='0 0 24 24' width='18' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px;
   }
 }
 

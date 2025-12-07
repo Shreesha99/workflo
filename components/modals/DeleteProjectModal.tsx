@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./DeleteProjectModal.module.scss";
 import ErrorMessage from "@/components/ui/ErrorMessage";
+import { supabaseClient } from "@/lib/supabase/client";
 
 export default function DeleteProjectModal({
   project,
@@ -13,9 +14,29 @@ export default function DeleteProjectModal({
   if (!project) return null;
 
   const projectId = typeof project === "string" ? project : project.id;
-  const projectName = typeof project === "string" ? project : project.name;
 
   const [localError, setLocalError] = useState("");
+
+  const [projectName, setProjectName] = useState("");
+
+  useEffect(() => {
+    async function load() {
+      if (typeof project === "string") {
+        const id = project;
+        const { data } = await supabaseClient()
+          .from("projects")
+          .select("name")
+          .eq("id", id)
+          .single();
+
+        setProjectName(data?.name || "this project");
+      } else {
+        setProjectName(project.name);
+      }
+    }
+
+    load();
+  }, [project]);
 
   async function handleDelete() {
     setLocalError("");
@@ -45,10 +66,10 @@ export default function DeleteProjectModal({
         }
 
         setLocalError(msg);
-        return; // do NOT close modal
+        return;
       }
 
-      onConfirm(projectId); // notify parent
+      onConfirm(projectId);
     } catch (err) {
       setLocalError("Network error while deleting. Try again.");
     }

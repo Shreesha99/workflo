@@ -11,6 +11,7 @@ import SuccessMessage from "@/components/ui/SuccessMessage";
 import Calendar from "@/components/ui/Calendar";
 
 import styles from "./NewProjectModal.module.scss";
+import { X } from "lucide-react";
 
 export default function NewProjectModal({ open, onClose, onCreated }) {
   const supabase = supabaseClient();
@@ -23,7 +24,7 @@ export default function NewProjectModal({ open, onClose, onCreated }) {
   const [dueDate, setDueDate] = useState("");
   const [showCalendar, setShowCalendar] = useState(false);
 
-  const [status, setStatus] = useState("active");
+  const [status] = useState("active"); // 🔥 Fixed: default + not changeable
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -62,7 +63,7 @@ export default function NewProjectModal({ open, onClose, onCreated }) {
       client_email: clientEmail || null,
       created_by: user.id,
       agency_id: null,
-      status: "active",
+      status, // 🔥 always active
       due_date: dueDate || null,
     });
 
@@ -76,6 +77,7 @@ export default function NewProjectModal({ open, onClose, onCreated }) {
     setSuccess("Project created!");
 
     onCreated?.();
+
     setTimeout(() => {
       onClose();
       setName("");
@@ -94,7 +96,13 @@ export default function NewProjectModal({ open, onClose, onCreated }) {
         className={styles.modal}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2>Create New Project</h2>
+        {/* 🔥 Header with Close Button */}
+        <div className={styles.modalHeader}>
+          <h2>Create New Project</h2>
+          <button className={styles.closeBtn} onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
 
         <ErrorMessage message={error} />
         <SuccessMessage message={success} />
@@ -121,6 +129,17 @@ export default function NewProjectModal({ open, onClose, onCreated }) {
           placeholder="client@example.com"
         />
 
+        {/* 🔥 STATUS - Always Active */}
+        <div className={styles.selectWrap}>
+          <label>
+            Project Status <span>(New projects are active by default)</span>
+          </label>
+          <select disabled>
+            <option>Active</option>
+          </select>
+        </div>
+
+        {/* 🔥 Due Date Picker */}
         <div className={styles.datePickerWrap}>
           <label>Due Date</label>
           <div
@@ -140,6 +159,7 @@ export default function NewProjectModal({ open, onClose, onCreated }) {
           )}
         </div>
 
+        {/* CREATE */}
         <Button
           loading={loading}
           onClick={handleCreate}
