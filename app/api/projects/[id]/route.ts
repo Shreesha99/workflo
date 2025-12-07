@@ -1,15 +1,42 @@
+// app/api/projects/[id]/route.ts
 import { NextResponse } from "next/server";
 import { supabaseServer } from "@/lib/supabase/server";
 import { randomUUID } from "crypto";
 
-export async function POST(req, context) {
-  const params = await context.params; // ← correct
-  const id = params.id; // ← now works
-
+/* ---------------------------------------------- */
+/*   POST → Update project OR Add chat message    */
+/* ---------------------------------------------- */
+export async function POST(req: Request, context: any) {
+  const url = new URL(req.url);
+  const isChat = url.searchParams.get("chat") === "true";
+  const { id } = await context.params;
   const supabase = await supabaseServer();
   const body = await req.json();
 
-  console.log("🆔 PROJECT ID:", id);
+  /* --------------------- CHAT MESSAGE --------------------- */
+  if (isChat) {
+    console.log("[API] POST CHAT:", body);
+
+    const { message, author = "Admin" } = body;
+
+    const { data, error } = await supabase
+      .from("project_chat")
+      .insert({
+        project_id: id,
+        message,
+        author,
+      })
+      .select("*")
+      .single();
+
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
+
+    return NextResponse.json({ message: data });
+  }
+
+  /* --------------------- PROJECT UPDATE --------------------- */
+  console.log("[API] POST update project:", id, body);
 
   const updatePayload = {
     name: body.name,
@@ -19,8 +46,6 @@ export async function POST(req, context) {
     due_date: body.due_date,
   };
 
-  console.log("🔧 UPDATE PAYLOAD:", updatePayload);
-
   const { data, error } = await supabase
     .from("projects")
     .update(updatePayload)
@@ -28,33 +53,72 @@ export async function POST(req, context) {
     .select("*")
     .single();
 
-  if (error) {
-    console.error("❌ UPDATE ERROR:", error);
+  if (error)
     return NextResponse.json({ error: error.message }, { status: 400 });
-  }
 
   return NextResponse.json({ project: data });
 }
 
-/* ---------------------- GENERATE PORTAL LINK (GET) ---------------------- */
+/* ---------------------------------------------- */
+/*   GET → Notes OR Portal OR Chat               */
+/* ---------------------------------------------- */
 export async function GET(req: Request, context: any) {
-  const { id: projectId } = await context.params; // ← IMPORTANT
+  const { id: projectId } = await context.params;
+  const url = new URL(req.url);
+
+  const wantNotes = url.searchParams.get("notes") === "true";
+  const wantChat = url.searchParams.get("chat") === "true";
 
   const supabase = await supabaseServer();
 
-  if (!projectId) {
-    return NextResponse.json({ error: "Project ID missing" }, { status: 400 });
+  if (!projectId)
+    return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+
+  /* -------------------- CHAT --------------------- */
+  if (wantChat) {
+    console.log(`[API] GET CHAT for project ${projectId}`);
+
+    const { data, error } = await supabase
+      .from("project_chat")
+      .select("*")
+      .eq("project_id", projectId)
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("[API] chat load error:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ messages: data });
   }
 
+  /* -------------------- NOTES --------------------- */
+  if (wantNotes) {
+    console.log(`[API] GET NOTES for ${projectId}`);
+
+    const { data, error } = await supabase
+      .from("project_notes")
+      .select("*")
+      .eq("project_id", projectId)
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error("[API] notes load error:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ notes: data });
+  }
+
+  /* ---------------- PORTAL (default GET) ----------- */
   const { data: project } = await supabase
     .from("projects")
     .select("id")
     .eq("id", projectId)
     .single();
 
-  if (!project) {
+  if (!project)
     return NextResponse.json({ error: "Project not found" }, { status: 404 });
-  }
 
   const { data: existing } = await supabase
     .from("project_portal_links")
@@ -74,44 +138,124 @@ export async function GET(req: Request, context: any) {
       allow_uploads: true,
     });
 
-    if (error) {
+    if (error)
       return NextResponse.json(
         { error: "Failed to create portal link" },
         { status: 500 }
       );
-    }
   }
 
   const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const url = `${base}/portal/${token}`;
-
-  return NextResponse.json({ url });
+  return NextResponse.json({ url: `${base}/portal/${token}` });
 }
 
+/* ---------------------------------------------- */
+/*   DELETE → delete project + portal link        */
+/* ---------------------------------------------- */
 export async function DELETE(req: Request, context: any) {
   const { id } = await context.params;
-
   const supabase = await supabaseServer();
-  const portalDelete = await supabase
-    .from("project_portal_links")
-    .delete()
-    .eq("project_id", id);
 
-  if (portalDelete.error) {
+  console.log("[API] DELETE project:", id);
+
+  await supabase.from("project_portal_links").delete().eq("project_id", id);
+
+  const { error } = await supabase.from("projects").delete().eq("id", id);
+
+  if (error)
     return NextResponse.json(
-      { error: "Failed to delete portal links: " + portalDelete.error.message },
+      { error: "Failed to delete: " + error.message },
       { status: 500 }
     );
-  }
-
-  const projectDelete = await supabase.from("projects").delete().eq("id", id);
-
-  if (projectDelete.error) {
-    return NextResponse.json(
-      { error: "Failed to delete project: " + projectDelete.error.message },
-      { status: 500 }
-    );
-  }
 
   return NextResponse.json({ success: true });
+}
+
+/* ---------------------------------------------- */
+/*   PATCH → ADD NOTE (same as before)            */
+/* ---------------------------------------------- */
+export async function PATCH(req: Request, context: any) {
+  const { id: projectId } = await context.params;
+  const supabase = await supabaseServer();
+  const body = await req.json();
+
+  console.log("[API] PATCH add note:", body);
+
+  const { note_text } = body;
+
+  const { data, error } = await supabase
+    .from("project_notes")
+    .insert({
+      project_id: projectId,
+      note_text,
+    })
+    .select("*")
+    .single();
+
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 400 });
+
+  return NextResponse.json({ note: data });
+}
+
+/* ---------------------------------------------- */
+/*   PUT → UPDATE NOTE (same as before)           */
+/* ---------------------------------------------- */
+export async function PUT(req: Request, context: any) {
+  const { id: noteId } = await context.params;
+  const supabase = await supabaseServer();
+  const body = await req.json();
+
+  const { note_text } = body;
+
+  const { data, error } = await supabase
+    .from("project_notes")
+    .update({
+      note_text,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", noteId)
+    .select("*")
+    .single();
+
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 400 });
+
+  return NextResponse.json({ note: data });
+}
+
+/* ---------------------------------------------- */
+/*   POST ?chat=true → ADD CHAT MESSAGE           */
+/* ---------------------------------------------- */
+export async function POST_CHAT(req: Request, context: any) {
+  // ❗ NEXT DOES NOT SUPPORT FUNCTION OVERLOAD BASED ON QUERY,
+  // so we detect inside POST using url params.
+
+  const url = new URL(req.url);
+  const isChat = url.searchParams.get("chat") === "true";
+
+  if (!isChat) return; // Let original POST handle project update
+
+  const { id: projectId } = await context.params;
+  const supabase = await supabaseServer();
+  const body = await req.json();
+
+  const { message, author = "Admin" } = body;
+
+  console.log("[API] POST CHAT:", body);
+
+  const { data, error } = await supabase
+    .from("project_chat")
+    .insert({
+      project_id: projectId,
+      message,
+      author,
+    })
+    .select("*")
+    .single();
+
+  if (error)
+    return NextResponse.json({ error: error.message }, { status: 400 });
+
+  return NextResponse.json({ message: data });
 }
