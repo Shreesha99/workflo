@@ -29,7 +29,6 @@
 .cancelBtn {
   padding: 10px 16px;
   background: var(--bg-soft);
-  border: 1px solid var(--card-border);
   border-radius: 8px;
   cursor: pointer;
 
@@ -41,9 +40,7 @@
 .deleteBtn {
   padding: 10px 16px;
   background: #ff5252;
-  border: none;
-  color: white;
-  font-weight: 600;
+  font-weight: 450;
   border-radius: 8px;
   cursor: pointer;
 

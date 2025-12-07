@@ -682,7 +682,10 @@ export default function ProjectsPage() {
       <DeleteProjectModal
         project={deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        onConfirm={(id) => deleteProject(id)}
+        onConfirm={async (id) => {
+          await deleteProject(id);
+          setDeleteTarget(null);
+        }}
       />
 
       <button
