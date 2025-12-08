@@ -147,6 +147,34 @@ export async function DELETE(req: Request, context: any) {
   const { id } = await context.params;
   const supabase = await supabaseServer();
 
+  const url = new URL(req.url);
+
+  const noteId = url.searchParams.get("note");
+  const isNote = noteId !== null;
+
+  const isChat = url.searchParams.get("chat") === "true";
+  const msgId = url.searchParams.get("msg");
+
+  if (isChat && msgId) {
+    const { error } = await supabase
+      .from("project_chat")
+      .delete()
+      .eq("id", msgId);
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ success: true });
+  }
+
+  if (isNote) {
+    const { error } = await supabase
+      .from("project_notes")
+      .delete()
+      .eq("id", noteId);
+    if (error)
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    return NextResponse.json({ success: true });
+  }
+
   await supabase.from("project_portal_links").delete().eq("project_id", id);
 
   const { error } = await supabase.from("projects").delete().eq("id", id);

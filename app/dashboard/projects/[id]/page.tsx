@@ -259,7 +259,7 @@ export default function ProjectDetails() {
     setNotes((prev) => prev.filter((n) => n.id !== noteId));
 
     try {
-      const res = await fetch(`/api/projects/${noteId}`, {
+      const res = await fetch(`/api/projects/${id}?note=${noteId}`, {
         method: "DELETE",
       });
 
