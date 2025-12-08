@@ -1,13 +1,11 @@
-/* projectdetails.module.scss */
-
 /* ============================= */
 /*       PAGE CONTAINER         */
 /* ============================= */
 .container {
-  padding: 32px 32px;
+  padding: 40px 32px 80px 32px;
   display: flex;
   flex-direction: column;
-  gap: 28px;
+  gap: 36px;
   animation: fadeIn 0.28s ease-out;
   width: 100%;
   margin: 0;
@@ -16,10 +14,10 @@
 /* BACK BUTTON */
 .backBtn {
   width: fit-content;
-  padding: 8px 14px;
+  padding: 10px 16px;
   background: var(--bg-soft);
   border: 1px solid var(--card-border);
-  border-radius: 8px;
+  border-radius: 10px;
   color: var(--text-soft);
   font-size: 14px;
   cursor: pointer;
@@ -32,38 +30,52 @@
   &:hover {
     background: var(--card-bg);
     color: var(--text);
-    transform: translateX(-3px);
+    transform: translateX(-4px);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
   }
 }
 
+/* ============================= */
 /* HEADER */
+/* ============================= */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 
   h1 {
     margin: 0;
     font-size: 32px;
     font-weight: 700;
+    letter-spacing: -0.3px;
     color: var(--text);
   }
 }
 
+/* ============================= */
 /* INFO CARD */
+/* ============================= */
 .infoCard {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-radius: 14px;
-  padding: 18px 20px;
+  padding: 22px 26px;
+  border-radius: 16px;
+  backdrop-filter: blur(4px);
+  transition: box-shadow 0.25s ease;
   display: flex;
   flex-direction: column;
   gap: 8px;
 
+  &:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+  }
+
   p {
     margin: 0;
-    font-size: 15px;
+    font-size: 15.5px;
     color: var(--text-soft);
 
     strong {
@@ -73,10 +85,9 @@
 }
 
 /* ============================= */
-/*         NOTES SECTION         */
+/* NOTES SECTION */
 /* ============================= */
 .notesSection {
-  background: transparent;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -87,18 +98,33 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+  }
 }
 
-.notesHeader h2 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
+.noteEditing {
+  border: 1px solid var(--primary);
+  box-shadow: 0 0 0 2px rgba(255, 214, 0, 0.15);
+  animation: editPulse 0.25s ease-out;
 }
 
-.notesActions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
+.saving {
+  font-size: 12px;
+  color: var(--primary);
+  opacity: 0.8;
+}
+
+@keyframes editPulse {
+  from {
+    transform: scale(0.98);
+  }
+  to {
+    transform: scale(1);
+  }
 }
 
 .addNoteBtn {
@@ -114,6 +140,27 @@
   cursor: pointer;
   transition: 0.15s;
 
+  &:active {
+    transform: scale(0.95);
+  }
+
+  &:hover::after {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 14px;
+    background: rgba(255, 214, 0, 0.15);
+    opacity: 0;
+    transform: scale(0.85);
+    transition: 0.25s ease;
+    pointer-events: none;
+  }
+
   &:hover {
     transform: translateY(-2px);
     filter: brightness(0.98);
@@ -126,53 +173,27 @@
   gap: 12px;
 }
 
+/* ============================= */
 /* NOTE CARD */
+/* ============================= */
 .noteCard {
   background: var(--card-bg);
   border: 1px solid var(--card-border);
-  border-radius: 12px;
-  padding: 12px;
+  border-radius: 14px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 8px;
   min-height: 84px;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
   position: relative;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.06);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.12);
   }
 }
 
-/* pinned accent */
-.pinned {
-  border-left: 4px solid rgba(255, 214, 0, 0.95);
-}
-
-/* NOTE META (top row) */
-.noteMeta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.pinBtn {
-  background: transparent;
-  border: none;
-  padding: 6px;
-  border-radius: 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-}
-
-.pinnedIcon {
-  transform: rotate(-20deg);
-  color: var(--primary);
-}
-
-/* controls right */
 .noteControls {
   display: flex;
   gap: 6px;
@@ -198,6 +219,13 @@
   background: #ffecec;
   border: 1px solid #ffcccc;
   color: #a20000;
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background: #ffdede;
+  }
 }
 
 /* NOTE BODY */
@@ -212,6 +240,10 @@
   line-height: 1.45;
   cursor: text;
   padding: 6px 2px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.04);
+  }
 }
 
 .notePlaceholder {
@@ -219,53 +251,265 @@
   font-style: italic;
 }
 
-/* inline textarea (notion style) */
 .noteTextarea {
   width: 100%;
   resize: vertical;
   min-height: 56px;
   max-height: 420px;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 12px;
   border: 1px solid var(--card-border);
   background: var(--bg-soft);
   color: var(--text);
-  font-size: 15px;
+  font-size: 15.5px;
   line-height: 1.4;
   outline: none;
 }
 
-/* footer */
+/* NOTE FOOTER */
 .noteFooter {
   display: flex;
   justify-content: space-between;
   align-items: center;
   color: var(--text-soft);
   font-size: 12px;
-  gap: 6px;
 }
 
-/* LOADING / EMPTY */
+/* EMPTY STATES */
 .notesEmpty {
   grid-column: 1 / -1;
   text-align: center;
   color: var(--text-soft);
   padding: 18px;
-  border-radius: 10px;
+  border-radius: 12px;
   background: var(--bg-soft);
   border: 1px dashed var(--card-border);
 }
 
 /* ============================= */
-/*       PORTAL + ACTION BAR     */
+/* CHAT SECTION */
 /* ============================= */
+/* ======================================= */
+/*            NEW CHAT UI                 */
+/* ======================================= */
 
+.chatSection {
+  margin-top: 20px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Scrollable messages */
+.chatMessages {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  /* Hide scrollbar stylishly */
+  scrollbar-width: thin;
+  scrollbar-color: var(--card-border) transparent;
+}
+
+/* Chat Message wrapper */
+.chatMessage {
+  display: flex;
+  flex-direction: column;
+  max-width: 74%;
+}
+
+.chatBubbleWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+
+  /* So actions can sit outside bubble without breaking layout */
+  gap: 8px;
+}
+
+/* =============================== */
+/*          ACTION BUTTONS         */
+/* =============================== */
+
+.chatActions {
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.chatMessage:hover .chatActions {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.chatActionBtn,
+.chatActionBtnDanger {
+  background: var(--bg-soft);
+  border: 1px solid var(--card-border);
+  padding: 4px 6px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+
+  svg {
+    opacity: 0.8;
+  }
+
+  &:hover svg {
+    opacity: 1;
+  }
+}
+
+.chatActionBtnDanger {
+  background: #ffe5e5;
+  border: 1px solid #ffbaba;
+  color: #b50000;
+}
+
+/* Message bubbles */
+.chatBubble {
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 15px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  transition: 0.15s ease;
+}
+
+/* Text inside bubble */
+.chatText {
+  margin: 0;
+}
+
+.chatBubbleEditing {
+  background: rgba(255, 230, 120, 0.25) !important;
+  border: 1px solid rgba(255, 200, 0, 0.6) !important;
+  box-shadow: 0 0 0 2px rgba(255, 220, 0, 0.2);
+}
+
+.chatEditTextarea {
+  width: 100%;
+  font-size: 15px;
+  line-height: 1.4;
+  padding: 6px;
+  border: none;
+  background: transparent;
+  outline: none;
+  resize: none;
+}
+
+/* Admin Messages (right side) */
+.myMessage {
+  align-self: flex-end;
+
+  .chatBubble {
+    background: linear-gradient(135deg, #ffe36e, #ffd000);
+    color: #000;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 2px 8px rgba(255, 200, 0, 0.15);
+  }
+
+  &:hover .chatBubble {
+    filter: brightness(0.96);
+  }
+}
+
+/* Other Messages (left side) */
+.theirMessage {
+  align-self: flex-start;
+
+  .chatBubble {
+    background: var(--bg-soft);
+    border: 1px solid var(--card-border);
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  }
+
+  &:hover .chatBubble {
+    background: var(--card-bg);
+  }
+}
+
+/* Meta row below each bubble */
+.chatMetaRow {
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.7;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 4px;
+}
+
+.chatAuthor {
+  font-weight: 600;
+}
+
+.chatTime {
+  font-size: 11px;
+}
+
+/* Input row */
+.chatInputRow {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-top: 4px;
+
+  input {
+    flex: 1;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: var(--bg-soft);
+    color: var(--text);
+    font-size: 14px;
+
+    &:focus {
+      outline: 2px solid var(--primary);
+      background: var(--card-bg);
+    }
+  }
+
+  button {
+    background: var(--primary);
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    color: black;
+    transition: 0.12s ease;
+
+    &:hover {
+      filter: brightness(0.95);
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+}
+
+/* ============================= */
+/* PORTAL DISPLAY */
+/* ============================= */
 .portalDisplay {
   position: fixed;
-  bottom: 146px; /* give room for notes UI possibly */
+  bottom: 146px;
   left: 50%;
   transform: translateX(-50%);
-
   background: var(--bg-soft);
   padding: 12px 18px;
   border-radius: 12px;
@@ -279,52 +523,78 @@
     word-break: break-all;
   }
 }
+/* ===================================== */
+/* IMPROVED PORTAL LINK BOX */
+/* ===================================== */
 
-.actionBarFloating {
+.portalBox {
   position: fixed;
-  bottom: 26px;
+  bottom: 146px;
   left: 50%;
   transform: translateX(-50%);
-
-  display: flex;
-  gap: 12px;
-
-  background: var(--card-bg);
-  padding: 12px 18px;
-  border-radius: 14px;
-  border: 1px solid var(--card-border);
-  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.18);
-
-  z-index: 60;
-}
-
-.actionBtn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 14px;
 
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: 12px 16px;
+  border-radius: 14px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(4px);
+
+  animation: fadeIn 0.25s ease-out;
+}
+
+.portalLink {
+  color: black;
+  font-weight: 400;
+  font-size: 14px;
+  cursor: pointer;
+  text-decoration: none;
+  word-break: break-all;
+
+  &:hover {
+    text-decoration: underline;
+    opacity: 0.9;
+  }
+}
+
+.portalLinkIcon {
+  margin-bottom: 5px;
+  opacity: 0.75;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+}
+
+.portalActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.portalIconBtn {
   background: var(--bg-soft);
   border: 1px solid var(--card-border);
-  padding: 8px 14px;
-  border-radius: 10px;
+  padding: 6px 8px;
+  border-radius: 8px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
 
   &:hover {
     background: var(--card-bg);
   }
 }
 
-.actionBtnDanger {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  background: #ffe5e5;
-  border: 1px solid #ffbaba;
-  padding: 8px 14px;
-  border-radius: 10px;
+.portalRemoveBtn {
+  background: #ffecec;
+  border: 1px solid #ffcccc;
+  padding: 6px 8px;
+  border-radius: 8px;
   color: #b71c1c;
   cursor: pointer;
+  display: flex;
+  align-items: center;
 
   &:hover {
     background: #ffdede;
@@ -332,82 +602,62 @@
 }
 
 /* ============================= */
-/*            CHAT               */
+/* FLOATING ACTION BAR */
 /* ============================= */
-
-.chatSection {
-  margin-top: 20px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 14px;
-  padding: 18px 20px;
+.actionBarFloating {
+  position: fixed;
+  bottom: 26px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.chatHeader h2 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.chatMessages {
-  max-height: 260px;
-  overflow-y: auto;
-  padding-right: 6px;
-  display: flex;
-  flex-direction: column;
   gap: 12px;
-}
-
-.chatMessage {
-  background: var(--bg-soft);
+  background: var(--card-bg);
+  padding: 14px 18px;
+  border-radius: 14px;
   border: 1px solid var(--card-border);
-  padding: 10px 12px;
-  border-radius: 10px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.22);
+  z-index: 60;
 }
 
-.chatMeta {
+.actionBtn,
+.actionBtnDanger {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.chatAuthor {
-  font-weight: 600;
-  color: var(--text);
-}
-
-.chatTime {
-  font-size: 12px;
-  color: var(--text-soft);
-}
-
-.chatInputRow {
-  display: flex;
-  gap: 10px;
-}
-
-.chatInputRow input {
-  flex: 1;
-  padding: 10px 12px;
-  border-radius: 10px;
-  border: 1px solid var(--card-border);
-  background: var(--bg-soft);
-  color: var(--text);
-}
-
-.chatInputRow button {
-  background: var(--primary);
-  border: none;
-  padding: 10px 18px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
   border-radius: 10px;
   cursor: pointer;
-  font-weight: 600;
 }
 
-/* Animations */
+/* Normal Button */
+.actionBtn {
+  background: var(--bg-soft);
+  border: 1px solid var(--card-border);
+
+  &:hover {
+    background: var(--card-bg);
+  }
+}
+
+.actionBtn:disabled {
+  cursor: not-allowed;
+  pointer-events: auto;
+}
+
+/* Danger Button */
+.actionBtnDanger {
+  background: #ffe5e5;
+  border: 1px solid #ffbaba;
+  color: #b71c1c;
+
+  &:hover {
+    background: #ffdede;
+  }
+}
+
+/* ============================= */
+/* ANIMATIONS */
+/* ============================= */
 @keyframes fadeIn {
   from {
     opacity: 0;

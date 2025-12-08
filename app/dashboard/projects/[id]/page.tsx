@@ -16,13 +16,13 @@ import {
   Copy,
   Link2,
   Check,
-  XCircle,
   Plus,
+  Trash,
+  ArrowUpRight,
 } from "lucide-react";
 
 import styles from "./projectdetails.module.scss";
 
-/* CHAT */
 type ChatMessage = {
   id: string;
   project_id: string;
@@ -31,9 +31,6 @@ type ChatMessage = {
   created_at: string;
 };
 
-/* -------------------------------------------------------------
-   CORRECT NOTE TYPE (DB = note_text)
-------------------------------------------------------------- */
 type Note = {
   id: string;
   project_id: string;
@@ -55,16 +52,27 @@ export default function ProjectDetails() {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
 
-  /* Notes */
   const [notes, setNotes] = useState<Note[]>([]);
   const [notesLoading, setNotesLoading] = useState(false);
   const [notesError, setNotesError] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const editingRef = useRef<HTMLTextAreaElement | null>(null);
+  const [savingNoteId, setSavingNoteId] = useState<string | null>(null);
+
   const [chat, setChat] = useState<ChatMessage[]>([]);
   const [chatLoading, setChatLoading] = useState(false);
   const [chatError, setChatError] = useState("");
   const [chatInput, setChatInput] = useState("");
+
+  const [editingMsgId, setEditingMsgId] = useState<string | null>(null);
+  const [editingMsgText, setEditingMsgText] = useState("");
+
+  const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const newestNoteRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chat]);
 
   async function loadChat() {
     setChatLoading(true);
@@ -74,11 +82,10 @@ export default function ProjectDetails() {
       const res = await fetch(`/api/projects/${id}?chat=true`);
       const json = await res.json();
 
-      if (!res.ok) throw new Error(json.error || "Failed to load chat");
+      if (!res.ok) throw new Error(json.error);
 
       setChat(json.messages);
     } catch (err) {
-      console.error("[CLIENT] loadChat error:", err);
       setChatError("Failed to load chat.");
     } finally {
       setChatLoading(false);
@@ -104,14 +111,54 @@ export default function ProjectDetails() {
       setChat((prev) => [...prev, json.message]);
       setChatInput("");
     } catch (err) {
-      console.error("[CLIENT] sendMessage error:", err);
       setChatError("Failed to send.");
     }
   }
 
-  /* -------------------------------------------------------------
-     Load project + portal + notes
-  ------------------------------------------------------------- */
+  async function deleteMessage(msgId: string) {
+    const backup = chat;
+    setChat((prev) => prev.filter((m) => m.id !== msgId));
+
+    try {
+      const res = await fetch(`/api/projects/${id}?chat=true&msg=${msgId}`, {
+        method: "DELETE",
+      });
+
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+    } catch {
+      setChat(backup);
+      setChatError("Failed to delete message.");
+    }
+  }
+
+  async function saveEditedMessage() {
+    if (!editingMsgId) return;
+
+    const msgId = editingMsgId;
+    const text = editingMsgText.trim();
+
+    setEditingMsgId(null);
+
+    setChat((prev) =>
+      prev.map((m) => (m.id === msgId ? { ...m, message: text } : m))
+    );
+
+    try {
+      const res = await fetch(`/api/projects/${id}?chat=true&msg=${msgId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text }),
+      });
+
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+    } catch {
+      loadChat();
+      setChatError("Failed to update message.");
+    }
+  }
+
   async function loadPortalLink() {
     const { data } = await supabase
       .from("project_portal_links")
@@ -141,14 +188,12 @@ export default function ProjectDetails() {
       setProject(data);
       loadPortalLink();
       loadNotes();
+      loadChat();
     }
 
     if (id) load();
   }, [id]);
 
-  /* -------------------------------------------------------------
-     NOTES: Load from backend API
-  ------------------------------------------------------------- */
   async function loadNotes() {
     setNotesLoading(true);
     setNotesError("");
@@ -157,23 +202,17 @@ export default function ProjectDetails() {
       const res = await fetch(`/api/projects/${id}?notes=true`);
       const json = await res.json();
 
-      if (!res.ok) throw new Error(json.error || "Failed to load notes");
+      if (!res.ok) throw new Error(json.error);
 
       setNotes(json.notes);
-    } catch (err: any) {
-      console.error("[CLIENT] loadNotes error:", err);
+    } catch {
       setNotesError("Failed to load notes.");
     } finally {
       setNotesLoading(false);
     }
   }
 
-  /* -------------------------------------------------------------
-     Create Note (PATCH)
-  ------------------------------------------------------------- */
   async function createNote() {
-    setNotesError("");
-
     try {
       const res = await fetch(`/api/projects/${id}`, {
         method: "PATCH",
@@ -187,22 +226,19 @@ export default function ProjectDetails() {
       const note = json.note as Note;
       setNotes((prev) => [note, ...prev]);
       setEditingId(note.id);
-    } catch (err) {
-      console.error("[CLIENT] createNote error:", err);
+    } catch {
       setNotesError("Failed to create note.");
     }
   }
 
-  /* -------------------------------------------------------------
-     Update Note (PUT)
-  ------------------------------------------------------------- */
   async function updateNote(noteId: string, newText: string) {
-    try {
-      // optimistic update
-      setNotes((prev) =>
-        prev.map((n) => (n.id === noteId ? { ...n, note_text: newText } : n))
-      );
+    setSavingNoteId(noteId);
 
+    setNotes((prev) =>
+      prev.map((n) => (n.id === noteId ? { ...n, note_text: newText } : n))
+    );
+
+    try {
       const res = await fetch(`/api/projects/${noteId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -211,16 +247,13 @@ export default function ProjectDetails() {
 
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
-    } catch (err) {
-      console.error("[CLIENT] updateNote error:", err);
-      setNotesError("Failed to save note.");
-      loadNotes(); // reload original
+    } catch {
+      loadNotes();
+    } finally {
+      setSavingNoteId(null);
     }
   }
 
-  /* -------------------------------------------------------------
-     Delete Note (DELETE)
-  ------------------------------------------------------------- */
   async function deleteNote(noteId: string) {
     const backup = notes;
     setNotes((prev) => prev.filter((n) => n.id !== noteId));
@@ -232,14 +265,12 @@ export default function ProjectDetails() {
 
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
-    } catch (err) {
-      console.error("[CLIENT] deleteNote error:", err);
-      setNotesError("Failed to delete note.");
+    } catch {
       setNotes(backup);
+      setNotesError("Failed to delete note.");
     }
   }
 
-  /* Focus textarea automatically */
   useEffect(() => {
     if (editingId && editingRef.current) {
       const el = editingRef.current;
@@ -248,9 +279,6 @@ export default function ProjectDetails() {
     }
   }, [editingId]);
 
-  /* -------------------------------------------------------------
-     Portal Actions
-  ------------------------------------------------------------- */
   async function generatePortalLink() {
     const res = await fetch(`/api/projects/${id}`);
     const json = await res.json();
@@ -271,14 +299,10 @@ export default function ProjectDetails() {
 
   if (!project) return <p className={styles.loading}>Loading…</p>;
 
-  /* -------------------------------------------------------------
-     UI
-  ------------------------------------------------------------- */
   return (
     <div className={styles.container}>
       <ErrorMessage message={error} />
 
-      {/* Back */}
       <button
         className={styles.backBtn}
         onClick={() => router.push("/dashboard/projects")}
@@ -286,7 +310,6 @@ export default function ProjectDetails() {
         <ArrowLeft size={16} /> Back
       </button>
 
-      {/* Header */}
       <div className={styles.header}>
         <div>
           <h1>{project.name}</h1>
@@ -294,7 +317,6 @@ export default function ProjectDetails() {
         </div>
       </div>
 
-      {/* Info */}
       <div className={styles.infoCard}>
         <p>
           <strong>Client:</strong> {project.client_name || "—"}
@@ -314,9 +336,6 @@ export default function ProjectDetails() {
         </p>
       </div>
 
-      {/* -------------------------------------------------------------
-         NOTES (Notion style)
-      ------------------------------------------------------------- */}
       <div className={styles.notesSection}>
         <div className={styles.notesHeader}>
           <h2>Project Notes</h2>
@@ -334,7 +353,11 @@ export default function ProjectDetails() {
           )}
 
           {notes.map((note) => (
-            <div key={note.id} className={styles.noteCard}>
+            <div
+              key={note.id}
+              className={styles.noteCard}
+              ref={note.id === notes[0]?.id ? newestNoteRef : null}
+            >
               <div className={styles.noteControls}>
                 <button
                   className={styles.iconBtn}
@@ -355,7 +378,7 @@ export default function ProjectDetails() {
                   <textarea
                     ref={editingRef}
                     defaultValue={note.note_text}
-                    className={styles.noteTextarea}
+                    className={`${styles.noteTextarea} ${styles.noteEditing}`}
                     onBlur={(e) => {
                       setEditingId(null);
                       updateNote(note.id, e.target.value.trim());
@@ -368,12 +391,12 @@ export default function ProjectDetails() {
                           note.id,
                           (e.target as HTMLTextAreaElement).value.trim()
                         );
-                      } else if (e.key === "Escape") {
+                      }
+                      if (e.key === "Escape") {
                         setEditingId(null);
                         loadNotes();
                       }
                     }}
-                    placeholder="Write a note…"
                   />
                 ) : (
                   <div
@@ -396,14 +419,15 @@ export default function ProjectDetails() {
                   {new Date(note.created_at).toLocaleString()}
                   {note.updated_at ? " • updated" : ""}
                 </span>
+                {savingNoteId === note.id && (
+                  <span className={styles.saving}>Saving…</span>
+                )}
               </div>
             </div>
           ))}
         </div>
       </div>
-      {/* -------------------------------------------------------------
-   CHAT SECTION
-------------------------------------------------------------- */}
+
       <div className={styles.chatSection}>
         <div className={styles.chatHeader}>
           <h2>Project Chat</h2>
@@ -416,20 +440,82 @@ export default function ProjectDetails() {
         )}
 
         <div className={styles.chatMessages}>
-          {chat.map((msg) => (
-            <div key={msg.id} className={styles.chatMessage}>
-              <div className={styles.chatMeta}>
-                <span className={styles.chatAuthor}>{msg.author}</span>
-                <span className={styles.chatTime}>
-                  {new Date(msg.created_at).toLocaleString()}
-                </span>
+          {chat.map((msg) => {
+            const isEditing = editingMsgId === msg.id;
+
+            return (
+              <div
+                key={msg.id}
+                className={`${styles.chatMessage} ${
+                  msg.author === "Admin"
+                    ? styles.myMessage
+                    : styles.theirMessage
+                }`}
+              >
+                <div className={styles.chatBubbleWrapper}>
+                  <div
+                    className={`${styles.chatBubble} ${
+                      isEditing ? styles.chatBubbleEditing : ""
+                    }`}
+                  >
+                    {isEditing ? (
+                      <textarea
+                        className={styles.chatEditTextarea}
+                        value={editingMsgText}
+                        onChange={(e) => setEditingMsgText(e.target.value)}
+                        onBlur={saveEditedMessage}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            saveEditedMessage();
+                          }
+                          if (e.key === "Escape") {
+                            setEditingMsgId(null);
+                          }
+                        }}
+                        autoFocus
+                      />
+                    ) : (
+                      <p className={styles.chatText}>{msg.message}</p>
+                    )}
+                  </div>
+
+                  <div className={styles.chatActions}>
+                    <button
+                      className={styles.chatActionBtn}
+                      onClick={() => {
+                        setEditingMsgId(msg.id);
+                        setEditingMsgText(msg.message);
+                      }}
+                    >
+                      <Pencil size={14} />
+                    </button>
+
+                    <button
+                      className={styles.chatActionBtnDanger}
+                      onClick={() => deleteMessage(msg.id)}
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className={styles.chatMetaRow}>
+                  <span className={styles.chatAuthor}>{msg.author}</span>
+                  <span className={styles.chatTime}>
+                    {new Date(msg.created_at).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
               </div>
-              <p>{msg.message}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
-        {/* INPUT BOX */}
+        <div ref={chatEndRef}></div>
+
         <div className={styles.chatInputRow}>
           <input
             type="text"
@@ -444,35 +530,45 @@ export default function ProjectDetails() {
         </div>
       </div>
 
-      {/* Portal link */}
       {portalUrl && (
-        <div className={styles.portalDisplay}>
-          <p>{portalUrl}</p>
+        <div className={styles.portalBox}>
+          <a
+            href={portalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.portalLink}
+          >
+            {portalUrl}
+            <ArrowUpRight size={20} className={styles.portalLinkIcon} />
+          </a>
+
+          <div className={styles.portalActions}>
+            <button className={styles.portalIconBtn} onClick={copyToClipboard}>
+              {copied ? <Check size={16} /> : <Copy size={16} />}
+            </button>
+
+            <button
+              className={styles.portalRemoveBtn}
+              onClick={removePortalLink}
+            >
+              <Trash size={16} />
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Floating Actions */}
       <div className={styles.actionBarFloating}>
         <button className={styles.actionBtn} onClick={() => setEditOpen(true)}>
           <Pencil size={16} /> Edit
         </button>
 
-        {!portalUrl ? (
-          <button className={styles.actionBtn} onClick={generatePortalLink}>
-            <Link2 size={16} /> Generate Link
-          </button>
-        ) : (
-          <button className={styles.actionBtn} onClick={copyToClipboard}>
-            {copied ? <Check size={16} /> : <Copy size={16} />}
-            {copied ? "Copied!" : "Copy Link"}
-          </button>
-        )}
-
-        {portalUrl && (
-          <button className={styles.actionBtnDanger} onClick={removePortalLink}>
-            <XCircle size={16} /> Remove Link
-          </button>
-        )}
+        <button
+          className={styles.actionBtn}
+          onClick={generatePortalLink}
+          disabled={!!portalUrl}
+        >
+          <Link2 size={16} /> Generate Link
+        </button>
 
         <button
           className={styles.actionBtnDanger}
@@ -482,7 +578,6 @@ export default function ProjectDetails() {
         </button>
       </div>
 
-      {/* Edit Modal */}
       {editOpen && (
         <EditProjectModal
           project={project}
@@ -494,7 +589,6 @@ export default function ProjectDetails() {
         />
       )}
 
-      {/* Delete Modal */}
       <DeleteProjectModal
         project={deleteTarget}
         onClose={() => setDeleteTarget(null)}
