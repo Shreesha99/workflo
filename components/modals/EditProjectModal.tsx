@@ -36,6 +36,7 @@ export default function EditProjectModal({ project, onClose, onUpdated }) {
 
     const res = await fetch(`/api/projects/${project.id}`, {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name,
         client_name: client,

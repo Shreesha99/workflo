@@ -37,10 +37,10 @@ export async function POST(req: Request, context: any) {
 
   const updatePayload = {
     name: body.name,
-    client_name: body.client,
-    client_email: body.email,
+    client_name: body.client_name ?? body.client,
+    client_email: body.client_email ?? body.email,
     status: body.status,
-    due_date: body.due_date,
+    due_date: body.due_date ?? null,
   };
 
   const { data, error } = await supabase
