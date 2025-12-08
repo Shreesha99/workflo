@@ -67,6 +67,7 @@ export default function ProjectDetails() {
   const [editingMsgId, setEditingMsgId] = useState<string | null>(null);
   const [editingMsgText, setEditingMsgText] = useState("");
 
+  const idsRef = useRef<Set<string>>(new Set());
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const newestNoteRef = useRef<HTMLDivElement | null>(null);
 
@@ -81,15 +82,15 @@ export default function ProjectDetails() {
     try {
       const res = await fetch(`/api/projects/${id}?chat=true`);
       const json = await res.json();
-
       if (!res.ok) throw new Error(json.error);
-
-      setChat(json.messages);
-    } catch (err) {
+      const msgs: ChatMessage[] = json.messages || [];
+      setChat(msgs);
+      idsRef.current.clear();
+      for (const m of msgs) idsRef.current.add(m.id);
+    } catch {
       setChatError("Failed to load chat.");
-    } finally {
-      setChatLoading(false);
     }
+    setChatLoading(false);
   }
 
   async function sendMessage() {
@@ -108,67 +109,9 @@ export default function ProjectDetails() {
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
 
-      setChat((prev) => [...prev, json.message]);
       setChatInput("");
-    } catch (err) {
+    } catch {
       setChatError("Failed to send.");
-    }
-  }
-
-  async function deleteMessage(msgId: string) {
-    const backup = chat;
-    setChat((prev) => prev.filter((m) => m.id !== msgId));
-
-    try {
-      const res = await fetch(`/api/projects/${id}?chat=true&msg=${msgId}`, {
-        method: "DELETE",
-      });
-
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error);
-    } catch {
-      setChat(backup);
-      setChatError("Failed to delete message.");
-    }
-  }
-
-  async function saveEditedMessage() {
-    if (!editingMsgId) return;
-
-    const msgId = editingMsgId;
-    const text = editingMsgText.trim();
-
-    setEditingMsgId(null);
-
-    setChat((prev) =>
-      prev.map((m) => (m.id === msgId ? { ...m, message: text } : m))
-    );
-
-    try {
-      const res = await fetch(`/api/projects/${id}?chat=true&msg=${msgId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text }),
-      });
-
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error);
-    } catch {
-      loadChat();
-      setChatError("Failed to update message.");
-    }
-  }
-
-  async function loadPortalLink() {
-    const { data } = await supabase
-      .from("project_portal_links")
-      .select("token")
-      .eq("project_id", id)
-      .maybeSingle();
-
-    if (data?.token) {
-      const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-      setPortalUrl(`${base}/portal/${data.token}`);
     }
   }
 
@@ -189,10 +132,58 @@ export default function ProjectDetails() {
       loadPortalLink();
       loadNotes();
       loadChat();
+
+      const channel = supabase
+        .channel("chat:" + id)
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "project_chat",
+            filter: `project_id=eq.${id}`,
+          },
+          (payload: any) => {
+            if (payload.eventType === "INSERT" && payload.new) {
+              const mid = payload.new.id;
+              if (!idsRef.current.has(mid)) {
+                idsRef.current.add(mid);
+                setChat((prev) => [...prev, payload.new as ChatMessage]);
+              }
+            }
+            if (payload.eventType === "UPDATE" && payload.new) {
+              setChat((prev) =>
+                prev.map((m) => (m.id === payload.new.id ? payload.new : m))
+              );
+            }
+            if (payload.eventType === "DELETE" && payload.old) {
+              idsRef.current.delete(payload.old.id);
+              setChat((prev) => prev.filter((m) => m.id !== payload.old.id));
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
 
     if (id) load();
   }, [id]);
+
+  async function loadPortalLink() {
+    const { data } = await supabase
+      .from("project_portal_links")
+      .select("token")
+      .eq("project_id", id)
+      .maybeSingle();
+
+    if (data?.token) {
+      const base = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+      setPortalUrl(`${base}/portal/${data.token}`);
+    }
+  }
 
   async function loadNotes() {
     setNotesLoading(true);
@@ -201,15 +192,12 @@ export default function ProjectDetails() {
     try {
       const res = await fetch(`/api/projects/${id}?notes=true`);
       const json = await res.json();
-
       if (!res.ok) throw new Error(json.error);
-
       setNotes(json.notes);
     } catch {
       setNotesError("Failed to load notes.");
-    } finally {
-      setNotesLoading(false);
     }
+    setNotesLoading(false);
   }
 
   async function createNote() {
@@ -249,9 +237,8 @@ export default function ProjectDetails() {
       if (!res.ok) throw new Error(json.error);
     } catch {
       loadNotes();
-    } finally {
-      setSavingNoteId(null);
     }
+    setSavingNoteId(null);
   }
 
   async function deleteNote(noteId: string) {
@@ -262,7 +249,6 @@ export default function ProjectDetails() {
       const res = await fetch(`/api/projects/${id}?note=${noteId}`, {
         method: "DELETE",
       });
-
       const json = await res.json();
       if (!res.ok) throw new Error(json.error);
     } catch {
@@ -463,40 +449,11 @@ export default function ProjectDetails() {
                         className={styles.chatEditTextarea}
                         value={editingMsgText}
                         onChange={(e) => setEditingMsgText(e.target.value)}
-                        onBlur={saveEditedMessage}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && !e.shiftKey) {
-                            e.preventDefault();
-                            saveEditedMessage();
-                          }
-                          if (e.key === "Escape") {
-                            setEditingMsgId(null);
-                          }
-                        }}
                         autoFocus
                       />
                     ) : (
                       <p className={styles.chatText}>{msg.message}</p>
                     )}
-                  </div>
-
-                  <div className={styles.chatActions}>
-                    <button
-                      className={styles.chatActionBtn}
-                      onClick={() => {
-                        setEditingMsgId(msg.id);
-                        setEditingMsgText(msg.message);
-                      }}
-                    >
-                      <Pencil size={14} />
-                    </button>
-
-                    <button
-                      className={styles.chatActionBtnDanger}
-                      onClick={() => deleteMessage(msg.id)}
-                    >
-                      <Trash2 size={14} />
-                    </button>
                   </div>
                 </div>
 

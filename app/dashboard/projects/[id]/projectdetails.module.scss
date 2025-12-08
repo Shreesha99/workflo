@@ -219,7 +219,6 @@
   background: #ffecec;
   border: 1px solid #ffcccc;
   color: #a20000;
-  padding: 6px;
   border-radius: 8px;
   cursor: pointer;
 
@@ -289,9 +288,6 @@
 /* ============================= */
 /* CHAT SECTION */
 /* ============================= */
-/* ======================================= */
-/*            NEW CHAT UI                 */
-/* ======================================= */
 
 .chatSection {
   margin-top: 20px;
@@ -452,6 +448,7 @@
 }
 
 .chatAuthor {
+  padding-right: 10px;
   font-weight: 600;
 }
 
