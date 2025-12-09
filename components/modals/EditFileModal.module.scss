@@ -1,0 +1,60 @@
+/* DARK OVERLAY */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+}
+
+/* MODAL CARD */
+.modal {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  padding: 28px;
+  width: 420px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
+
+  h3 {
+    margin: 0 0 4px;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+}
+
+/* Input styling overrides */
+.modal input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--bg-soft);
+  border: 1px solid var(--card-border);
+  transition: 0.25s ease;
+  font-size: 14px;
+
+  &:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--card-bg);
+    box-shadow: 0 0 0 3px rgba(255, 186, 0, 0.25);
+  }
+}
+
+/* Button row */
+.modal button {
+  flex: 1;
+}
+
+/* override GSAP opacity glitch */
+.modal * {
+  opacity: 1 !important;
+}

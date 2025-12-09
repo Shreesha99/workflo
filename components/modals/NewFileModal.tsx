@@ -19,11 +19,13 @@ export default function NewFileModal({ open, onClose, onUploaded }) {
   const [projectId, setProjectId] = useState("");
   const [projects, setProjects] = useState([]);
 
+  const [displayName, setDisplayName] = useState("");
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Animate modal container only
   useEffect(() => {
     if (open && modalRef.current) {
       gsap.fromTo(
@@ -34,7 +36,6 @@ export default function NewFileModal({ open, onClose, onUploaded }) {
     }
   }, [open]);
 
-  // Load projects
   useEffect(() => {
     async function loadProjects() {
       const { data } = await supabase
@@ -52,18 +53,22 @@ export default function NewFileModal({ open, onClose, onUploaded }) {
     setError("");
     setSuccess("");
 
-    if (!file) {
-      setError("Please select a file.");
-      return;
-    }
-    if (!projectId) {
-      setError("Please select a project.");
-      return;
-    }
+    if (!file) return setError("Please select a file.");
+    if (!projectId) return setError("Please select a project.");
 
     setLoading(true);
 
-    const filePath = `${crypto.randomUUID()}-${file.name}`;
+    const project = projects.find((p) => p.id === projectId);
+    const ext = file.name.split(".").pop();
+    const safeName = displayName.trim();
+
+    const finalName = safeName
+      ? `${safeName}.${ext}`
+      : `${project.name.replace(/\s+/g, "_").toLowerCase()}_${crypto
+          .randomUUID()
+          .slice(0, 8)}.${ext}`;
+
+    const filePath = `${projectId}/${finalName}`;
 
     // Upload to Supabase Storage
     const { error: uploadError } = await supabase.storage
@@ -76,7 +81,7 @@ export default function NewFileModal({ open, onClose, onUploaded }) {
       return;
     }
 
-    // Insert into DB
+    // Insert DB entry
     const { data: userData } = await supabase.auth.getUser();
     const user = userData?.user;
 
@@ -86,6 +91,7 @@ export default function NewFileModal({ open, onClose, onUploaded }) {
       mime_type: file.type,
       size: file.size,
       uploaded_by: user.id,
+      display_name: safeName || finalName,
       created_at: new Date().toISOString(),
     });
 
@@ -103,6 +109,7 @@ export default function NewFileModal({ open, onClose, onUploaded }) {
       onClose();
       setFile(null);
       setProjectId("");
+      setDisplayName("");
     }, 700);
   }
 
@@ -120,27 +127,67 @@ export default function NewFileModal({ open, onClose, onUploaded }) {
         <ErrorMessage message={error} />
         <SuccessMessage message={success} />
 
-        {/* File Input */}
-        <input
-          type="file"
-          className={styles.fileInput}
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
+        {/* File Picker */}
+        <div
+          className={styles.filePicker}
+          onClick={() => document.getElementById("hiddenFile").click()}
+        >
+          <div className={styles.fileLeft}>
+            <span className={styles.fileLabel}>
+              {file ? file.name : "Choose a file…"}
+            </span>
+          </div>
+
+          <div className={styles.fileRight}>Browse</div>
+
+          <input
+            id="hiddenFile"
+            type="file"
+            style={{ display: "none" }}
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+          />
+        </div>
+
+        {/* Filename input */}
+        <Input
+          placeholder="Enter file name (optional)"
+          value={displayName}
+          onChange={(e) => setDisplayName(e.target.value)}
         />
 
-        {/* Project selection */}
-        <label className={styles.label}>Assign to Project</label>
-        <select
-          className={styles.select}
-          value={projectId}
-          onChange={(e) => setProjectId(e.target.value)}
-        >
-          <option value="">Select project</option>
-          {projects.map((p) => (
-            <option key={p.id} value={p.id}>
-              {p.name}
-            </option>
-          ))}
-        </select>
+        {/* Project Dropdown */}
+        <div className={styles.dropdownContainer}>
+          <label className={styles.label}>Assign to Project</label>
+
+          <div
+            className={styles.dropdown}
+            onClick={() => setDropdownOpen((o) => !o)}
+          >
+            <span>
+              {projectId
+                ? projects.find((p) => p.id === projectId)?.name
+                : "Select project"}
+            </span>
+            <div className={styles.arrow} />
+          </div>
+
+          {dropdownOpen && (
+            <div className={styles.dropdownList}>
+              {projects.map((p) => (
+                <div
+                  key={p.id}
+                  className={styles.dropdownItem}
+                  onClick={() => {
+                    setProjectId(p.id);
+                    setDropdownOpen(false);
+                  }}
+                >
+                  {p.name}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         <Button
           loading={loading}
