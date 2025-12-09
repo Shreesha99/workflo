@@ -157,7 +157,7 @@ export default function NewTaskModal({ open, onClose, onCreated }) {
           onChange={(e) => setStatus(e.target.value)}
         >
           <option value="todo">Todo</option>
-          <option value="In Progress">In Progress</option>
+          <option value="in-progress">In Progress</option>
           <option value="completed">Completed</option>
         </select>
 
