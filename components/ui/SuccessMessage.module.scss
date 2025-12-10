@@ -1,26 +1,29 @@
 .success {
-  background: rgba(255, 230, 120, 0.18);
-  color: #7a5f00;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
   padding: 12px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 215, 64, 0.35);
+  border-radius: 12px;
+
+  background: rgba(0, 200, 120, 0.12);
+  border: 1px solid rgba(0, 200, 120, 0.35);
+
+  color: #0c7c47;
   font-size: 14px;
   font-weight: 500;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 4px 10px rgba(255, 215, 64, 0.1);
+
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 200, 120, 0.08);
 
   opacity: 0;
   transform: translateY(6px);
-  animation: fadeSlideIn 0.32s ease forwards;
+  animation: fadeSlideIn 0.3s ease forwards;
+}
 
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  &::before {
-    content: "✨";
-    font-size: 16px;
-  }
+.icon {
+  stroke-width: 2.4;
+  color: #0c7c47;
 }
 
 @keyframes fadeSlideIn {

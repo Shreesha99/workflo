@@ -1,18 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./EditFileModal.module.scss";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import SuccessMessage from "@/components/ui/SuccessMessage";
 import { supabaseClient } from "@/lib/supabase/client";
 
-export default function EditFileModal({ file, onClose, onSaved }) {
+export default function EditFileModal({ file, onClose, onSaved }: any) {
   const supabase = supabaseClient();
 
-  const [name, setName] = useState(file.display_name ?? "");
+  // Detect extension safely
+  const originalName = file.display_name ?? file.path ?? "";
+  const lastDot = originalName.lastIndexOf(".");
+  const base = lastDot !== -1 ? originalName.slice(0, lastDot) : originalName;
+  const ext = lastDot !== -1 ? originalName.slice(lastDot) : ""; // includes the dot e.g. ".png"
+
+  const [name, setName] = useState(base);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+
+  useEffect(() => {
+    const orig = file.display_name ?? file.path ?? "";
+    const dot = orig.lastIndexOf(".");
+    setName(dot !== -1 ? orig.slice(0, dot) : orig);
+  }, [file]);
 
   async function save() {
     setError("");
@@ -23,11 +35,13 @@ export default function EditFileModal({ file, onClose, onSaved }) {
       return;
     }
 
+    const finalName = `${name.trim()}${ext}`;
+
     setLoading(true);
 
     const { error: updateError } = await supabase
       .from("files")
-      .update({ display_name: name.trim() })
+      .update({ display_name: finalName })
       .eq("id", file.id);
 
     setLoading(false);
@@ -37,10 +51,12 @@ export default function EditFileModal({ file, onClose, onSaved }) {
       return;
     }
 
-    setSuccess("File updated!");
+    setSuccess("Saved!");
+    onSaved();
+
     setTimeout(() => {
-      onSaved();
-    }, 500);
+      onClose();
+    }, 450);
   }
 
   return (
@@ -51,19 +67,28 @@ export default function EditFileModal({ file, onClose, onSaved }) {
         <ErrorMessage message={error} />
         <SuccessMessage message={success} />
 
-        <input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Enter file name"
-        />
+        {/* FILENAME INPUT WITH LOCKED EXTENSION */}
+        <div className={styles.filenameRow}>
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter file name"
+            className={styles.nameInput}
+          />
+          <span className={styles.ext}>{ext}</span>
+        </div>
 
         <div className={styles.actions}>
-          <button className={styles.cancelBtn} onClick={onClose}>
+          <button
+            className={styles.cancelBtn}
+            onClick={onClose}
+            disabled={loading}
+          >
             Cancel
           </button>
 
           <button className={styles.saveBtn} onClick={save} disabled={loading}>
-            Save
+            {loading ? "Saving…" : "Save"}
           </button>
         </div>
       </div>

@@ -11,13 +11,13 @@ import SuccessMessage from "@/components/ui/SuccessMessage";
 
 import styles from "./NewFileModal.module.scss";
 
-export default function NewFileModal({ open, onClose, onUploaded }) {
+export default function NewFileModal({ open, onClose, onUploaded }: any) {
   const supabase = supabaseClient();
   const modalRef = useRef<HTMLDivElement | null>(null);
 
   const [file, setFile] = useState<File | null>(null);
   const [projectId, setProjectId] = useState("");
-  const [projects, setProjects] = useState([]);
+  const [projects, setProjects] = useState<any[]>([]);
 
   const [displayName, setDisplayName] = useState("");
 
@@ -38,79 +38,98 @@ export default function NewFileModal({ open, onClose, onUploaded }) {
 
   useEffect(() => {
     async function loadProjects() {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("projects")
         .select("id, name")
         .order("created_at", { ascending: false });
 
+      if (error) {
+        setError(error.message);
+        setProjects([]);
+        return;
+      }
       setProjects(data || []);
     }
 
     if (open) loadProjects();
-  }, [open]);
+  }, [open, supabase]);
 
   async function handleUpload() {
     setError("");
     setSuccess("");
 
-    if (!file) return setError("Please select a file.");
-    if (!projectId) return setError("Please select a project.");
+    if (!file) {
+      setError("Please select a file.");
+      return;
+    }
+    if (!projectId) {
+      setError("Please select a project.");
+      return;
+    }
 
     setLoading(true);
 
-    const project = projects.find((p) => p.id === projectId);
-    const ext = file.name.split(".").pop();
-    const safeName = displayName.trim();
+    try {
+      const project = projects.find((p) => p.id === projectId) || {
+        name: "project",
+      };
+      const ext = (file.name || "").split(".").pop() ?? "";
+      const safeName = (displayName || "").trim();
 
-    const finalName = safeName
-      ? `${safeName}.${ext}`
-      : `${project.name.replace(/\s+/g, "_").toLowerCase()}_${crypto
-          .randomUUID()
-          .slice(0, 8)}.${ext}`;
+      const finalName = safeName
+        ? `${safeName}.${ext}`
+        : `${project.name.replace(/\s+/g, "_").toLowerCase()}_${crypto
+            .randomUUID()
+            .slice(0, 8)}.${ext}`;
 
-    const filePath = `${projectId}/${finalName}`;
+      // Ensure path includes projectId folder
+      const filePath = `${projectId}/${finalName}`;
 
-    // Upload to Supabase Storage
-    const { error: uploadError } = await supabase.storage
-      .from("project-files")
-      .upload(filePath, file);
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from("project-files")
+        .upload(filePath, file);
 
-    if (uploadError) {
+      if (uploadError) {
+        setLoading(false);
+        setError(uploadError.message);
+        return;
+      }
+
+      // Insert DB entry
+      const { data: userData } = await supabase.auth.getUser();
+      const user = userData?.user;
+
+      const { error: insertError } = await supabase.from("files").insert({
+        project_id: projectId,
+        path: filePath,
+        mime_type: file.type,
+        size: file.size,
+        uploaded_by: user?.id ?? null,
+        display_name: safeName || finalName,
+        created_at: new Date().toISOString(),
+      });
+
       setLoading(false);
-      setError(uploadError.message);
-      return;
+
+      if (insertError) {
+        setError(insertError.message);
+        return;
+      }
+
+      setSuccess("File uploaded successfully!");
+      onUploaded?.();
+
+      setTimeout(() => {
+        onClose();
+        setFile(null);
+        setProjectId("");
+        setDisplayName("");
+      }, 700);
+    } catch (err: any) {
+      setLoading(false);
+      setError(err?.message || "Upload failed.");
     }
-
-    // Insert DB entry
-    const { data: userData } = await supabase.auth.getUser();
-    const user = userData?.user;
-
-    const { error: insertError } = await supabase.from("files").insert({
-      project_id: projectId,
-      path: filePath,
-      mime_type: file.type,
-      size: file.size,
-      uploaded_by: user.id,
-      display_name: safeName || finalName,
-      created_at: new Date().toISOString(),
-    });
-
-    setLoading(false);
-
-    if (insertError) {
-      setError(insertError.message);
-      return;
-    }
-
-    setSuccess("File uploaded successfully!");
-    onUploaded?.();
-
-    setTimeout(() => {
-      onClose();
-      setFile(null);
-      setProjectId("");
-      setDisplayName("");
-    }, 700);
   }
 
   if (!open) return null;
@@ -130,7 +149,7 @@ export default function NewFileModal({ open, onClose, onUploaded }) {
         {/* File Picker */}
         <div
           className={styles.filePicker}
-          onClick={() => document.getElementById("hiddenFile").click()}
+          onClick={() => document.getElementById("hiddenFile")?.click()}
         >
           <div className={styles.fileLeft}>
             <span className={styles.fileLabel}>
@@ -152,7 +171,7 @@ export default function NewFileModal({ open, onClose, onUploaded }) {
         <Input
           placeholder="Enter file name (optional)"
           value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
+          onChange={(e: any) => setDisplayName(e.target.value)}
         />
 
         {/* Project Dropdown */}

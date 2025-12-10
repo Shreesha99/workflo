@@ -1,40 +1,74 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { JSX, useCallback, useEffect, useState } from "react";
 import { supabaseClient } from "@/lib/supabase/client";
 import gsap from "gsap";
 import styles from "./files.module.scss";
 
 import NewFileModal from "@/components/modals/NewFileModal";
 import EditFileModal from "@/components/modals/EditFileModal";
+import DeleteFileModal from "@/components/modals/DeleteFileModal";
 
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import SuccessMessage from "@/components/ui/SuccessMessage";
 
-import { Download, Pencil, Trash2 } from "lucide-react";
+import { Download, Pencil, Trash2, Plus } from "lucide-react";
+import { File as FileIconLucide, FileImage, FileVideo } from "lucide-react";
 
 export default function FilesPage() {
   const supabase = supabaseClient();
 
-  const [files, setFiles] = useState([]);
+  const [files, setFiles] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [openModal, setOpenModal] = useState(false);
-  const [editingFile, setEditingFile] = useState(null);
+  const [editingFile, setEditingFile] = useState<any | null>(null);
+  const [deletingFile, setDeletingFile] = useState<any | null>(null);
 
-  const [previewMap, setPreviewMap] = useState({});
-  const [loadingPreviews, setLoadingPreviews] = useState({});
+  const [previewMap, setPreviewMap] = useState<Record<string, string>>({});
+  const [loadingPreviews, setLoadingPreviews] = useState<
+    Record<string, boolean>
+  >({});
 
-  // Messages
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  async function loadFiles() {
-    const { data } = await supabase
-      .from("files")
-      .select("*, projects(name)")
-      .order("created_at", { ascending: false });
+  // Auto clear success & error messages
+  useEffect(() => {
+    let t1: any, t2: any;
 
-    setFiles(data || []);
+    if (success) {
+      t1 = setTimeout(() => setSuccess(""), 2500);
+    }
+    if (error) {
+      t2 = setTimeout(() => setError(""), 4000);
+    }
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [success, error]);
+
+  async function loadFiles() {
+    setError("");
+
+    try {
+      const { data, error } = await supabase
+        .from("files")
+        .select("*, projects(name)")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        setError(error.message);
+        setFiles([]);
+        return;
+      }
+
+      setFiles(data || []);
+    } catch (err: any) {
+      setError(err?.message || "Could not load files.");
+      setFiles([]);
+    }
   }
 
   useEffect(() => {
@@ -55,18 +89,23 @@ export default function FilesPage() {
       .includes(search.toLowerCase())
   );
 
-  async function createSignedUrl(path, expires = 120) {
-    const { data, error } = await supabase.storage
-      .from("project-files")
-      .createSignedUrl(path, expires);
+  async function createSignedUrl(path: string, expires = 120) {
+    try {
+      const { data, error } = await supabase.storage
+        .from("project-files")
+        .createSignedUrl(path, expires);
 
-    if (error || !data?.signedUrl) return null;
-    return data.signedUrl;
+      if (error || !data?.signedUrl) return null;
+
+      return data.signedUrl;
+    } catch {
+      return null;
+    }
   }
 
   const ensurePreview = useCallback(
-    async (path, mime) => {
-      if (!path || !mime?.startsWith("image/")) return null;
+    async (path: string, mime: string) => {
+      if (!mime?.startsWith?.("image/")) return null;
       if (previewMap[path]) return previewMap[path];
 
       setLoadingPreviews((s) => ({ ...s, [path]: true }));
@@ -82,52 +121,68 @@ export default function FilesPage() {
     [previewMap]
   );
 
-  async function downloadFile(path, displayName) {
+  async function downloadFile(path: string, displayName?: string) {
     setError("");
     setSuccess("");
 
-    const url = await createSignedUrl(path, 120);
-    if (!url) {
+    const signed = await createSignedUrl(path, 120);
+    if (!signed) {
       setError("Could not generate secure download URL.");
       return;
     }
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = displayName || path.split("/").pop();
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    try {
+      const res = await fetch(signed);
+      if (!res.ok) {
+        setError("Download failed.");
+        return;
+      }
 
-    setSuccess("Download started!");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = displayName || path.split("/").pop() || "file";
+      a.click();
+      URL.revokeObjectURL(url);
+
+      setSuccess("Download started!");
+    } catch (err: any) {
+      setError(err?.message || "Download failed.");
+    }
   }
 
-  async function handleDelete(fileId, path) {
+  async function executeDelete(fileId: string, path: string) {
     setError("");
     setSuccess("");
 
-    // Delete from storage
-    await supabase.storage.from("project-files").remove([path]);
+    try {
+      await supabase.storage.from("project-files").remove([path]);
 
-    // Delete DB row
-    const { error: dbErr } = await supabase
-      .from("files")
-      .delete()
-      .eq("id", fileId);
+      const { error: dbErr } = await supabase
+        .from("files")
+        .delete()
+        .eq("id", fileId);
 
-    if (dbErr) {
-      setError(dbErr.message);
-      return;
+      if (dbErr) {
+        setError(dbErr.message);
+        return;
+      }
+
+      setPreviewMap((m) => {
+        const c = { ...m };
+        delete c[path];
+        return c;
+      });
+
+      setSuccess("File deleted successfully!");
+      await loadFiles();
+    } catch (err: any) {
+      setError(err?.message || "Delete failed.");
+    } finally {
+      setDeletingFile(null);
     }
-
-    setSuccess("File deleted successfully!");
-    await loadFiles();
-  }
-
-  async function onEditSaved() {
-    setEditingFile(null);
-    await loadFiles();
-    setSuccess("File updated!");
   }
 
   return (
@@ -135,18 +190,8 @@ export default function FilesPage() {
       {/* HEADER */}
       <div className={styles.header}>
         <h1>Files</h1>
-
-        <div className={styles.right}>
-          <button
-            className={styles.newFileBtn}
-            onClick={() => setOpenModal(true)}
-          >
-            + Upload File
-          </button>
-        </div>
       </div>
 
-      {/* GLOBAL MESSAGES */}
       <ErrorMessage message={error} />
       <SuccessMessage message={success} />
 
@@ -161,9 +206,8 @@ export default function FilesPage() {
       {/* FILE GRID */}
       <div className={styles.grid}>
         {filtered.map((file) => {
-          const display = file.display_name ?? file.path ?? "Unnamed";
           const isImage = file.mime_type?.startsWith?.("image/");
-          const ext = (file.path ?? "").split(".").pop()?.toLowerCase() ?? "";
+          const display = file.display_name ?? file.path;
 
           return (
             <div key={file.id} className={`file-card ${styles.card}`}>
@@ -177,7 +221,7 @@ export default function FilesPage() {
                     loading={!!loadingPreviews[file.path]}
                   />
                 ) : (
-                  <FileIcon ext={ext} mime={file.mime_type} />
+                  <FileIcon ext={file.extension} mime={file.mime_type} />
                 )}
               </div>
 
@@ -194,11 +238,11 @@ export default function FilesPage() {
                   <span>{new Date(file.created_at).toLocaleDateString()}</span>
                 </div>
 
+                {/* ACTIONS AT BOTTOM */}
                 <div className={styles.actions}>
                   <button
                     className={styles.iconBtn}
                     onClick={() => downloadFile(file.path, file.display_name)}
-                    title="Download"
                   >
                     <Download size={18} />
                   </button>
@@ -206,15 +250,13 @@ export default function FilesPage() {
                   <button
                     className={styles.iconBtn}
                     onClick={() => setEditingFile(file)}
-                    title="Edit"
                   >
                     <Pencil size={18} />
                   </button>
 
                   <button
                     className={`${styles.iconBtn} ${styles.deleteBtn}`}
-                    onClick={() => handleDelete(file.id, file.path)}
-                    title="Delete"
+                    onClick={() => setDeletingFile(file)}
                   >
                     <Trash2 size={18} />
                   </button>
@@ -236,34 +278,36 @@ export default function FilesPage() {
         <EditFileModal
           file={editingFile}
           onClose={() => setEditingFile(null)}
-          onSaved={onEditSaved}
+          onSaved={loadFiles}
         />
       )}
+
+      {deletingFile && (
+        <DeleteFileModal
+          file={deletingFile}
+          onClose={() => setDeletingFile(null)}
+          onConfirm={() => executeDelete(deletingFile.id, deletingFile.path)}
+        />
+      )}
+
+      {/* FAB */}
+      <button className={styles.fab} onClick={() => setOpenModal(true)}>
+        <Plus size={30} />
+      </button>
     </div>
   );
 }
 
-/* --------------------------------------------------
-    Helper Components
--------------------------------------------------- */
+/* Helper Components */
 
 function FileIcon({ ext = "", mime = "" }) {
-  const iconMap = {
-    pdf: "📕",
-    zip: "🗜️",
-    doc: "📄",
-    docx: "📄",
-    csv: "📑",
-    xlsx: "📊",
-    fig: "🎨",
-    psd: "🖌️",
-    default: "📁",
-  };
+  ext = ext.toLowerCase();
+  const iconStyles = { width: 42, height: 42 };
 
-  const icon =
-    iconMap[ext] || (mime.startsWith("video/") ? "🎞️" : iconMap.default);
+  if (mime?.startsWith("video/")) return <FileVideo style={iconStyles} />;
+  if (mime?.startsWith("image/")) return <FileImage style={iconStyles} />;
 
-  return <div className={styles.fileIcon}>{icon}</div>;
+  return <FileIconLucide style={iconStyles} />;
 }
 
 function ImagePreview({ path, mime, ensurePreview, previewUrl, loading }) {
@@ -277,6 +321,7 @@ function ImagePreview({ path, mime, ensurePreview, previewUrl, loading }) {
         setUrl(previewUrl);
         return;
       }
+
       const signed = await ensurePreview(path, mime);
       if (mounted) setUrl(signed);
     }
@@ -285,7 +330,7 @@ function ImagePreview({ path, mime, ensurePreview, previewUrl, loading }) {
     return () => {
       mounted = false;
     };
-  }, [path, mime, previewUrl, ensurePreview]);
+  }, [path, mime, previewUrl]);
 
   return (
     <div className={styles.imagePreview}>
