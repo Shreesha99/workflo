@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import gsap from "gsap";
 import styles from "./projects.module.scss";
 
@@ -19,35 +19,17 @@ import {
   List as ListIcon,
 } from "lucide-react";
 
-// DnD Kit
-import {
-  DndContext,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragOverlay,
-  MeasuringStrategy,
-  useDroppable,
-  DragStartEvent,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  rectSortingStrategy,
-  SortableContext,
-  useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import KanbanBoard, { KanbanItem } from "@/components/ui/KanbanBoard";
 
-type Project = {
-  id: string;
+// =======================================
+// PROJECT TYPE EXTENDS KANBAN ITEM
+// =======================================
+type Project = KanbanItem & {
   name: string;
   client_name?: string | null;
-  status?: "active" | "pending" | "completed" | string | null;
+  status: "active" | "pending" | "completed";
   created_at?: string;
   due_date?: string | null;
-  order_index?: number | null;
-  [k: string]: any;
 };
 
 export default function ProjectsPage() {
@@ -64,38 +46,15 @@ export default function ProjectsPage() {
   const [dueFilter, setDueFilter] = useState("");
 
   const [filtersOpen, setFiltersOpen] = useState(false);
-
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
-  const [apiError, setApiError] = useState<string | null>(null);
 
+  const [apiError, setApiError] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "kanban">("list");
 
-  // dnd-kit dragging state
-  const [activeId, setActiveId] = useState<string | null>(null);
-  const [overlayProject, setOverlayProject] = useState<Project | null>(null);
-  const filterRef = React.useRef<HTMLDivElement | null>(null);
+  const filterRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => {
-    function handleClickOutside(e: MouseEvent) {
-      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
-        setFiltersOpen(false);
-      }
-    }
-
-    if (filtersOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [filtersOpen]);
-
-  const STATUS: Array<"active" | "pending" | "completed"> = [
-    "active",
-    "pending",
-    "completed",
-  ];
+  // Column statuses for kanban (correct order)
+  const STATUS: Array<Project["status"]> = ["active", "pending", "completed"];
 
   useEffect(() => {
     loadProjects();
@@ -113,14 +72,12 @@ export default function ProjectsPage() {
 
   async function deleteProject(id: string) {
     const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
-    const json = await res.json().catch(() => ({}));
-
-    if (!res.ok) return setApiError(json?.error || "Failed to delete project");
-
+    if (!res.ok) return setApiError("Failed to delete project");
     setProjects((prev) => prev.filter((p) => p.id !== id));
     setDeleteTarget(null);
   }
 
+  // GSAP animation
   useEffect(() => {
     gsap.fromTo(
       ".project-card",
@@ -129,6 +86,7 @@ export default function ProjectsPage() {
     );
   }, [projects, search, statusFilter, clientFilter, dueFilter, viewMode]);
 
+  // Unique client filters
   const uniqueClients = [
     ...new Set(projects.map((p) => p.client_name).filter(Boolean)),
   ];
@@ -136,7 +94,7 @@ export default function ProjectsPage() {
   const today = new Date();
 
   const filtered = projects.filter((p) => {
-    const matchSearch = p.name?.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
     const matchStatus = statusFilter ? p.status === statusFilter : true;
     const matchClient = clientFilter ? p.client_name === clientFilter : true;
 
@@ -150,227 +108,19 @@ export default function ProjectsPage() {
     return matchSearch && matchStatus && matchClient && matchDue;
   });
 
-  /* ----------------------
-     DnD Kit config
-     ---------------------- */
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  );
+  // Debounced search
+  useEffect(() => {
+    const h = setTimeout(() => setSearch(searchInput), 300);
+    return () => clearTimeout(h);
+  }, [searchInput]);
 
-  // helper to check if string is valid status
-  function isStatus(
-    x: string | null | undefined
-  ): x is "active" | "pending" | "completed" {
-    return !!x && (STATUS as string[]).includes(x);
-  }
+  // ============================================================
+  // SMALL COMPONENTS PASSED INTO KANBAN BOARD -------------------
+  // ============================================================
 
-  // build map: status -> ordered list of project ids
-  function columnsToIds(sourceProjects = projects) {
-    const map: Record<string, string[]> = {};
-    for (const s of STATUS) map[s] = [];
-
-    for (const p of sourceProjects) {
-      const status = (p.status as string) || "pending";
-      if (!map[status]) map[status] = [];
-      map[status].push(p.id);
-    }
-
-    return map;
-  }
-
-  // used when rendering kanban (we respect filtered results when filters are active)
-  const columns = columnsToIds(filtered.length ? filtered : projects);
-
-  function findProjectById(id: string) {
-    return projects.find((p) => p.id === id) || null;
-  }
-
-  function rebuildProjectsFromColumns(newColumns: Record<string, string[]>) {
-    const idToProject: Record<string, Project> = {};
-    for (const p of projects) idToProject[p.id] = p;
-
-    const newList: Project[] = [];
-    for (const s of STATUS) {
-      const ids = newColumns[s] || [];
-      for (const id of ids) {
-        const proj = idToProject[id];
-        if (proj) newList.push({ ...proj, status: s });
-      }
-    }
-
-    // append any missing projects (safe guard)
-    const included = new Set(newList.map((p) => p.id));
-    for (const p of projects) if (!included.has(p.id)) newList.push(p);
-
-    return newList;
-  }
-
-  // Droppable column wrapper
-  function DroppableColumn({
-    columnId,
-    children,
-  }: {
-    columnId: "active" | "pending" | "completed";
-    children: React.ReactNode;
-  }) {
-    const { setNodeRef, isOver } = useDroppable({ id: columnId });
-
-    return (
-      <div
-        ref={setNodeRef}
-        className={`${styles.kanbanColumn} ${
-          isOver ? styles.kanbanColumnDragOver : ""
-        }`}
-      >
-        {children}
-      </div>
-    );
-  }
-
-  async function handleDragEnd(event: DragEndEvent) {
-    const { active, over } = event;
-    setActiveId(null);
-
-    if (!over) return setOverlayProject(null);
-
-    const activeIdStr = active.id as string;
-    const overIdStr = over.id as string;
-
-    // map of source columns (from full projects list)
-    const sourceColumns = columnsToIds(projects);
-    let destColumns = { ...sourceColumns };
-
-    const sourceColumnKey =
-      STATUS.find((s) => sourceColumns[s].includes(activeIdStr)) || null;
-
-    // determine destination column key
-    let destColumnKey: "active" | "pending" | "completed" | null = null;
-    // if over is a card id, find which column contains that card
-    const overCardColumn = STATUS.find((s) =>
-      sourceColumns[s].includes(overIdStr)
-    );
-    if (overCardColumn) destColumnKey = overCardColumn;
-    // if over is the column id itself (we chose Option A), treat as dropping into that column
-    else if (isStatus(overIdStr)) destColumnKey = overIdStr;
-
-    if (!destColumnKey) {
-      setOverlayProject(null);
-      return;
-    }
-
-    // lists representing ids in source and dest columns
-    const fromList = Array.from(
-      sourceColumns[sourceColumnKey || "pending"] || []
-    );
-    const toList = Array.from(sourceColumns[destColumnKey] || []);
-
-    const fromIndex = fromList.indexOf(activeIdStr);
-
-    // compute insertion index in destination
-    let insertionIndex = toList.length; // default -> end of column
-
-    // if over is a card id and it belongs to destination column, insert before that card
-    if (sourceColumns[destColumnKey].includes(overIdStr)) {
-      const overIndex = toList.indexOf(overIdStr);
-      if (overIndex !== -1) {
-        insertionIndex = overIndex;
-      }
-    } else if (isStatus(overIdStr)) {
-      // over is column id -> Option 2 behavior: determine whether cursor was above/below last card
-      // In this simplified approach we insert at end (common Trello behavior). If you'd like
-      // a pixel-precise top/bottom detection, we can add measuring on pointer position.
-      insertionIndex = toList.length;
-    }
-
-    // If moving inside same column, handle reorder
-    if (sourceColumnKey === destColumnKey) {
-      // only proceed if indices differ
-      if (fromIndex === -1) {
-        setOverlayProject(null);
-        return;
-      }
-      // if insertionIndex refers to same position or adjacent no-op, still compute new array
-      const newList = Array.from(toList);
-      // remove the active id from its old spot (source and dest are same)
-      newList.splice(fromIndex, 1);
-      // if the active was before the insertion point originally and we're inserting after its old spot,
-      // adjust insertionIndex because removal shifts indices.
-      let adjustedIndex = insertionIndex;
-      if (fromIndex < insertionIndex) adjustedIndex = insertionIndex - 1;
-      newList.splice(adjustedIndex, 0, activeIdStr);
-
-      destColumns = { ...sourceColumns, [destColumnKey]: newList };
-    } else {
-      // moving across columns
-      const newFrom = Array.from(fromList);
-      if (fromIndex !== -1) newFrom.splice(fromIndex, 1);
-
-      const newTo = Array.from(toList);
-      // insertionIndex may be toList.length (append) or index of over card
-      newTo.splice(insertionIndex, 0, activeIdStr);
-
-      destColumns = {
-        ...sourceColumns,
-        [sourceColumnKey || "pending"]: newFrom,
-        [destColumnKey]: newTo,
-      };
-    }
-
-    const newProjectsList = rebuildProjectsFromColumns(destColumns);
-
-    // optimistic update
-    const prev = projects;
-    setProjects(newProjectsList);
-
-    // persist only the moved project's new status (and order_index if desired)
-    const moved = findProjectById(activeIdStr);
-    if (!moved) {
-      setOverlayProject(null);
-      return;
-    }
-
-    const newIndex = newProjectsList.findIndex((p) => p.id === moved.id);
-    const newStatus = newProjectsList[newIndex].status;
-
-    try {
-      const { data, error } = await supabase
-        .from("projects")
-        .update({ status: newStatus })
-        .eq("id", moved.id)
-        .select("*")
-        .single();
-
-      if (error) throw error;
-
-      // replace moved item with server canonical data
-      setProjects((prevList) =>
-        prevList.map((p) => (p.id === moved.id ? (data as Project) : p))
-      );
-    } catch (err: any) {
-      console.error("Failed to persist project move:", err);
-      setApiError("Failed to move project. Reverting.");
-      setProjects(prev);
-    } finally {
-      setOverlayProject(null);
-    }
-  }
-
-  function handleDragStart(event: DragStartEvent) {
-    const { active } = event;
-    setActiveId(active.id as string);
-    const proj = findProjectById(active.id as string);
-    setOverlayProject(proj);
-  }
-
-  /* Helper: render project card (shared between list/grid and kanban) */
   function ProjectCard({ p }: { p: Project }) {
     return (
-      <div
-        key={p.id}
-        className={`project-card ${styles.card} ${
-          activeId === p.id ? styles.dragging : ""
-        }`}
-      >
+      <div className={`project-card ${styles.card}`}>
         <button
           className={styles.deleteIcon}
           onClick={() => setDeleteTarget(p.id)}
@@ -391,109 +141,34 @@ export default function ProjectsPage() {
     );
   }
 
-  /* Kanban rendering using dnd-kit */
-  function KanbanBoard() {
-    const colIds = STATUS;
-
-    const filteredIds = new Set(filtered.map((p) => p.id));
-
-    return (
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        measuring={{ droppable: { strategy: MeasuringStrategy.Always } }}
-      >
-        <div className={styles.kanbanBoard}>
-          {colIds.map((s) => {
-            const allIds = columnsToIds(projects)[s] || [];
-            const colProjectIds = allIds.filter((id) => filteredIds.has(id));
-
-            return (
-              <DroppableColumn key={s} columnId={s}>
-                <div className={styles.kanbanHeader}>
-                  <h4>{s.toUpperCase()}</h4>
-                  <span className={styles.kanbanCount}>
-                    {colProjectIds.length}
-                  </span>
-                </div>
-
-                <SortableContext
-                  items={colProjectIds}
-                  strategy={rectSortingStrategy}
-                >
-                  <div
-                    className={styles.kanbanList}
-                    id={s}
-                    data-droppable-id={s}
-                  >
-                    {colProjectIds.map((id) => {
-                      const p = projects.find((x) => x.id === id)!;
-                      return <SortableProjectCard key={p.id} p={p} />;
-                    })}
-
-                    {colProjectIds.length === 0 && (
-                      <div className={styles.kanbanEmpty}>
-                        No projects in this column.
-                      </div>
-                    )}
-                  </div>
-                </SortableContext>
-              </DroppableColumn>
-            );
-          })}
-        </div>
-
-        <DragOverlay>
-          {overlayProject ? <DragOverlayCard p={overlayProject} /> : null}
-        </DragOverlay>
-      </DndContext>
-    );
-  }
-
-  /* Sortable project card using dnd-kit useSortable */
-  function SortableProjectCard({ p }: { p: Project }) {
-    const { attributes, listeners, setNodeRef, transform, transition } =
-      useSortable({ id: p.id });
-
-    const style: React.CSSProperties = {
-      transform: CSS.Transform.toString(transform as any),
-      transition,
-    };
-
-    return (
-      <div
-        ref={setNodeRef}
-        style={style}
-        className={styles.kanbanCardWrapper}
-        {...attributes}
-        {...listeners}
-      >
-        <ProjectCard p={p} />
-      </div>
-    );
-  }
-
-  function DragOverlayCard({ p }: { p: Project }) {
+  function ProjectOverlayCard({ p }: { p: Project }) {
     return (
       <div className={`${styles.card} ${styles.dragOverlay}`}>
         <div className={styles.cardBody}>
           <h3>{p.name}</h3>
-          <p className={styles.clientRow}>Client: {p.client_name || "—"}</p>
         </div>
       </div>
     );
   }
 
-  // Debounce search input
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setSearch(searchInput);
-    }, 300);
+  // ============================================================
+  // UPDATE STATUS CALLBACK FOR KANBAN BOARD
+  // ============================================================
+  async function handleStatusChange(id: string, newStatus: Project["status"]) {
+    const old = projects;
 
-    return () => clearTimeout(handler);
-  }, [searchInput]);
+    // optimistic update
+    setProjects((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, status: newStatus } : p))
+    );
+
+    const { error } = await supabase
+      .from("projects")
+      .update({ status: newStatus })
+      .eq("id", id);
+
+    if (error) setProjects(old); // rollback
+  }
 
   return (
     <div className={styles.container}>
@@ -501,23 +176,19 @@ export default function ProjectsPage() {
       <div className={styles.header}>
         <h1>Projects</h1>
 
-        {/* top-right controls: view toggle */}
         <div className={styles.viewToggle}>
           <button
             className={`${styles.smallIconBtn} ${
               viewMode === "list" ? styles.smallIconBtnActive : ""
             }`}
-            title="List view"
             onClick={() => setViewMode("list")}
           >
             <ListIcon size={16} />
           </button>
-
           <button
             className={`${styles.smallIconBtn} ${
               viewMode === "kanban" ? styles.smallIconBtnActive : ""
             }`}
-            title="Kanban view"
             onClick={() => setViewMode("kanban")}
           >
             <Columns size={16} />
@@ -527,9 +198,8 @@ export default function ProjectsPage() {
 
       <ErrorMessage message={apiError || ""} />
 
-      {/* 🔥 UNIFIED CONTROL BAR */}
+      {/* FILTER BAR */}
       <div className={styles.filtersRow}>
-        {/* Search */}
         <div className={styles.searchBar}>
           <input
             type="text"
@@ -540,7 +210,6 @@ export default function ProjectsPage() {
           <Search size={16} className={styles.searchIcon} />
         </div>
 
-        {/* Hide pills when in kanban mode */}
         {viewMode === "list" && (
           <div className={styles.pills}>
             {STATUS.map((s) => (
@@ -557,18 +226,18 @@ export default function ProjectsPage() {
           </div>
         )}
 
-        {/* Unified Filter Button */}
+        {/* FILTERS DROPDOWN */}
         <div className={styles.filterWrap}>
           <button
             className={styles.filterBtn}
-            onClick={() => setFiltersOpen((prev) => !prev)}
+            onClick={() => setFiltersOpen((p) => !p)}
           >
             <Filter size={16} /> Filters
           </button>
 
           {filtersOpen && (
             <div ref={filterRef} className={styles.filterDropdown}>
-              {/* Close button inside dropdown */}
+              {/* close */}
               <div
                 className={styles.filterCloseBtn}
                 onClick={() => setFiltersOpen(false)}
@@ -576,7 +245,7 @@ export default function ProjectsPage() {
                 ✕
               </div>
 
-              {/* Client section */}
+              {/* CLIENT FILTER */}
               <div className={styles.dropdownSection}>
                 <label>Client</label>
 
@@ -602,7 +271,7 @@ export default function ProjectsPage() {
 
               <div className={styles.divider}></div>
 
-              {/* Due Date section */}
+              {/* DUE DATE FILTER */}
               <div className={styles.dropdownSection}>
                 <label>Due Date</label>
 
@@ -641,7 +310,6 @@ export default function ProjectsPage() {
                 </div>
               </div>
 
-              {/* CLEAR ALL */}
               <button
                 className={styles.clearAllBtn}
                 onClick={() => {
@@ -657,12 +325,8 @@ export default function ProjectsPage() {
         </div>
       </div>
 
-      {projects.length === 0 && (
-        <div className={styles.empty}>No projects created.</div>
-      )}
-
-      {/* MAIN CONTENT: list or kanban */}
-      {viewMode === "list" ? (
+      {/* LIST VIEW */}
+      {viewMode === "list" && (
         <div className={styles.grid}>
           {filtered.map((p) => (
             <ProjectCard key={p.id} p={p} />
@@ -672,8 +336,17 @@ export default function ProjectsPage() {
             <div className={styles.empty}>No projects match these filters.</div>
           )}
         </div>
-      ) : (
-        <KanbanBoard />
+      )}
+
+      {/* KANBAN VIEW */}
+      {viewMode === "kanban" && (
+        <KanbanBoard<Project>
+          tasks={filtered}
+          statusList={STATUS}
+          renderCard={(p) => <ProjectCard p={p} />}
+          renderOverlayCard={(p) => <ProjectOverlayCard p={p} />}
+          onStatusChange={handleStatusChange}
+        />
       )}
 
       {/* MODALS */}
@@ -692,11 +365,8 @@ export default function ProjectsPage() {
         }}
       />
 
-      <button
-        className={styles.fab}
-        onClick={() => setOpenModal(true)}
-        aria-label="New project"
-      >
+      {/* FAB */}
+      <button className={styles.fab} onClick={() => setOpenModal(true)}>
         <Plus size={30} />
       </button>
     </div>
