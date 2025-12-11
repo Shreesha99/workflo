@@ -1,4 +1,3 @@
-// components/ui/Input.tsx
 "use client";
 
 import React from "react";
@@ -10,9 +9,9 @@ type InputProps = {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
-  // optional right-side icon (e.g. eye toggle). We'll render it inside a container.
   rightIcon?: React.ReactNode;
   onRightIconClick?: (e: React.MouseEvent) => void;
+  disabled?: boolean; // NEW
 };
 
 export default function Input({
@@ -23,6 +22,7 @@ export default function Input({
   placeholder,
   rightIcon,
   onRightIconClick,
+  disabled = false,
 }: InputProps) {
   return (
     <div className={styles.wrapper}>
@@ -35,6 +35,7 @@ export default function Input({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
+          disabled={disabled} // NEW
         />
 
         {rightIcon && (

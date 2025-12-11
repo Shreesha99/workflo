@@ -56,14 +56,14 @@ export default function Button({
   return (
     <button
       ref={btnRef}
-      className={`${styles.button} ${loading ? styles.loading : ""} ${
-        disabled ? styles.disabled : ""
-      } ${className}`}
+      disabled={disabled}
+      className={`${styles.button} ${disabled ? styles.disabled : ""} ${
+        loading ? styles.loading : ""
+      }`}
       onClick={loading || disabled ? undefined : onClick}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
       type={type}
-      disabled={disabled || loading}
     >
       {loading ? <div className={styles.spinner} /> : children}
     </button>

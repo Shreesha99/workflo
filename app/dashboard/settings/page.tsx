@@ -15,6 +15,8 @@ export default function SettingsPage() {
   const supabase = supabaseClient();
 
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
@@ -25,7 +27,7 @@ export default function SettingsPage() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState("");
 
-  // Load user profile
+  // Load profile
   useEffect(() => {
     async function loadProfile() {
       const { data: userData } = await supabase.auth.getUser();
@@ -43,14 +45,12 @@ export default function SettingsPage() {
       if (profile) {
         setDisplayName(profile.display_name || "");
         setUsername(profile.username || "");
-        if (profile.avatar_url) {
-          setAvatarPreview(profile.avatar_url);
-        }
+        if (profile.avatar_url) setAvatarPreview(profile.avatar_url);
       }
 
       gsap.fromTo(
         `.${styles.container}`,
-        { opacity: 0, y: 12 },
+        { opacity: 0, y: 14 },
         { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }
       );
     }
@@ -58,7 +58,7 @@ export default function SettingsPage() {
     loadProfile();
   }, []);
 
-  // Update profile fields
+  // Save profile info
   async function handleSave() {
     setError("");
     setSuccess("");
@@ -68,127 +68,143 @@ export default function SettingsPage() {
     const user = userData?.user;
 
     if (!user) {
-      setError("You must be logged in.");
+      setError("Not logged in.");
       setLoading(false);
       return;
     }
 
-    const updates = {
+    // Update user profile fields
+    const { error: profileErr } = await supabase.from("user_profiles").upsert({
+      id: user.id,
       display_name: displayName,
-      username,
-    };
-
-    const { error } = await supabase
-      .from("user_profiles")
-      .update(updates)
-      .eq("id", user.id);
+      username: username,
+    });
 
     setLoading(false);
 
-    if (error) {
-      setError(error.message);
+    if (profileErr) {
+      setError(profileErr.message);
       return;
     }
 
     setSuccess("Profile updated successfully!");
   }
 
-  // Handle avatar upload
+  // Upload avatar
   async function handleAvatarUpload() {
     setError("");
     setSuccess("");
+    setUploading(true);
 
     if (!avatarFile) {
       setError("Please select an image.");
+      setUploading(false);
       return;
     }
 
     const { data: userData } = await supabase.auth.getUser();
     const user = userData?.user;
-
     if (!user) {
       setError("You must be logged in.");
+      setUploading(false);
       return;
     }
 
-    const fileName = `${user.id}-${Date.now()}`;
+    const ext = avatarFile.name.split(".").pop();
+    const fileName = `avatar-${Date.now()}.${ext}`;
+    const filePath = `${user.id}/${fileName}`;
 
-    const { error: uploadError } = await supabase.storage
+    const { error: uploadErr } = await supabase.storage
       .from("avatars")
-      .upload(fileName, avatarFile, {
-        cacheControl: "3600",
-        upsert: false,
-      });
+      .upload(filePath, avatarFile, { upsert: true });
 
-    if (uploadError) {
-      setError(uploadError.message);
+    if (uploadErr) {
+      setUploading(false);
+      setError(uploadErr.message);
       return;
     }
 
-    const { data: url } = supabase.storage
+    const { data: urlData } = supabase.storage
       .from("avatars")
-      .getPublicUrl(fileName);
+      .getPublicUrl(filePath);
 
-    await supabase
+    const publicUrl = urlData.publicUrl;
+
+    const { error: dbErr } = await supabase
       .from("user_profiles")
-      .update({ avatar_url: url.publicUrl })
+      .update({ avatar_url: publicUrl })
       .eq("id", user.id);
 
-    setAvatarPreview(url.publicUrl);
+    setUploading(false);
+
+    if (dbErr) {
+      setError(dbErr.message);
+      return;
+    }
+
+    setAvatarPreview(publicUrl);
     setSuccess("Avatar updated!");
   }
 
   return (
     <div className={styles.container}>
-      <h1>Settings</h1>
+      <h1 className={styles.title}>Account Settings</h1>
 
       <ErrorMessage message={error} />
       <SuccessMessage message={success} />
 
-      {/* PROFILE INFO */}
-      <div className={styles.section}>
-        <h2>Profile</h2>
+      <div className={styles.grid}>
+        {/* LEFT SIDE — Profile Info */}
+        <div className={styles.card}>
+          <h2>Profile Information</h2>
 
-        <Input
-          label="Display Name"
-          value={displayName}
-          placeholder="John Doe"
-          onChange={(e) => setDisplayName(e.target.value)}
-        />
+          <Input
+            label="Display Name"
+            value={displayName}
+            placeholder="John Doe"
+            onChange={(e) => setDisplayName(e.target.value)}
+          />
 
-        <Input
-          label="Username"
-          value={username}
-          placeholder="john123"
-          onChange={(e) => setUsername(e.target.value)}
-        />
+          <Input
+            label="Username"
+            value={username}
+            placeholder="john123"
+            onChange={(e) => setUsername(e.target.value)}
+          />
 
-        <Input label="Email" value={email} placeholder="" onChange={() => {}} />
-      </div>
+          <Input label="Email" value={email} disabled onChange={() => {}} />
 
-      <Button loading={loading} onClick={handleSave}>
-        Save Changes
-      </Button>
+          <Button loading={loading} onClick={handleSave}>
+            Save Changes
+          </Button>
+        </div>
 
-      {/* AVATAR UPLOAD */}
-      <div className={styles.section}>
-        <h2>Avatar</h2>
+        {/* RIGHT SIDE — Avatar Upload */}
+        <div className={styles.card}>
+          <h2>Avatar</h2>
 
-        {avatarPreview && (
-          <img src={avatarPreview} className={styles.avatarPreview} />
-        )}
+          <div className={styles.avatarContainer}>
+            {avatarPreview ? (
+              <img src={avatarPreview} className={styles.avatar} />
+            ) : (
+              <div className={styles.avatarPlaceholder}>No Avatar</div>
+            )}
+          </div>
 
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            const file = e.target.files?.[0] || null;
-            setAvatarFile(file);
-            if (file) setAvatarPreview(URL.createObjectURL(file));
-          }}
-        />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0] || null;
+              setAvatarFile(file);
+              if (file) setAvatarPreview(URL.createObjectURL(file));
+            }}
+          />
 
-        <Button onClick={handleAvatarUpload}>Upload Avatar</Button>
+          <Button loading={uploading} onClick={handleAvatarUpload}>
+            Upload Avatar
+          </Button>
+        </div>
       </div>
     </div>
   );
