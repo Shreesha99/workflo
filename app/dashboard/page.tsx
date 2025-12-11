@@ -237,21 +237,28 @@ export default function OverviewPage() {
     };
   }, [tasksOverTime]);
 
-const doughnutOptions: ChartOptions<"doughnut"> = {
-  cutout: "70%",
-  plugins: {
-    legend: { display: true, position: "bottom" },
-    tooltip: { padding: 8, cornerRadius: 8 },
-  },
-};
-  const lineOptions = {
+  const doughnutOptions: ChartOptions<"doughnut"> = {
+    cutout: "72%",
+    animation: {
+      animateScale: true,
+      animateRotate: true,
+      duration: 1200,
+      easing: "easeOutQuint",
+    },
+    plugins: {
+      legend: { display: true, position: "bottom" },
+    },
+  };
+
+  const lineOptions: ChartOptions<"line"> = {
+    animation: {
+      duration: 1400,
+      easing: "easeOutQuint",
+    },
     plugins: { legend: { display: false } },
     scales: {
-      x: { grid: { display: false }, ticks: { color: "var(--text-soft)" } },
-      y: {
-        grid: { color: "rgba(0,0,0,0.06)" },
-        ticks: { color: "var(--text-soft)" },
-      },
+      x: { ticks: { color: "var(--text-soft)" }, grid: { display: false } },
+      y: { ticks: { color: "var(--text-soft)" } },
     },
   };
 
