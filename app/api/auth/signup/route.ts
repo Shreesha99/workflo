@@ -25,7 +25,9 @@ export async function POST(req: Request) {
     );
   }
 
-  const alreadyExists = result.data.users.some(
+  const users = result.data.users as { email: string | null }[];
+
+  const alreadyExists = users.some(
     (u) => u.email?.toLowerCase() === email.toLowerCase()
   );
 
