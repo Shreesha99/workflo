@@ -1,103 +1,229 @@
+/* ============================= */
+/*      CONTAINER + HEADER       */
+/* ============================= */
+
 .container {
   width: 100%;
-  padding: 6px 4px;
+  padding: 24px 32px;
+  color: var(--text);
 }
 
-/* HEADER */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 28px;
 
   h1 {
-    font-size: 28px;
+    font-size: 30px;
     font-weight: 700;
-    letter-spacing: -0.4px;
+    margin-bottom: 4px;
   }
 }
 
-.right {
+/* ============================= */
+/*       UNIFIED FILTER BAR      */
+/* ============================= */
+
+.filtersRow {
   display: flex;
-  gap: 8px;
   align-items: center;
+  gap: 18px;
+  margin: 20px 0;
 }
 
-.newFileBtn {
-  background: var(--primary);
-  color: #000;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 12px;
-  font-weight: 600;
+/* Search Bar */
+.searchBar {
+  position: relative;
+  max-width: 280px;
+  width: 100%;
+
+  input {
+    width: 100%;
+    padding: 12px 14px 12px 40px;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    background: var(--bg-soft);
+    font-size: 15px;
+
+    &:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.35);
+      outline: none;
+    }
+  }
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  opacity: 0.55;
+}
+
+/* Filter Dropdown */
+.filterWrap {
+  position: relative;
+}
+
+.filterBtn {
+  padding: 8px 14px;
+  background: var(--bg-soft);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   cursor: pointer;
-  transition: all 0.25s ease;
-  box-shadow: 0 3px 10px rgba(255, 186, 0, 0.2);
 
   &:hover {
-    opacity: 0.9;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(255, 186, 0, 0.3);
-  }
-}
-
-.search {
-  padding: 12px 16px;
-  width: 100%;
-  max-width: 340px;
-  border: 1px solid var(--card-border);
-  border-radius: 12px;
-  margin-bottom: 24px;
-  margin-top: 12px;
-  background: var(--bg-soft);
-  transition: 0.25s ease;
-
-  &:focus {
-    outline: none;
-    border-color: var(--primary);
     background: var(--card-bg);
-    box-shadow: 0 0 0 3px rgba(255, 186, 0, 0.25);
   }
 }
 
-/* GRID */
+.filterDropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  width: 230px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 14px;
+  z-index: 20;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.14);
+  opacity: 0;
+  transform: translateY(-6px);
+  animation: fadeIn 0.25s ease forwards;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filterCloseBtn {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--text-soft);
+  transition: 0.15s ease;
+
+  &:hover {
+    color: var(--text);
+    transform: scale(1.15);
+  }
+}
+
+.dropdownSection {
+  label {
+    font-size: 12px;
+    color: var(--text-soft);
+    margin-bottom: 6px;
+    display: block;
+  }
+}
+
+.dropdownItem {
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:hover {
+    background: var(--bg-soft);
+  }
+}
+
+.activeItem {
+  background: var(--primary);
+  color: black;
+}
+
+.dropdownClear {
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  color: #b71c1c;
+
+  &:hover {
+    background: #ffeaea;
+  }
+}
+
+.clearAllBtn {
+  padding: 8px;
+  border-radius: 10px;
+  font-size: 13px;
+  border: 1px solid #ffcccc;
+  background: #ffecec;
+  color: #a20000;
+  cursor: pointer;
+
+  &:hover {
+    filter: brightness(0.95);
+  }
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+}
+
+/* ============================= */
+/*             GRID              */
+/* ============================= */
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 20px;
+  gap: 22px;
 }
 
-/* FILE CARD */
+.empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: var(--text-soft);
+  margin-top: 20px;
+}
+
+/* ============================= */
+/*              CARD             */
+/* ============================= */
+
 .card {
   background: var(--card-bg);
-  padding: 14px;
   border: 1px solid var(--card-border);
-  border-radius: 14px;
-  transition: 0.25s ease;
-  cursor: default;
+  border-radius: 16px;
+  padding: 16px;
   display: flex;
   gap: 12px;
-  align-items: flex-start;
+  transition: 0.25s ease;
 
   &:hover {
     transform: translateY(-4px);
     border-color: var(--primary);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
   }
 }
 
-/* preview box (left column) */
+/* File preview */
 .previewWrap {
   width: 160px;
   height: 160px;
   border-radius: 12px;
-  overflow: hidden;
+  background: var(--bg-soft);
+  border: 1px solid var(--card-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--bg-soft);
-  border: 1px solid var(--card-border);
-  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .imagePreview {
@@ -108,112 +234,44 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
-  }
-
-  .previewPlaceholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-soft);
-    font-size: 13px;
   }
 }
 
-.fileIcon {
-  font-size: 36px;
+.previewPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-soft);
+  font-size: 13px;
 }
 
-/* right column */
 .cardBody {
   flex: 1;
   display: flex;
   flex-direction: column;
-  height: 100%;
-}
-
-.actions {
-  margin-top: auto; /* push to bottom */
-  padding-top: 12px;
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  align-items: center;
 }
 
 .fileTitle {
   font-size: 16px;
   font-weight: 600;
-  margin: 0 0 8px 0;
-  word-break: break-word;
+  margin-bottom: 6px;
 }
 
 .meta {
   font-size: 13px;
   color: var(--text-soft);
-  margin-top: 2px;
   display: flex;
   justify-content: space-between;
-}
-/* Buttons */
-.primaryBtn {
-  background: linear-gradient(90deg, var(--primary), rgba(255, 186, 0, 0.85));
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: none;
-  font-weight: 700;
-  cursor: pointer;
-  color: #000;
-  box-shadow: 0 6px 18px rgba(255, 186, 0, 0.12);
-  transition: transform 0.14s ease, opacity 0.14s ease;
+  margin-top: 4px;
 }
 
-.primaryBtn:hover {
-  transform: translateY(-2px);
-}
-
-.ghostBtn {
-  background: transparent;
-  border: 1px solid var(--card-border);
-  padding: 8px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.dangerBtn {
-  background: transparent;
-  border: 1px solid rgba(255, 40, 40, 0.12);
-  color: #ff2a2a;
-  padding: 8px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: 700;
-}
-
-/* small responsiveness */
-@media (max-width: 680px) {
-  .grid {
-    grid-template-columns: 1fr;
-  }
-
-  .previewWrap {
-    width: 72px;
-    height: 72px;
-  }
-}
-
+/* ACTION ICONS */
 .actions {
-  margin-top: 12px;
   display: flex;
   gap: 10px;
-  justify-content: flex-end; /* RIGHT ALIGN */
-  align-items: center;
+  margin-top: auto;
 }
 
-/* Universal icon button */
 .iconBtn {
   width: 34px;
   height: 34px;
@@ -225,30 +283,24 @@
   justify-content: center;
   cursor: pointer;
   transition: 0.2s ease;
-  color: var(--text-normal);
 
-  svg {
-    stroke-width: 2.2;
+  &:hover {
+    background: var(--card-bg);
+    border-color: var(--primary);
+    transform: translateY(-2px);
   }
 }
 
-.iconBtn:hover {
-  background: var(--card-bg);
-  border-color: var(--primary);
-  transform: translateY(-2px);
-}
-
-/* Red delete icon */
 .deleteBtn {
   color: #ff3b3b;
   border-color: rgba(255, 59, 59, 0.25);
+
+  &:hover {
+    background: rgba(255, 59, 59, 0.12);
+  }
 }
 
-.deleteBtn:hover {
-  background: rgba(255, 59, 59, 0.1);
-  border-color: #ff3b3b;
-}
-
+/* FAB button */
 .fab {
   position: fixed;
   bottom: 26px;
@@ -256,22 +308,17 @@
   transform: translateX(-50%);
   width: 62px;
   height: 62px;
-
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
   background: var(--primary);
   border: none;
   cursor: pointer;
-  color: #000;
   font-size: 32px;
-  font-weight: 600;
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #000;
   box-shadow: 0 6px 22px rgba(0, 0, 0, 0.18);
   transition: 0.25s ease;
-  z-index: 1000;
 
   &:hover {
     transform: translateX(-50%) translateY(-4px);

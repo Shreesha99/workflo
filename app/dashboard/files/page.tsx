@@ -1,6 +1,6 @@
 "use client";
 
-import { JSX, useCallback, useEffect, useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { supabaseClient } from "@/lib/supabase/client";
 import gsap from "gsap";
 import styles from "./files.module.scss";
@@ -12,14 +12,23 @@ import DeleteFileModal from "@/components/modals/DeleteFileModal";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import SuccessMessage from "@/components/ui/SuccessMessage";
 
-import { Download, Pencil, Trash2, Plus } from "lucide-react";
+import { Download, Pencil, Trash2, Plus, Filter, Search } from "lucide-react";
 import { File as FileIconLucide, FileImage, FileVideo } from "lucide-react";
 
 export default function FilesPage() {
   const supabase = supabaseClient();
 
   const [files, setFiles] = useState<any[]>([]);
+  const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
+
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [typeFilter, setTypeFilter] = useState("");
+  const [projectFilter, setProjectFilter] = useState("");
+  const [sizeFilter, setSizeFilter] = useState("");
+
+  const filterRef = useRef<HTMLDivElement | null>(null);
+
   const [openModal, setOpenModal] = useState(false);
   const [editingFile, setEditingFile] = useState<any | null>(null);
   const [deletingFile, setDeletingFile] = useState<any | null>(null);
@@ -32,16 +41,14 @@ export default function FilesPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Auto clear success & error messages
+  /* ============================
+     Auto clear alerts
+     ============================ */
   useEffect(() => {
     let t1: any, t2: any;
 
-    if (success) {
-      t1 = setTimeout(() => setSuccess(""), 2500);
-    }
-    if (error) {
-      t2 = setTimeout(() => setError(""), 4000);
-    }
+    if (success) t1 = setTimeout(() => setSuccess(""), 2500);
+    if (error) t2 = setTimeout(() => setError(""), 4000);
 
     return () => {
       clearTimeout(t1);
@@ -49,32 +56,40 @@ export default function FilesPage() {
     };
   }, [success, error]);
 
-  async function loadFiles() {
-    setError("");
-
-    try {
-      const { data, error } = await supabase
-        .from("files")
-        .select("*, projects(name)")
-        .order("created_at", { ascending: false });
-
-      if (error) {
-        setError(error.message);
-        setFiles([]);
-        return;
+  /* ============================
+     Close dropdown on outside click
+     ============================ */
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
+        setFiltersOpen(false);
       }
-
-      setFiles(data || []);
-    } catch (err: any) {
-      setError(err?.message || "Could not load files.");
-      setFiles([]);
     }
+
+    if (filtersOpen) document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [filtersOpen]);
+
+  /* ============================
+     Load Files
+     ============================ */
+  async function loadFiles() {
+    const { data, error } = await supabase
+      .from("files")
+      .select("*, projects(name)")
+      .order("created_at", { ascending: false });
+
+    if (error) return setError(error.message);
+    setFiles(data || []);
   }
 
   useEffect(() => {
     loadFiles();
   }, []);
 
+  /* ============================
+     Animate cards
+     ============================ */
   useEffect(() => {
     gsap.fromTo(
       ".file-card",
@@ -83,29 +98,59 @@ export default function FilesPage() {
     );
   }, [files]);
 
-  const filtered = files.filter((f) =>
-    (f.display_name ?? f.path ?? "")
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  /* ============================
+     Filters
+     ============================ */
+  const uniqueProjects = [
+    ...new Set(files.map((f) => f.projects?.name).filter(Boolean)),
+  ];
 
+  useEffect(() => {
+    const timeout = setTimeout(() => setSearch(searchInput), 300);
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
+
+  const filtered = files.filter((f) => {
+    const display = (f.display_name ?? f.path ?? "").toLowerCase();
+    const searchMatch = display.includes(search.toLowerCase());
+
+    let typeMatch = true;
+    if (typeFilter === "images") typeMatch = f.mime_type?.startsWith("image/");
+    if (typeFilter === "videos") typeMatch = f.mime_type?.startsWith("video/");
+    if (typeFilter === "pdf") typeMatch = f.mime_type === "application/pdf";
+    if (typeFilter === "other")
+      typeMatch =
+        !f.mime_type?.startsWith("image/") &&
+        !f.mime_type?.startsWith("video/") &&
+        f.mime_type !== "application/pdf";
+
+    const projectMatch = projectFilter
+      ? f.projects?.name === projectFilter
+      : true;
+
+    let sizeMatch = true;
+    if (sizeFilter === "small") sizeMatch = f.size < 500 * 1024;
+    if (sizeFilter === "medium")
+      sizeMatch = f.size >= 500 * 1024 && f.size < 3 * 1024 * 1024;
+    if (sizeFilter === "large") sizeMatch = f.size >= 3 * 1024 * 1024;
+
+    return searchMatch && typeMatch && projectMatch && sizeMatch;
+  });
+
+  /* ============================
+     Signed URL
+     ============================ */
   async function createSignedUrl(path: string, expires = 120) {
-    try {
-      const { data, error } = await supabase.storage
-        .from("project-files")
-        .createSignedUrl(path, expires);
+    const { data } = await supabase.storage
+      .from("project-files")
+      .createSignedUrl(path, expires);
 
-      if (error || !data?.signedUrl) return null;
-
-      return data.signedUrl;
-    } catch {
-      return null;
-    }
+    return data?.signedUrl || null;
   }
 
   const ensurePreview = useCallback(
     async (path: string, mime: string) => {
-      if (!mime?.startsWith?.("image/")) return null;
+      if (!mime?.startsWith("image/")) return null;
       if (previewMap[path]) return previewMap[path];
 
       setLoadingPreviews((s) => ({ ...s, [path]: true }));
@@ -121,68 +166,34 @@ export default function FilesPage() {
     [previewMap]
   );
 
+  /* ============================
+     Download
+     ============================ */
   async function downloadFile(path: string, displayName?: string) {
-    setError("");
-    setSuccess("");
-
     const signed = await createSignedUrl(path, 120);
-    if (!signed) {
-      setError("Could not generate secure download URL.");
-      return;
-    }
+    if (!signed) return setError("Could not generate secure URL.");
 
-    try {
-      const res = await fetch(signed);
-      if (!res.ok) {
-        setError("Download failed.");
-        return;
-      }
+    const res = await fetch(signed);
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
 
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = displayName || path.split("/").pop() || "file";
+    a.click();
+    URL.revokeObjectURL(url);
 
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = displayName || path.split("/").pop() || "file";
-      a.click();
-      URL.revokeObjectURL(url);
-
-      setSuccess("Download started!");
-    } catch (err: any) {
-      setError(err?.message || "Download failed.");
-    }
+    setSuccess("Download started!");
   }
 
+  /* ============================
+     Delete File
+     ============================ */
   async function executeDelete(fileId: string, path: string) {
-    setError("");
-    setSuccess("");
-
-    try {
-      await supabase.storage.from("project-files").remove([path]);
-
-      const { error: dbErr } = await supabase
-        .from("files")
-        .delete()
-        .eq("id", fileId);
-
-      if (dbErr) {
-        setError(dbErr.message);
-        return;
-      }
-
-      setPreviewMap((m) => {
-        const c = { ...m };
-        delete c[path];
-        return c;
-      });
-
-      setSuccess("File deleted successfully!");
-      await loadFiles();
-    } catch (err: any) {
-      setError(err?.message || "Delete failed.");
-    } finally {
-      setDeletingFile(null);
-    }
+    await supabase.storage.from("project-files").remove([path]);
+    await supabase.from("files").delete().eq("id", fileId);
+    await loadFiles();
+    setDeletingFile(null);
   }
 
   return (
@@ -195,18 +206,178 @@ export default function FilesPage() {
       <ErrorMessage message={error} />
       <SuccessMessage message={success} />
 
-      {/* SEARCH */}
-      <input
-        className={styles.search}
-        placeholder="Search files…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      {/* FILTER BAR */}
+      <div className={styles.filtersRow}>
+        {/* Search Bar */}
+        <div className={styles.searchBar}>
+          <input
+            placeholder="Search files..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
+          <Search className={styles.searchIcon} size={16} />
+        </div>
 
-      {/* FILE GRID */}
+        {/* Filter Button */}
+        <div className={styles.filterWrap}>
+          <button
+            className={styles.filterBtn}
+            onClick={() => setFiltersOpen((o) => !o)}
+          >
+            <Filter size={16} /> Filters
+          </button>
+
+          {filtersOpen && (
+            <div ref={filterRef} className={styles.filterDropdown}>
+              <div
+                className={styles.filterCloseBtn}
+                onClick={() => setFiltersOpen(false)}
+              >
+                ✕
+              </div>
+
+              {/* FILE TYPE */}
+              <div className={styles.dropdownSection}>
+                <label>File Type</label>
+
+                <div
+                  className={`${styles.dropdownItem} ${
+                    typeFilter === "images" ? styles.activeItem : ""
+                  }`}
+                  onClick={() => setTypeFilter("images")}
+                >
+                  Images
+                </div>
+
+                <div
+                  className={`${styles.dropdownItem} ${
+                    typeFilter === "videos" ? styles.activeItem : ""
+                  }`}
+                  onClick={() => setTypeFilter("videos")}
+                >
+                  Videos
+                </div>
+
+                <div
+                  className={`${styles.dropdownItem} ${
+                    typeFilter === "pdf" ? styles.activeItem : ""
+                  }`}
+                  onClick={() => setTypeFilter("pdf")}
+                >
+                  PDFs
+                </div>
+
+                <div
+                  className={`${styles.dropdownItem} ${
+                    typeFilter === "other" ? styles.activeItem : ""
+                  }`}
+                  onClick={() => setTypeFilter("other")}
+                >
+                  Other
+                </div>
+
+                <div
+                  className={styles.dropdownClear}
+                  onClick={() => setTypeFilter("")}
+                >
+                  Clear
+                </div>
+              </div>
+
+              <div className={styles.divider} />
+
+              {/* PROJECT FILTER */}
+              <div className={styles.dropdownSection}>
+                <label>Project</label>
+
+                {uniqueProjects.map((p) => (
+                  <div
+                    key={p}
+                    className={`${styles.dropdownItem} ${
+                      projectFilter === p ? styles.activeItem : ""
+                    }`}
+                    onClick={() => setProjectFilter(p)}
+                  >
+                    {p}
+                  </div>
+                ))}
+
+                <div
+                  className={styles.dropdownClear}
+                  onClick={() => setProjectFilter("")}
+                >
+                  Clear
+                </div>
+              </div>
+
+              <div className={styles.divider} />
+
+              {/* SIZE FILTER */}
+              <div className={styles.dropdownSection}>
+                <label>File Size</label>
+
+                <div
+                  className={`${styles.dropdownItem} ${
+                    sizeFilter === "small" ? styles.activeItem : ""
+                  }`}
+                  onClick={() => setSizeFilter("small")}
+                >
+                  Small (&lt;500KB)
+                </div>
+
+                <div
+                  className={`${styles.dropdownItem} ${
+                    sizeFilter === "medium" ? styles.activeItem : ""
+                  }`}
+                  onClick={() => setSizeFilter("medium")}
+                >
+                  Medium (0.5–3MB)
+                </div>
+
+                <div
+                  className={`${styles.dropdownItem} ${
+                    sizeFilter === "large" ? styles.activeItem : ""
+                  }`}
+                  onClick={() => setSizeFilter("large")}
+                >
+                  Large (&gt;3MB)
+                </div>
+
+                <div
+                  className={styles.dropdownClear}
+                  onClick={() => setSizeFilter("")}
+                >
+                  Clear
+                </div>
+              </div>
+
+              {/* Clear All */}
+              <button
+                className={styles.clearAllBtn}
+                onClick={() => {
+                  setTypeFilter("");
+                  setProjectFilter("");
+                  setSizeFilter("");
+                }}
+              >
+                Clear All Filters
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {files.length === 0 && (
+        <div className={styles.empty}>No files uploaded.</div>
+      )}
+
+      {/* GRID */}
       <div className={styles.grid}>
+        {filtered.length === 0 && files.length !== 0 && (
+          <div className={styles.empty}>No files match the filter.</div>
+        )}
         {filtered.map((file) => {
-          const isImage = file.mime_type?.startsWith?.("image/");
+          const isImage = file.mime_type?.startsWith("image/");
           const display = file.display_name ?? file.path;
 
           return (
@@ -238,7 +409,6 @@ export default function FilesPage() {
                   <span>{new Date(file.created_at).toLocaleDateString()}</span>
                 </div>
 
-                {/* ACTIONS AT BOTTOM */}
                 <div className={styles.actions}>
                   <button
                     className={styles.iconBtn}
@@ -298,14 +468,15 @@ export default function FilesPage() {
   );
 }
 
-/* Helper Components */
+/* ============================
+   Helper Components
+   ============================ */
 
 function FileIcon({ ext = "", mime = "" }) {
-  ext = ext.toLowerCase();
   const iconStyles = { width: 42, height: 42 };
 
-  if (mime?.startsWith("video/")) return <FileVideo style={iconStyles} />;
-  if (mime?.startsWith("image/")) return <FileImage style={iconStyles} />;
+  if (mime.startsWith("video/")) return <FileVideo style={iconStyles} />;
+  if (mime.startsWith("image/")) return <FileImage style={iconStyles} />;
 
   return <FileIconLucide style={iconStyles} />;
 }

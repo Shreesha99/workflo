@@ -458,11 +458,18 @@ export default function TasksPage() {
         )}
       </div>
 
+      {tasks.length === 0 && (
+        <div className={styles.empty}>No tasks created.</div>
+      )}
+
       {viewMode === "list" ? (
         <div className={styles.grid}>
           {filtered.map((t) => (
             <TaskCard key={t.id} t={t} />
           ))}
+          {filtered.length === 0 && tasks.length !== 0 && (
+            <div className={styles.empty}>No tasks match these filters.</div>
+          )}
         </div>
       ) : (
         <DndContext

@@ -657,6 +657,10 @@ export default function ProjectsPage() {
         </div>
       </div>
 
+      {projects.length === 0 && (
+        <div className={styles.empty}>No projects created.</div>
+      )}
+
       {/* MAIN CONTENT: list or kanban */}
       {viewMode === "list" ? (
         <div className={styles.grid}>
@@ -664,7 +668,7 @@ export default function ProjectsPage() {
             <ProjectCard key={p.id} p={p} />
           ))}
 
-          {filtered.length === 0 && (
+          {filtered.length === 0 && projects.length !== 0 && (
             <div className={styles.empty}>No projects match these filters.</div>
           )}
         </div>
