@@ -5,16 +5,17 @@ import { supabaseServer } from "@/lib/supabase/server";
 export async function POST(req: Request) {
   const supabase = await supabaseServer();
 
-  const { email, password, username } = await req.json();
+  const { email, username } = await req.json();
 
-  if (!email || !password || !username) {
+  if (!email || !username) {
     return NextResponse.json(
-      { error: "Email, username and password are required." },
+      { error: "Email and username are required." },
       { status: 400 }
     );
   }
 
-  // ----- 1️⃣ CHECK IF USER ALREADY EXISTS (ADMIN API) -----
+  const tempPassword = crypto.randomUUID();
+
   const result = await supabase.auth.admin.listUsers();
 
   if (result.error) {
@@ -24,11 +25,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const existingUsers = result.data as {
-    users: { email: string | null }[];
-  };
-
-  const alreadyExists = existingUsers.users.some(
+  const alreadyExists = result.data.users.some(
     (u) => u.email?.toLowerCase() === email.toLowerCase()
   );
 
@@ -39,12 +36,15 @@ export async function POST(req: Request) {
     );
   }
 
-  // ----- 2️⃣ CREATE USER -----
   const { data, error } = await supabase.auth.signUp({
     email,
-    password,
+    password: tempPassword,
     options: {
-      data: { username }
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/set-password`,
+      data: {
+        username,
+        has_password: false,
+      },
     },
   });
 
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
   return NextResponse.json(
     {
       message:
-        "Account created successfully. Check your email for verification.",
+        "Account created successfully. Check your email to continue setup.",
       user: data?.user || null,
     },
     { status: 201 }

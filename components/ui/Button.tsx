@@ -57,9 +57,9 @@ export default function Button({
     <button
       ref={btnRef}
       disabled={disabled}
-      className={`${styles.button} ${disabled ? styles.disabled : ""} ${
-        loading ? styles.loading : ""
-      }`}
+      className={`${styles.button} ${className} ${
+        disabled ? styles.disabled : ""
+      } ${loading ? styles.loading : ""}`}
       onClick={loading || disabled ? undefined : onClick}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}

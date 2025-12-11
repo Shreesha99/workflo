@@ -14,8 +14,6 @@ import styles from "./register.module.scss";
 export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -51,21 +49,28 @@ export default function SignupPage() {
     setError("");
     setSuccess("");
 
-    if (!email || !password || !username) {
+    if (!email || !username) {
       setError("All fields are required.");
       return;
     }
 
+    const tempPassword = crypto.randomUUID();
+
     setLoading(true);
+
     try {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, username }),
+        body: JSON.stringify({
+          email,
+          username,
+          password: tempPassword,
+          hasPassword: false,
+        }),
       });
 
-      // parse safely
-      let data: any = {};
+      let data = {};
       try {
         data = await res.json();
       } catch {
@@ -73,19 +78,13 @@ export default function SignupPage() {
       }
 
       if (!res.ok) {
-        // 409 => already registered
-        if (res.status === 409) {
-          setError(data.error || "Email already registered. Try logging in.");
-        } else {
-          setError(data.error || "Signup failed. Try again.");
-        }
+        setError((data as any).error || "Signup failed.");
         setLoading(false);
         return;
       }
 
-      // success (201)
       setLoading(false);
-      setSuccess(data.message || "Account created. Check your email.");
+      setSuccess((data as any).message || "Account created. Check your email.");
     } catch (err: any) {
       setLoading(false);
       setError(err?.message || "Unexpected error. Try again.");
@@ -133,21 +132,7 @@ export default function SignupPage() {
               label="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="yourusername"
-            />
-          </div>
-
-          <div className={styles.inputWrap}>
-            <Input
-              label="Password"
-              type={showPassword ? "text" : "password"}
-              value={password}
-              placeholder="••••••••"
-              onChange={(e) => setPassword(e.target.value)}
-              rightIcon={
-                showPassword ? <EyeOff size={16} /> : <Eye size={16} />
-              }
-              onRightIconClick={() => setShowPassword((s) => !s)}
+              placeholder="your username"
             />
           </div>
 
