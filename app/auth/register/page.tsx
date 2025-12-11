@@ -1,4 +1,3 @@
-// app/auth/register/page.tsx
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -9,6 +8,8 @@ import ErrorMessage from "@/components/ui/ErrorMessage";
 import SuccessMessage from "@/components/ui/SuccessMessage";
 import gsap from "gsap";
 import { Eye, EyeOff } from "lucide-react";
+import Image from "next/image";
+import styles from "./register.module.scss";
 
 export default function SignupPage() {
   const [email, setEmail] = useState("");
@@ -26,6 +27,24 @@ export default function SignupPage() {
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }
     );
+
+    gsap.to(".signup-float1", {
+      y: -12,
+      x: 10,
+      repeat: -1,
+      duration: 2.2,
+      yoyo: true,
+      ease: "power1.inOut",
+    });
+
+    gsap.to(".signup-float2", {
+      y: 12,
+      x: -14,
+      repeat: -1,
+      duration: 2,
+      yoyo: true,
+      ease: "power1.inOut",
+    });
   }, []);
 
   async function handleSignup() {
@@ -67,13 +86,6 @@ export default function SignupPage() {
       // success (201)
       setLoading(false);
       setSuccess(data.message || "Account created. Check your email.");
-
-      // If the server returned a user object (immediate creation), we can optionally redirect
-      // Here: don't auto-redirect to be safe (backend/email delays). User can click Login.
-      // If you still want to redirect when data.user exists uncomment the next lines:
-      // if (data.user) {
-      //   window.location.href = "/auth/login";
-      // }
     } catch (err: any) {
       setLoading(false);
       setError(err?.message || "Unexpected error. Try again.");
@@ -81,16 +93,33 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="auth-page">
+    <div className={styles.pageWrapper}>
+      {/* Floating Decorative Vectors */}
+      <Image
+        src="/illustrations/income.svg"
+        width={260}
+        height={260}
+        alt=""
+        className={`signup-float1 ${styles.float1}`}
+      />
+
+      <Image
+        src="/illustrations/money.svg"
+        width={260}
+        height={260}
+        alt=""
+        className={`signup-float2 ${styles.float2}`}
+      />
+
       <Card>
-        <div className="signup-card">
-          <h2 className="title">Create Your Account</h2>
-          <p className="subtitle">Start your journey with Proflo.</p>
+        <div className={`signup-card ${styles.card}`}>
+          <h2 className={styles.title}>Create Your Account</h2>
+          <p className={styles.subtitle}>Start your journey with Proflo.</p>
 
           <ErrorMessage message={error} />
           <SuccessMessage message={success} />
 
-          <div>
+          <div className={styles.inputWrap}>
             <Input
               label="Email Address"
               value={email}
@@ -99,7 +128,7 @@ export default function SignupPage() {
             />
           </div>
 
-          <div>
+          <div className={styles.inputWrap}>
             <Input
               label="Username"
               value={username}
@@ -108,13 +137,13 @@ export default function SignupPage() {
             />
           </div>
 
-          <div>
+          <div className={styles.inputWrap}>
             <Input
               label="Password"
               type={showPassword ? "text" : "password"}
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
+              onChange={(e) => setPassword(e.target.value)}
               rightIcon={
                 showPassword ? <EyeOff size={16} /> : <Eye size={16} />
               }
@@ -122,13 +151,16 @@ export default function SignupPage() {
             />
           </div>
 
-          <div>
-            <Button onClick={handleSignup} loading={loading} disabled={loading}>
-              Sign Up
-            </Button>
-          </div>
+          <Button
+            onClick={handleSignup}
+            loading={loading}
+            disabled={loading}
+            className={styles.fullWidthBtn}
+          >
+            Sign Up
+          </Button>
 
-          <div className="auth-link">
+          <div className={styles.authLink}>
             <a href="/auth/login">Already have an account? Login</a>
           </div>
         </div>

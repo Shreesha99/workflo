@@ -1,0 +1,151 @@
+/* ----- LOGIN PAGE WRAPPER ----- */
+.authPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+  min-height: 100vh;
+  background: radial-gradient(circle at 50% 0%, #fff8c6 0%, #ffffff 65%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background Color Blobs (same as OTP) */
+.authPage::before,
+.authPage::after {
+  content: "";
+  position: absolute;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+}
+
+.authPage::before {
+  top: -120px;
+  left: -120px;
+  background: #ffe45c;
+}
+
+.authPage::after {
+  bottom: -130px;
+  right: -130px;
+  background: #b5d8ff;
+}
+
+/* Floating Decorative Illustrations */
+.float1,
+.float2 {
+  position: absolute;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.12));
+  z-index: 2;
+}
+
+.float1 {
+  top: 12%;
+  left: 6%;
+  width: 230px;
+  opacity: 0.9;
+}
+
+.float2 {
+  bottom: 12%;
+  right: 8%;
+  width: 230px;
+  opacity: 0.85;
+}
+
+/* ----- LOGIN CARD ----- */
+.card {
+  position: relative;
+  z-index: 5;
+
+  width: 100%;
+  max-width: 420px;
+  padding: 32px;
+
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: saturate(180%) blur(18px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+
+  animation: fadeInCard 0.45s ease-out;
+}
+
+@keyframes fadeInCard {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ----- TEXT STYLES ----- */
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  font-size: 15px;
+  text-align: center;
+  color: #666;
+  margin-bottom: 22px;
+}
+
+/* ----- INPUTS ----- */
+.inputWrap {
+  margin: 16px 0;
+}
+
+/* ----- LOGIN BUTTON ----- */
+.actionBtn {
+  width: 100%;
+  margin-top: 18px;
+}
+
+/* ----- LINKS UNDER LOGIN ----- */
+.links {
+  margin-top: 26px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  a {
+    color: #444;
+    text-decoration: underline;
+    font-size: 14px;
+
+    &:hover {
+      opacity: 0.75;
+    }
+  }
+}
+
+.login-float1 {
+  position: absolute;
+  top: 12%;
+  left: 6%;
+  opacity: 0.9;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+}
+
+.login-float2 {
+  position: absolute;
+  bottom: 12%;
+  right: 8%;
+  opacity: 0.85;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+}

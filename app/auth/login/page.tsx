@@ -8,7 +8,8 @@ import ErrorMessage from "@/components/ui/ErrorMessage";
 import SuccessMessage from "@/components/ui/SuccessMessage";
 import { supabaseClient } from "@/lib/supabase/client";
 import gsap from "gsap";
-import styles from "../auth.module.scss";
+import Image from "next/image";
+import styles from "./login.module.scss";
 
 export default function LoginPage() {
   const supabase = supabaseClient();
@@ -25,6 +26,24 @@ export default function LoginPage() {
       { opacity: 0, y: 20 },
       { opacity: 1, y: 0, duration: 0.45, ease: "power2.out" }
     );
+
+    gsap.to(".login-float1", {
+      y: -12,
+      x: 10,
+      duration: 2.2,
+      repeat: -1,
+      yoyo: true,
+      ease: "power1.inOut",
+    });
+
+    gsap.to(".login-float2", {
+      y: 12,
+      x: -10,
+      duration: 2,
+      repeat: -1,
+      yoyo: true,
+      ease: "power1.inOut",
+    });
   }, []);
 
   async function handleLogin() {
@@ -58,8 +77,25 @@ export default function LoginPage() {
 
   return (
     <div className={styles.authPage}>
+      {/* FLOATING ANIMATED VECTOR IMAGES (THE ONES YOU WANTED) */}
+      <Image
+        src="/illustrations/income.svg"
+        width={260}
+        height={260}
+        alt=""
+        className={`login-float1 ${styles.float1}`}
+      />
+
+      <Image
+        src="/illustrations/money.svg"
+        width={260}
+        height={260}
+        alt=""
+        className={`login-float2 ${styles.float2}`}
+      />
+
       <Card>
-        <div className="auth-card">
+        <div className={`auth-card ${styles.card}`}>
           <h2 className={styles.title}>Welcome Back</h2>
           <p className={styles.subtitle}>Log in to continue your work.</p>
 

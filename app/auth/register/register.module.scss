@@ -1,0 +1,109 @@
+.pageWrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  background: radial-gradient(circle at 50% 0%, #fff8c6 0%, #ffffff 65%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Soft background blobs */
+.pageWrapper::before,
+.pageWrapper::after {
+  content: "";
+  position: absolute;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+}
+
+.pageWrapper::before {
+  top: -120px;
+  left: -120px;
+  background: #ffe45c;
+}
+
+.pageWrapper::after {
+  bottom: -130px;
+  right: -130px;
+  background: #b5d8ff;
+}
+
+/* Floating illustrations */
+.float1,
+.float2 {
+  position: absolute;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.15));
+  z-index: 2;
+}
+
+.float1 {
+  top: 12%;
+  left: 6%;
+  opacity: 0.9;
+}
+
+.float2 {
+  bottom: 12%;
+  right: 8%;
+  opacity: 0.85;
+}
+
+/* Card */
+.card {
+  position: relative;
+  z-index: 5;
+  padding: 32px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: saturate(180%) blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Typography */
+.title {
+  font-size: 28px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  font-size: 15px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Inputs */
+.inputWrap {
+  margin-bottom: 16px;
+}
+
+/* Button */
+.fullWidthBtn {
+  width: 100% !important;
+  margin-top: 12px;
+}
+
+/* Footer link */
+.authLink {
+  text-align: center;
+  margin-top: 18px;
+
+  a {
+    color: #444;
+    text-decoration: underline;
+    font-size: 14px;
+
+    &:hover {
+      opacity: 0.75;
+    }
+  }
+}
