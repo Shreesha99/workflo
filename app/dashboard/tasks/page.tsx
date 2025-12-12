@@ -9,7 +9,16 @@ import ErrorMessage from "@/components/ui/ErrorMessage";
 import StatusBadge from "@/components/ui/StatusBadge";
 
 import { supabaseClient } from "@/lib/supabase/client";
-import { Filter, Search, Plus, Columns, List as ListIcon } from "lucide-react";
+import {
+  Filter,
+  Search,
+  Plus,
+  Columns,
+  Trash2,
+  List as ListIcon,
+} from "lucide-react";
+import DeleteTaskModal from "@/components/modals/DeleteTaskModal";
+import { useRouter } from "next/navigation";
 
 import KanbanBoard from "@/components/ui/KanbanBoard";
 
@@ -41,6 +50,9 @@ export default function TasksPage() {
 
   const [projectFilter, setProjectFilter] = useState("");
   const [dueFilter, setDueFilter] = useState("");
+
+  const [deleteTask, setDeleteTask] = useState<Task | null>(null);
+  const router = useRouter();
 
   const uniqueProjects = [
     ...new Set(tasks.map((t) => t.projects?.name).filter(Boolean)),
@@ -105,7 +117,27 @@ export default function TasksPage() {
   /* CARD COMPONENT */
   function TaskCard({ t }: { t: Task }) {
     return (
-      <div className={`task-card ${styles.card}`}>
+      <div
+        className={`task-card ${styles.card}`}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation?.();
+          setDeleteTask(t);
+        }}
+      >
+        <button
+          className={styles.deleteBtn}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            e.nativeEvent.stopImmediatePropagation?.();
+            setDeleteTask(t);
+          }}
+        >
+          <Trash2 size={16} />
+        </button>
+
         <div className={styles.cardBody}>
           <h3>{t.title}</h3>
 
@@ -126,7 +158,7 @@ export default function TasksPage() {
     );
   }
 
-  /* CARD FOR DRAG OVERLAY */
+  /* DRAG OVERLAY CARD */
   function DragOverlayCard({ t }: { t: Task }) {
     return (
       <div className={`${styles.card} ${styles.dragOverlay}`}>
@@ -139,7 +171,6 @@ export default function TasksPage() {
 
   return (
     <div className={styles.container}>
-      {/* HEADER */}
       <div className={styles.header}>
         <h1>Tasks</h1>
 
@@ -166,7 +197,7 @@ export default function TasksPage() {
 
       <ErrorMessage message={apiError} />
 
-      {/* FILTER BAR */}
+      {/* FILTER UI */}
       <div className={styles.filtersRow}>
         <div className={styles.searchBar}>
           <input
@@ -212,7 +243,6 @@ export default function TasksPage() {
                   ✕
                 </div>
 
-                {/* PROJECT FILTER */}
                 <div className={styles.dropdownSection}>
                   <label>Project</label>
 
@@ -238,7 +268,6 @@ export default function TasksPage() {
 
                 <div className={styles.divider}></div>
 
-                {/* DUE FILTER */}
                 <div className={styles.dropdownSection}>
                   <label>Due Date</label>
 
@@ -316,7 +345,6 @@ export default function TasksPage() {
           onStatusChange={async (id, newStatus: Task["status"]) => {
             const old = tasks;
 
-            // optimistic UI update
             setTasks((prev) =>
               prev.map((x) => (x.id === id ? { ...x, status: newStatus } : x))
             );
@@ -345,6 +373,18 @@ export default function TasksPage() {
         onClose={() => setOpenModal(false)}
         onCreated={loadTasks}
       />
+
+      {deleteTask && (
+        <DeleteTaskModal
+          task={deleteTask}
+          onClose={() => setDeleteTask(null)}
+          onConfirm={async () => {
+            await supabase.from("tasks").delete().eq("id", deleteTask.id);
+            setDeleteTask(null);
+            loadTasks();
+          }}
+        />
+      )}
     </div>
   );
 }
