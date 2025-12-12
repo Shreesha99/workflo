@@ -1,47 +1,51 @@
-/* =================================================================== */
-/* File: app/dashboard/projects/projects.module.scss (same styles as before + small dnd additions) */
-/* paste into the same-path SCSS file */
+/* ============================================================================
+   FAMILIAR MODERN SAAS DESIGN (Notion + Asana + Trello combined)
+   Clean. Predictable. Familiar. Professional.
+============================================================================ */
 
-/* You should copy this SCSS into projects.module.scss in the same folder. */
-
-.container {
-  width: 100%;
-  padding: 24px 32px;
-  color: var(--text);
+:root {
+  --surface: var(--card-bg);
+  --surface-alt: var(--bg-soft);
+  --border: rgba(255, 255, 255, 0.08);
+  --hover: rgba(255, 255, 255, 0.06);
 }
 
-/* HEADER */
+/* PAGE CONTAINER */
+.container {
+  padding: 32px 40px;
+  width: 100%;
+}
+
+/* PAGE HEADER */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 28px;
 
   h1 {
-    font-size: 30px;
+    font-size: 28px;
     font-weight: 700;
-    margin-bottom: 4px;
+    letter-spacing: -0.2px;
   }
 }
 
-/* top-right small toggle */
+/* VIEW TOGGLE */
 .viewToggle {
   display: flex;
-  gap: 8px;
-  align-items: center;
+  gap: 6px;
 }
 
 .smallIconBtn {
   padding: 8px;
-  border-radius: 8px;
-  background: var(--bg-soft);
-  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  transition: 0.15s ease;
 
   &:hover {
-    background: var(--card-bg);
+    background: var(--hover);
   }
 }
 
@@ -51,51 +55,34 @@
   color: black;
 }
 
-/* NEW PROJECT BUTTON */
-.newProjectBtn {
-  background: var(--primary);
-  color: black;
-  padding: 10px 18px;
-  border-radius: 10px;
-  border: none;
-  font-weight: 600;
-  cursor: pointer;
-  transition: 0.25s;
-
-  &:hover {
-    filter: brightness(0.9);
-    transform: translateY(-2px);
-  }
-}
-
-/* ========================================================= */
-/*                    UNIFIED FILTER BAR                     */
-/* ========================================================= */
-
+/* FILTER BAR */
 .filtersRow {
   display: flex;
   align-items: center;
-  gap: 18px;
-  margin: 20px 0;
+  gap: 14px;
+  margin-bottom: 20px;
 }
 
-/* Search Bar */
+/* SEARCH INPUT — Notion-style */
 .searchBar {
+  width: 260px;
   position: relative;
-  max-width: 280px;
-  width: 100%;
 
   input {
     width: 100%;
-    padding: 12px 14px 12px 40px;
-    border-radius: 12px;
-    border: 1px solid var(--card-border);
-    background: var(--bg-soft);
-    font-size: 15px;
+    padding: 10px 12px 10px 38px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--surface-alt);
+    font-size: 14px;
+
+    &:hover {
+      background: var(--hover);
+    }
 
     &:focus {
+      background: var(--surface);
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.35);
       outline: none;
     }
   }
@@ -104,97 +91,76 @@
 .searchIcon {
   position: absolute;
   top: 50%;
-  left: 14px;
+  left: 12px;
+  opacity: 0.5;
   transform: translateY(-50%);
-  opacity: 0.55;
 }
 
-/* Status Pills */
+/* FILTER PILLS — Trello/Asana style */
 .pills {
   display: flex;
-  gap: 10px;
+  gap: 8px;
 }
 
 .pill {
-  padding: 6px 16px;
-  background: var(--bg-soft);
-  border-radius: 30px;
-  border: 1px solid var(--card-border);
+  padding: 6px 14px;
+  font-size: 13px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 16px;
   cursor: pointer;
 
   &:hover {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: black;
+    background: var(--hover);
   }
 }
 
 .pillActive {
   background: var(--primary);
-  border-color: var(--primary);
   color: black;
+  border-color: var(--primary);
 }
 
-/* Filter Button + Dropdown */
+/* FILTER DROPDOWN */
 .filterWrap {
   position: relative;
 }
 
 .filterBtn {
-  padding: 8px 14px;
-  background: var(--bg-soft);
-  border: 1px solid var(--card-border);
-  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 6px;
-  cursor: pointer;
-
-  &:hover {
-    background: var(--card-bg);
-  }
 }
 
 .filterDropdown {
   position: absolute;
-  top: 45px;
+  top: 42px;
   right: 0;
-  width: 230px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 14px;
-  z-index: 20;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.14);
-  opacity: 0;
-  transform: translateY(-6px);
-  animation: fadeIn 0.25s ease forwards;
-}
+  width: 220px;
 
-@keyframes fadeIn {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 
-.dropdownSection label {
-  font-size: 12px;
-  color: var(--text-soft);
-  margin-bottom: 6px;
-  display: block;
+  animation: fadeIn 0.15s ease;
 }
 
 .dropdownItem {
   padding: 8px 10px;
-  border-radius: 8px;
+  font-size: 13px;
+  border-radius: 6px;
   cursor: pointer;
 
   &:hover {
-    background: var(--bg-soft);
+    background: var(--hover);
   }
 }
 
@@ -203,265 +169,172 @@
   color: black;
 }
 
-.dropdownClear {
-  padding: 6px 10px;
-  font-size: 12px;
-  cursor: pointer;
-  color: #b71c1c;
-
-  &:hover {
-    background: #ffeaea;
-  }
-}
-
-.clearAllBtn {
-  padding: 8px;
-  border-radius: 10px;
-  font-size: 13px;
-  border: 1px solid #ffcccc;
-  background: #ffecec;
-  color: #a20000;
-  cursor: pointer;
-
-  &:hover {
-    filter: brightness(0.95);
-  }
-}
-
-.divider {
-  height: 1px;
-  background: var(--border);
-}
-
-/* ========================================================= */
-/*                       PROJECT GRID                        */
-/* ========================================================= */
-
+/* PROJECT GRID — Trello layout */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-  gap: 22px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
 }
 
-/* project card */
+/* CARD — Updated for perfect modern SaaS feel */
 .card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.02)
+  ); /* subtle surface texture */
+
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+
   padding: 20px;
   position: relative;
-  transition: transform 0.25s ease, box-shadow 0.25s ease,
-    border-color 0.25s ease;
+
+  /* The key: BASE SHADOW (always on) */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+
+  backdrop-filter: blur(4px);
+
+  transition: 0.25s ease, border-color 0.2s ease, background 0.25s ease;
 
   &:hover {
-    transform: translateY(-4px);
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.12),
+      rgba(255, 255, 255, 0.05)
+    );
     border-color: var(--primary);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+
+    /* Zing comes from this deeper hover shadow */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+
+    transform: translateY(-3px);
   }
 }
 
+/* Improve headers, gives personality */
+.cardBody h3 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  margin-bottom: 6px;
+}
+
+/* Give metadata stronger rhythm */
+.metaRow {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+
+  opacity: 0.75;
+  font-size: 14px;
+}
+
+/* DELETE ICON — subtle, not loud */
 .deleteIcon {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  padding: 6px;
-  border-radius: 8px;
-  background: #ffe5e5;
-  border: 1px solid #ffbaba;
+  top: 10px;
+  right: 10px;
+
+  padding: 5px;
+  border-radius: 6px;
+  background: #ffe8e8;
+  border: 1px solid #ffcdcd;
   cursor: pointer;
 
   &:hover {
-    background: #ffd5d5;
+    background: #ffd6d6;
   }
 }
 
+/* CARD CONTENT */
 .cardBody {
   text-decoration: none;
   color: inherit;
 
   h3 {
-    font-size: 18px;
-    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
   }
 }
 
 .clientRow {
-  font-size: 14px;
-  margin-bottom: 10px;
-  color: var(--text-soft);
+  font-size: 13px;
+  opacity: 0.6;
 }
 
 .metaRow {
+  margin-top: 10px;
+  font-size: 13px;
+  opacity: 0.7;
+
   display: flex;
   justify-content: space-between;
-  align-items: center;
 }
 
-.dueWrap {
-  font-size: 14px;
-  color: var(--text-soft);
-}
-
+/* EMPTY STATE */
 .empty {
   grid-column: 1 / -1;
   text-align: center;
-  margin-top: 20px;
-  color: var(--text-soft);
+  opacity: 0.6;
+  padding: 18px;
 }
 
-/* ============================= */
-/*         FLOATING BUTTON       */
-/* ============================= */
-
+/* FAB — familiar floating button */
 .fab {
   position: fixed;
   bottom: 26px;
-  left: 50%;
-  transform: translateX(-50%);
 
-  width: 62px;
-  height: 62px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
+  background: var(--primary);
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  font-size: 32px;
-  font-weight: 600;
-  color: #000;
+  color: black;
+  font-size: 28px;
 
-  background: var(--primary);
-  border: none;
   cursor: pointer;
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 
-  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.18);
-  transition: 0.25s ease;
-
-  z-index: 1000;
+  transition: 0.2s ease;
 
   &:hover {
-    transform: translateX(-50%) translateY(-4px);
-    filter: brightness(0.92);
+    transform: translateY(-4px);
   }
 }
 
-/* ============================= */
-/*            KANBAN             */
-/* ============================= */
-
-.kanbanBoard {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  align-items: start;
-  margin-top: 6px;
-}
-
-/* each column */
+/* KANBAN COLUMNS — Trello-like */
 .kanbanColumn {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
-  border: 1px solid var(--card-border);
-  border-radius: 12px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
   padding: 12px;
-  min-height: 240px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  transition: box-shadow 0.15s, transform 0.12s;
+
+  transition: 0.15s ease;
 }
 
 .kanbanColumnDragOver {
-  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.55);
-  background: linear-gradient(
-    180deg,
-    rgba(255, 215, 0, 0.08),
-    rgba(255, 215, 0, 0.02)
-  );
-  transform: scale(1.01);
+  background: var(--hover);
+  border-color: var(--primary);
 }
 
-/* column header */
-.kanbanHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--card-border);
-}
-
-.kanbanHeader h4 {
-  margin: 0;
-  text-transform: capitalize;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.kanbanCount {
-  background: var(--bg-soft);
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  border: 1px solid var(--card-border);
-}
-
-/* list inside column */
-.kanbanList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 6px;
-}
-
-/* wrapper for card to keep consistent spacing */
-.kanbanCardWrapper {
-  cursor: grab;
-}
-
-/* reuse .card styling but tweak for kanban */
-.kanbanCardWrapper .card {
-  margin: 0;
-}
-
-/* when dragging */
-.dragging {
-  opacity: 0.6;
-  transform: scale(0.99);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-}
-
-/* empty column message */
-.kanbanEmpty {
-  color: var(--text-soft);
-  font-style: italic;
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--bg-soft);
-  text-align: center;
-}
-
-/* small overlay style for the DragOverlay */
 .dragOverlay {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  transform: scale(1.02);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* small visual cue for droppable column (you can toggle class via JS if needed) */
-.columnDroppable {
-  border: 1px dashed rgba(255, 255, 255, 0.04);
-}
-
-.filterCloseBtn {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  font-size: 16px;
-  cursor: pointer;
-  color: var(--text-soft);
-  transition: 0.15s ease;
-
-  &:hover {
-    color: var(--text);
-    transform: scale(1.15);
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
