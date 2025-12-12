@@ -119,19 +119,14 @@ export default function TasksPage() {
     return (
       <div
         className={`task-card ${styles.card}`}
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          e.nativeEvent.stopImmediatePropagation?.();
-          setDeleteTask(t);
+        onClick={() => {
+          router.push(`/dashboard/tasks/${t.id}`);
         }}
       >
         <button
           className={styles.deleteBtn}
           onClick={(e) => {
-            e.preventDefault();
             e.stopPropagation();
-            e.nativeEvent.stopImmediatePropagation?.();
             setDeleteTask(t);
           }}
         >
@@ -322,6 +317,8 @@ export default function TasksPage() {
         )}
       </div>
 
+      {tasks.length === 0 && <div className={styles.empty}>No tasks here.</div>}
+
       {/* LIST VIEW */}
       {viewMode === "list" && (
         <div className={styles.grid}>
@@ -379,7 +376,14 @@ export default function TasksPage() {
           task={deleteTask}
           onClose={() => setDeleteTask(null)}
           onConfirm={async () => {
-            await supabase.from("tasks").delete().eq("id", deleteTask.id);
+            const { error } = await supabase
+              .from("tasks")
+              .delete()
+              .eq("id", deleteTask.id);
+
+            if (error) {
+              return;
+            }
             setDeleteTask(null);
             loadTasks();
           }}

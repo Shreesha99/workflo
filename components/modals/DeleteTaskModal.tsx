@@ -26,7 +26,9 @@ export default function DeleteTaskModal({ task, onClose, onConfirm }) {
 
           <button
             className={styles.deleteBtn}
-            onClick={() => onConfirm(task.id)}
+            onClick={() => {
+              onConfirm();
+            }}
           >
             Delete
           </button>

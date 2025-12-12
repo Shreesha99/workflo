@@ -3,6 +3,7 @@ import "@/styles/global.scss";
 
 import type { Metadata } from "next";
 import { Roboto, Roboto_Mono } from "next/font/google";
+import { Toaster } from "react-hot-toast";
 
 const roboto = Roboto({
   subsets: ["latin"],
@@ -34,7 +35,24 @@ export default function RootLayout({
         />
       </head>
 
-      <body>{children}</body>
+      <body>
+        {children}
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            duration: 2600,
+            style: {
+              background: "var(--card-bg)",
+              border: "1px solid var(--card-border)",
+              color: "var(--text)",
+              padding: "14px 16px",
+              borderRadius: "5px",
+              fontSize: "15px",
+              boxShadow: "0 6px 24px rgba(0,0,0,0.18)",
+            },
+          }}
+        />
+      </body>
     </html>
   );
 }
