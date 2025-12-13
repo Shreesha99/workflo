@@ -1,3 +1,4 @@
+/* Default pill */
 .pill {
   background: #ffd600;
   padding: 12px 22px;
@@ -7,16 +8,10 @@
   justify-content: center;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-  transition:
-    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform, box-shadow;
-  -webkit-font-smoothing: antialiased;
-  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   user-select: none;
 }
 
-/* Hover + focus for pointer devices */
 @media (hover: hover) and (pointer: fine) {
   .pill:hover,
   .pill:focus {
@@ -25,17 +20,27 @@
   }
 }
 
-/* active class used for quick touch feedback */
 .active {
   transform: translateY(-3px) scale(1.03);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
 }
 
-/* Logo image sizing */
 .logo {
   height: 32px;
   width: auto;
-  display: block;
-  pointer-events: none; /* ensures hover / clicks land on the pill */
-  user-select: none;
+  pointer-events: none;
+}
+
+/* COLLAPSED MODE → favicon only */
+.collapsedIconWrapper {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.collapsedIcon {
+  width: 28px;
+  height: 28px;
 }

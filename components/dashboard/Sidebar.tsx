@@ -14,30 +14,50 @@ import {
   Settings,
   Menu,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+
 import Proflo from "@/components/brand/Proflo";
 
-export default function Sidebar() {
+export default function Sidebar({
+  onCollapseChange,
+}: {
+  onCollapseChange: (v: boolean) => void;
+}) {
   const pathname = usePathname();
-  const [openMobile, setOpenMobile] = useState(false);
 
-  // Animate on desktop only
+  const [openMobile, setOpenMobile] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Responsive logic
+  useEffect(() => {
+    const handleResize = () => {
+      const width = window.innerWidth;
+      setIsMobile(width <= 900);
+
+      if (width <= 1160 && width > 900) {
+        setCollapsed(true);
+      }
+      if (width > 1160) {
+        setCollapsed(false);
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // GSAP entrance
   useEffect(() => {
     gsap.fromTo(
       `.${styles.sidebar}`,
       { x: -30, opacity: 0 },
-      { x: 0, opacity: 1, duration: 0.45, ease: "power2.out" }
+      { x: 0, opacity: 1, duration: 0.45 }
     );
   }, []);
-
-  // Disable background scroll when drawer is open
-  useEffect(() => {
-    if (openMobile) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-  }, [openMobile]);
 
   const navItems = [
     {
@@ -69,35 +89,54 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* MOBILE HAMBURGER */}
-      <button
-        className={styles.mobileToggle}
-        onClick={() => setOpenMobile(true)}
-      >
-        <Menu size={22} />
-      </button>
+      {isMobile && (
+        <button
+          className={styles.mobileToggle}
+          onClick={() => setOpenMobile(true)}
+        >
+          <Menu size={22} />
+        </button>
+      )}
 
-      {/* MOBILE OVERLAY */}
-      {openMobile && (
+      {isMobile && openMobile && (
         <div className={styles.overlay} onClick={() => setOpenMobile(false)} />
       )}
 
-      {/* SIDEBAR */}
-      <aside className={`${styles.sidebar} ${openMobile ? styles.open : ""}`}>
-        {/* MOBILE CLOSE BUTTON */}
-        <button
-          className={styles.closeBtn}
-          onClick={() => setOpenMobile(false)}
-        >
-          <X size={22} />
-        </button>
+      <aside
+        className={`
+          ${styles.sidebar}
+          ${openMobile ? styles.open : ""}
+          ${collapsed && !isMobile ? styles.collapsed : ""}
+        `}
+      >
+        {isMobile && (
+          <button
+            className={styles.closeBtn}
+            onClick={() => setOpenMobile(false)}
+          >
+            <X size={22} />
+          </button>
+        )}
+
+        {!isMobile && (
+          <button
+            className={styles.collapseToggle}
+            onClick={() => {
+              const next = !collapsed;
+              setCollapsed(next);
+              onCollapseChange(next);
+            }}
+          >
+            {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+          </button>
+        )}
 
         {/* BRAND */}
         <div className={styles.brand}>
-          <Proflo />
+          <Proflo isMobile={isMobile} isCollapsed={collapsed} />
         </div>
 
-        {/* NAVIGATION */}
+        {/* NAV */}
         <nav className={styles.nav}>
           {navItems.map((item) => (
             <Link

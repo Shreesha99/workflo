@@ -1,18 +1,23 @@
+"use client";
+
 import "@/styles/dashboard.scss";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Topbar from "@/components/dashboard/Topbar";
+import { useState } from "react";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="dashboard-container">
-      <aside className="dashboard-sidebar">
-        <Sidebar />
-      </aside>
+  const [collapsed, setCollapsed] = useState(false);
 
+  return (
+    <div className={`dashboard-container ${collapsed ? "collapsed" : ""}`}>
+      {/* SIDEBAR */}
+      <Sidebar onCollapseChange={setCollapsed} />
+
+      {/* MAIN */}
       <div className="dashboard-main">
         <div className="dashboard-topbar">
           <Topbar />

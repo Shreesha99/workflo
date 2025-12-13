@@ -1,4 +1,6 @@
+/* ----------------------------------------- */
 /* BASE SIDEBAR */
+/* ----------------------------------------- */
 .sidebar {
   width: 250px;
   height: 100vh;
@@ -7,40 +9,85 @@
   padding: 22px;
   display: flex;
   flex-direction: column;
-
   position: fixed;
   top: 0;
   left: 0;
   z-index: 200;
-  transition: transform 0.35s ease, opacity 0.25s ease;
+  transition: width 0.28s ease, transform 0.35s ease, opacity 0.25s ease;
+}
 
-  transform: translateX(0); /* Default desktop */
+/* ----------------------------------------- */
+/* COLLAPSED MODE */
+/* ----------------------------------------- */
+.collapsed {
+  width: 88px !important;
+  padding: 22px 14px;
 
-  @media (max-width: 900px) {
-    transform: translateX(-100%); /* Fully hidden on mobile */
+  .brand {
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+
+  .label {
+    opacity: 0;
+    width: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .navItem {
+    justify-content: center;
   }
 }
 
-/* MOBILE OPEN STATE */
-.open {
+/* COLLAPSE BUTTON */
+.collapseToggle {
+  position: absolute;
+  top: 20px;
+  right: -14px;
+  z-index: 500;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: var(--bg-soft);
+  }
+
   @media (max-width: 900px) {
-    transform: translateX(0); /* Drawer open */
+    display: none;
   }
 }
 
-/* OVERLAY BEHIND MOBILE DRAWER */
+/* ----------------------------------------- */
+/* MOBILE */
+/* ----------------------------------------- */
+@media (max-width: 900px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 250px !important;
+  }
+  .open {
+    transform: translateX(0);
+  }
+}
+
 .overlay {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
   z-index: 150;
 }
 
-/* HAMBURGER BUTTON */
 .mobileToggle {
   display: none;
-
   @media (max-width: 900px) {
     display: block;
     position: fixed;
@@ -54,10 +101,8 @@
   }
 }
 
-/* CLOSE BUTTON (INSIDE DRAWER) */
 .closeBtn {
   display: none;
-
   @media (max-width: 900px) {
     display: block;
     background: none;
@@ -68,27 +113,19 @@
   }
 }
 
-/* BRAND LOGO */
+/* BRAND */
 .brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 40px;
+  justify-content: flex-start;
+  height: 56px;
+  margin-bottom: 36px;
+  transition: all 0.25s ease;
 }
 
-.brandDot {
-  width: 10px;
-  height: 10px;
-  background: var(--primary);
-  border-radius: 50%;
-}
-
-.brandLabel {
-  font-weight: 700;
-  font-size: 20px;
-}
-
-/* NAVIGATION ITEMS */
+/* ----------------------------------------- */
+/* NAVIGATION */
+/* ----------------------------------------- */
 .nav {
   display: flex;
   flex-direction: column;
@@ -103,21 +140,18 @@
   border-radius: 10px;
   text-decoration: none;
   color: var(--text);
-  transition: background 0.25s ease, box-shadow 0.25s ease, transform 0.2s ease;
+  transition: background 0.25s ease, transform 0.2s ease;
+}
 
-  &:hover {
-    background: var(--bg-soft);
-    transform: translateY(-1px);
-    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.06);
-  }
+.navItem:hover {
+  background: var(--bg-soft);
+  transform: translateY(-1px);
 }
 
 .active {
   background: var(--card-bg);
   border-left: 5px solid var(--primary);
-  box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.08);
   transform: translateY(-2px);
-  font-weight: 600;
 
   .icon {
     opacity: 1;
@@ -130,4 +164,24 @@
 
 .label {
   font-size: 15px;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, width 0.2s ease;
+}
+
+/* Proflo logo inside sidebar */
+.logo {
+  width: 38px;
+  height: 38px;
+}
+
+@media (max-width: 900px) {
+  .logo {
+    width: 48px;
+    height: 48px;
+  }
+}
+
+.collapsed .logo {
+  width: 32px;
+  height: 32px;
 }

@@ -3,29 +3,40 @@
 import React, { useState } from "react";
 import styles from "./Proflo.module.scss";
 
-/**
- * Proflo brand pill.
- * - Uses CSS module for all styles (avoids inline style typing issues).
- * - Adds hover lift & shadow on pointer devices.
- * - Brief touch feedback on touch devices via onTouchStart.
- */
-export default function Proflo() {
+export default function Proflo({
+  isMobile = false,
+  isCollapsed = false,
+}: {
+  isMobile?: boolean;
+  isCollapsed?: boolean;
+}) {
   const [touchActive, setTouchActive] = useState(false);
 
+  // COLLAPSED → show ONLY favicon, no pill
+  if (isCollapsed && !isMobile) {
+    return (
+      <div className={styles.collapsedIconWrapper}>
+        <img src="/favicon.ico" className={styles.collapsedIcon} alt="Proflo" />
+      </div>
+    );
+  }
+
+  // NORMAL (expanded + mobile)
   return (
     <div
       className={`${styles.pill} ${touchActive ? styles.active : ""}`}
-      onMouseEnter={() => setTouchActive(true)}
-      onMouseLeave={() => setTouchActive(false)}
+      onMouseEnter={() => !isMobile && setTouchActive(true)}
+      onMouseLeave={() => !isMobile && setTouchActive(false)}
       onTouchStart={() => {
-        // brief visual feedback for touch devices
         setTouchActive(true);
-        window.setTimeout(() => setTouchActive(false), 180);
+        setTimeout(() => setTouchActive(false), 180);
       }}
-      role="img"
-      aria-label="Proflo"
     >
-      <img src="/logo.svg" alt="Proflo" className={styles.logo} />
+      <img
+        src={isMobile ? "/converted.svg" : "/logo.svg"}
+        className={styles.logo}
+        alt="Proflo"
+      />
     </div>
   );
 }
