@@ -6,14 +6,18 @@
   text-transform: capitalize;
 }
 
-/* ACTIVE */
+/* ========================================================= */
+/* LIGHT MODE (default)                                      */
+/* ========================================================= */
+
+/* ACTIVE / TODO */
 .active,
 .todo {
   background: rgba(40, 199, 111, 0.15);
   color: rgb(28, 130, 73);
 }
 
-/* PENDING */
+/* PENDING / IN PROGRESS */
 .pending,
 .in-progress {
   background: rgba(255, 193, 7, 0.16);
@@ -24,4 +28,30 @@
 .completed {
   background: rgba(0, 123, 255, 0.16);
   color: #003c97;
+}
+
+/* ========================================================= */
+/* DARK MODE                                                 */
+/* ========================================================= */
+
+html[data-theme="dark"] {
+  /* ACTIVE / TODO */
+  .active,
+  .todo {
+    background: rgba(40, 199, 111, 0.22);
+    color: #7be3b0;
+  }
+
+  /* PENDING / IN PROGRESS */
+  .pending,
+  .in-progress {
+    background: rgba(255, 193, 7, 0.22);
+    color: #ffe28a;
+  }
+
+  /* COMPLETED */
+  .completed {
+    background: rgba(0, 123, 255, 0.22);
+    color: #8cbcff;
+  }
 }

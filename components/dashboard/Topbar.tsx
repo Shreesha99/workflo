@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabaseClient } from "@/lib/supabase/client";
 import styles from "./Topbar.module.scss";
 import gsap from "gsap";
-import { Search, Sun, Moon } from "lucide-react";
+import { Search, Sun, Moon, LogOut } from "lucide-react";
 
 export default function Topbar() {
   const supabase = supabaseClient();
@@ -170,7 +170,7 @@ export default function Topbar() {
 
             {/* LOGOUT */}
             <button className={styles.menuItem} onClick={handleLogout}>
-              Logout
+              <LogOut size={20} /> Logout
             </button>
           </div>
         )}
