@@ -19,6 +19,7 @@ import {
   Plus,
   Trash,
   ArrowUpRight,
+  Send,
 } from "lucide-react";
 
 import styles from "./projectdetails.module.scss";
@@ -295,7 +296,7 @@ export default function ProjectDetails() {
   if (!project) return <p className={styles.loading}>Loading…</p>;
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${styles[`status-${project.status}`]}`}>
       {/* LEFT COLUMN */}
       <div className={styles.left}>
         <button
@@ -335,7 +336,7 @@ export default function ProjectDetails() {
           <div className={styles.notesHeader}>
             <h2>Project Notes</h2>
             <button className={styles.addNoteBtn} onClick={createNote}>
-              <Plus size={14} /> Add Note
+              <Plus size={20} />
             </button>
           </div>
 
@@ -475,7 +476,9 @@ export default function ProjectDetails() {
                 if (e.key === "Enter") sendMessage();
               }}
             />
-            <button onClick={sendMessage}>Send</button>
+            <button onClick={sendMessage}>
+              <Send size={16} />
+            </button>
           </div>
 
           {portalUrl && (

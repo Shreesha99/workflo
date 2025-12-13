@@ -203,4 +203,35 @@
   }
 }
 
+/* ===============================
+   THEME TOGGLE
+=============================== */
+
+.themeToggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 10px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+
+  font-size: 14px;
+  color: var(--text);
+
+  transition: 0.2s;
+
+  &:hover {
+    background: var(--bg-soft);
+  }
+
+  svg {
+    opacity: 0.8;
+  }
+}
+
+
 

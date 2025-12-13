@@ -24,6 +24,176 @@
   color-scheme: light;
 }
 
+/* =========================================================
+   ROOT THEME — LIGHT (DEFAULT)
+   data-theme="light"
+========================================================= */
+
+:root,
+html[data-theme="light"] {
+  --bg: #ffffff;
+  --bg-soft: #f5f5f5;
+
+  --text: #111111;
+  --text-soft: #555555;
+
+  --border: #e2e2e2;
+
+  --primary: #ffd600;   /* yellow accent */
+  --danger: #ff3b30;
+  --accent: #000000;
+
+  --card-bg: #ffffff;
+  --card-border: #e7e7e7;
+
+  --success-soft: #fff9c4;
+  --success-text: #8a6d00;
+
+  --error-soft: #fdecea;
+  --error-text: #c62828;
+
+  color-scheme: light;
+}
+
+/* =========================================================
+   DARK THEME
+   data-theme="dark"
+========================================================= */
+
+html[data-theme="dark"] {
+  --bg: #0d0d0d;
+  --bg-soft: #1a1a1a;
+
+  --text: #eaeaea;
+  --text-soft: #b3b3b3;
+
+  --border: #333333;
+
+  --primary: #ffd600;
+  --danger: #ff453a;
+  --accent: #ffffff;
+
+  --card-bg: #1a1a1a;
+  --card-border: #333333;
+
+  --success-soft: #4c3d00;
+  --success-text: #ffe28a;
+
+  --error-soft: #4a0f10;
+  --error-text: #ff6b6b;
+
+  color-scheme: dark;
+}
+
+/* =========================================================
+   GLOBAL RESET + TYPOGRAPHY
+========================================================= */
+
+* {
+  box-sizing: border-box;
+  font-family: var(--font-roboto), sans-serif !important;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+
+  background: var(--bg);
+  color: var(--text);
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+code,
+pre,
+.mono {
+  font-family: var(--font-geist-mono);
+}
+
+/* =========================================================
+   AUTH / GENERIC PAGES
+========================================================= */
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--text-soft);
+}
+
+.auth-link {
+  margin-top: 20px;
+  text-align: center;
+
+  a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+/* =========================================================
+   FEEDBACK MESSAGES
+========================================================= */
+
+.successBox {
+  background: var(--success-soft);
+  color: var(--success-text);
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid
+    color-mix(in srgb, var(--success-text), transparent 70%);
+  margin-top: 16px;
+  font-size: 14px;
+  animation: fadeIn 0.25s ease forwards;
+  opacity: 0;
+}
+
+.errorBox {
+  background: var(--error-soft);
+  color: var(--error-text);
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid
+    color-mix(in srgb, var(--error-text), transparent 70%);
+  margin-top: 16px;
+  font-size: 14px;
+  animation: fadeIn 0.25s ease forwards;
+  opacity: 0;
+}
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
 /* DARK THEME */
 .dark {
   --bg: #0d0d0d;

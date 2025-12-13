@@ -1,49 +1,46 @@
-/* ============================================================= */
-/*                     TASKS PAGE — EXACT A STYLE                */
-/* ============================================================= */
+/* =============================================================
+   TASKS PAGE — MODERN PREMIUM SAAS (ALIGNED WITH PROJECTS)
+   Subtle surfaces, calm borders, clean elevation
+============================================================= */
 
 .container {
   width: 100%;
-  padding: 24px 32px;
+  padding: 40px 48px;
   color: var(--text);
-  cursor: pointer;
 }
 
-/* =============================== */
-/*            HEADER              */
-/* =============================== */
+/* ===============================
+   HEADER
+=============================== */
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 28px;
 
   h1 {
     font-size: 30px;
     font-weight: 700;
-    margin-bottom: 4px;
+    letter-spacing: -0.3px;
   }
 }
 
-/* top-right view toggle */
 .viewToggle {
   display: flex;
   gap: 8px;
-  align-items: center;
 }
 
 .smallIconBtn {
-  padding: 8px;
-  border-radius: 8px;
-  background: var(--bg-soft);
-  border: 1px solid var(--card-border);
+  padding: 10px;
+  border-radius: 10px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  transition: 0.15s ease;
 
   &:hover {
-    background: var(--card-bg);
+    background: var(--hover);
   }
 }
 
@@ -51,66 +48,39 @@
   background: var(--primary);
   border-color: var(--primary);
   color: black;
-}
-
-/* New Task Button (FAB icon) */
-.fab {
-  position: fixed;
-  bottom: 26px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 62px;
-  height: 62px;
-
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  background: var(--primary);
-  border: none;
-  cursor: pointer;
-  color: #000;
-  font-size: 32px;
-  font-weight: 600;
-
-  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.18);
-  transition: 0.25s ease;
-  z-index: 1000;
 
   &:hover {
-    transform: translateX(-50%) translateY(-4px);
-    filter: brightness(0.92);
+    filter: brightness(1.05);
   }
 }
 
-/* ========================================================= */
-/*                    FILTER BAR (EXACT A STYLE)             */
-/* ========================================================= */
+/* ===============================
+   FILTER BAR
+=============================== */
 
 .filtersRow {
   display: flex;
   align-items: center;
   gap: 18px;
-  margin: 20px 0;
+  margin-bottom: 26px;
 }
 
 .searchBar {
   position: relative;
-  max-width: 280px;
-  width: 100%;
+  width: 300px;
 
   input {
     width: 100%;
-    padding: 12px 14px 12px 40px;
+    padding: 14px 16px 14px 44px;
     border-radius: 12px;
-    border: 1px solid var(--card-border);
-    background: var(--bg-soft);
+    border: 1px solid var(--border);
+    background: var(--surface-alt);
     font-size: 15px;
+    transition: 0.15s ease;
 
     &:focus {
+      background: var(--surface);
       border-color: var(--primary);
-      box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.35);
       outline: none;
     }
   }
@@ -118,30 +88,30 @@
 
 .searchIcon {
   position: absolute;
-  top: 50%;
   left: 14px;
+  top: 50%;
   transform: translateY(-50%);
   opacity: 0.55;
 }
 
-/* Pills (status filters) */
+/* Pills */
+
 .pills {
   display: flex;
   gap: 10px;
 }
 
 .pill {
-  padding: 6px 16px;
-  background: var(--bg-soft);
-  border-radius: 30px;
-  border: 1px solid var(--card-border);
-  cursor: pointer;
+  padding: 8px 18px;
   font-size: 14px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: 0.15s ease;
 
   &:hover {
-    background: var(--primary);
-    border-color: var(--primary);
-    color: black;
+    background: var(--hover);
   }
 }
 
@@ -149,52 +119,58 @@
   background: var(--primary);
   border-color: var(--primary);
   color: black;
+
+  &:hover {
+    filter: brightness(1.05);
+  }
 }
 
-/* Filter icon dropdown */
+/* ===============================
+   FILTER DROPDOWN
+=============================== */
+
 .filterWrap {
   position: relative;
 }
 
 .filterBtn {
-  padding: 8px 14px;
-  background: var(--bg-soft);
-  border: 1px solid var(--card-border);
-  border-radius: 10px;
+  padding: 12px 16px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   cursor: pointer;
+  transition: 0.15s ease;
 
   &:hover {
-    background: var(--card-bg);
+    background: var(--hover);
   }
 }
 
 .filterDropdown {
   position: absolute;
-  top: 45px;
+  top: 52px;
   right: 0;
-  width: 230px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
+  width: 260px;
+  background: var(--surface);
   border-radius: 14px;
-  z-index: 20;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
+  padding: 18px;
+  z-index: 200;
 
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.14);
-  opacity: 0;
-  transform: translateY(-6px);
-  animation: fadeIn 0.25s ease forwards;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  animation: dropdownIn 0.18s ease;
 }
 
-@keyframes fadeIn {
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
@@ -202,31 +178,36 @@
   position: absolute;
   top: 10px;
   right: 12px;
-  font-size: 16px;
   cursor: pointer;
-  color: var(--text-soft);
-  transition: 0.15s ease;
+  opacity: 0.6;
 
   &:hover {
-    transform: scale(1.15);
-    color: var(--text);
+    opacity: 1;
   }
 }
 
-.dropdownSection label {
-  font-size: 12px;
-  color: var(--text-soft);
-  margin-bottom: 6px;
-  display: block;
+.dropdownSection {
+  margin-bottom: 18px;
+
+  label {
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.65;
+    margin-bottom: 8px;
+    display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
 }
 
 .dropdownItem {
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-radius: 8px;
   cursor: pointer;
+  transition: 0.15s ease;
 
   &:hover {
-    background: var(--bg-soft);
+    background: var(--hover);
   }
 }
 
@@ -236,194 +217,168 @@
 }
 
 .dropdownClear {
-  padding: 6px 10px;
-  font-size: 12px;
+  margin-top: 6px;
+  font-size: 13px;
+  opacity: 0.65;
   cursor: pointer;
-  color: #b71c1c;
 
   &:hover {
-    background: #ffeaea;
+    opacity: 1;
   }
 }
 
 .clearAllBtn {
-  padding: 8px;
+  margin-top: 6px;
+  padding: 10px;
   border-radius: 10px;
-  font-size: 13px;
-  border: 1px solid #ffcccc;
-  background: #ffecec;
-  color: #a20000;
+  border: none;
+  background: rgba(255, 80, 80, 0.12);
+  color: #b00000;
   cursor: pointer;
 
   &:hover {
-    filter: brightness(0.95);
+    background: rgba(255, 80, 80, 0.18);
   }
 }
 
-/* ========================================================= */
-/*                        LIST VIEW                          */
-/* ========================================================= */
+/* ===============================
+   GRID / LIST
+=============================== */
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 22px;
 }
 
-.card {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
-  padding: 18px;
-  position: relative;
+/* ===============================
+   TASK CARD
+=============================== */
 
-  transition: transform 0.25s ease, box-shadow 0.25s ease,
-    border-color 0.25s ease;
+.card {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.02)
+  );
+  border-radius: 16px;
+  padding: 22px;
+  position: relative;
+  cursor: pointer;
+
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  transition: 0.25s ease;
 
   &:hover {
     transform: translateY(-4px);
-    border-color: var(--primary);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
   }
 }
 
-.cardBody h3 {
-  font-size: 18px;
-  margin-bottom: 8px;
+.cardBody {
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
 }
 
 .desc {
-  margin: 6px 0 12px 0;
+  font-size: 14px;
   color: var(--text-soft);
+  margin-bottom: 12px;
 }
 
 .metaRow {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  font-size: 14px;
 }
 
 .due {
-  font-size: 14px;
   color: var(--text-soft);
 }
 
 .projectRow {
   margin-top: 8px;
-  font-size: 14px;
-  color: var(--text-soft);
+  font-size: 13px;
+  opacity: 0.6;
 }
+
+/* Delete */
+
+.deleteBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px;
+  border-radius: 8px;
+  background: rgba(255, 60, 60, 0.14);
+  border: none;
+  cursor: pointer;
+  transition: 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 60, 60, 0.22);
+    transform: translateY(-2px);
+  }
+}
+
+/* ===============================
+   EMPTY
+=============================== */
 
 .empty {
   grid-column: 1 / -1;
   text-align: center;
-  color: var(--text-soft);
-  margin-top: 20px;
-}
-
-/* highlight during drag */
-.dragging {
   opacity: 0.6;
-  transform: scale(0.99);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
+  padding: 30px;
 }
 
-/* ========================================================= */
-/*                        KANBAN                             */
-/* ========================================================= */
-
-.kanbanBoard {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  align-items: start;
-  margin-top: 6px;
-}
+/* ===============================
+   KANBAN
+=============================== */
 
 .kanbanColumn {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
-  border: 1px solid var(--card-border);
-  border-radius: 12px;
-  padding: 12px;
-  min-height: 240px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-
-  transition: box-shadow 0.15s, transform 0.12s;
+  background: var(--surface-alt);
+  border-radius: 14px;
+  padding: 14px;
+  transition: 0.15s ease;
 }
 
 .kanbanColumnDragOver {
-  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.55);
-  background: linear-gradient(
-    180deg,
-    rgba(255, 215, 0, 0.08),
-    rgba(255, 215, 0, 0.02)
-  );
-  transform: scale(1.01);
-}
-
-.kanbanHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  padding-bottom: 6px;
-  border-bottom: 1px solid var(--card-border);
-
-  h4 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 700;
-  }
-}
-
-.kanbanCount {
-  background: var(--bg-soft);
-  padding: 4px 8px;
-  border-radius: 999px;
-  font-size: 12px;
-  border: 1px solid var(--card-border);
-}
-
-.kanbanList {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  margin-top: 6px;
-}
-
-.kanbanEmpty {
-  color: var(--text-soft);
-  font-style: italic;
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--bg-soft);
-  text-align: center;
+  background: rgba(255, 215, 0, 0.08);
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.45);
 }
 
 .dragOverlay {
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
-  transform: scale(1.02);
+  transform: scale(1.03);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.3);
 }
 
-.deleteBtn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
+/* ===============================
+   FAB
+=============================== */
 
-  padding: 6px;
-  border-radius: 8px;
-  background: rgba(255, 60, 60, 0.12);
-  border: 1px solid rgba(255, 60, 60, 0.32);
-  color: #ff3b3b;
+.fab {
+  position: fixed;
+  bottom: 32px;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: black;
+  border: none;
   cursor: pointer;
-  z-index: 20;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
   transition: 0.25s ease;
 
   &:hover {
-    background: rgba(255, 60, 60, 0.18);
-    transform: translateY(-2px);
+    transform: translateY(-6px) scale(1.06);
   }
 }

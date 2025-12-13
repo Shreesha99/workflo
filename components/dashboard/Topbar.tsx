@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabaseClient } from "@/lib/supabase/client";
 import styles from "./Topbar.module.scss";
 import gsap from "gsap";
-import { Search } from "lucide-react";
+import { Search, Sun, Moon } from "lucide-react";
 
 export default function Topbar() {
   const supabase = supabaseClient();
@@ -12,6 +12,8 @@ export default function Topbar() {
   const [open, setOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
+
   const menuRef = useRef<HTMLDivElement | null>(null);
 
   function toggleMenu() {
@@ -23,15 +25,35 @@ export default function Topbar() {
     window.location.href = "/auth/login";
   }
 
-  // Fetch full profile info
+  /* ============================
+     THEME TOGGLE
+  ============================ */
+
+  useEffect(() => {
+    const saved = localStorage.getItem("theme") as "light" | "dark" | null;
+    if (saved) {
+      setTheme(saved);
+      document.documentElement.dataset.theme = saved;
+    }
+  }, []);
+
+  function toggleTheme() {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    document.documentElement.dataset.theme = next;
+    localStorage.setItem("theme", next);
+  }
+
+  /* ============================
+     LOAD USER
+  ============================ */
+
   useEffect(() => {
     async function loadUser() {
       const { data: userData } = await supabase.auth.getUser();
       const user = userData?.user;
-
       if (!user) return;
 
-      // Fetch user_profiles row
       const { data: profileData } = await supabase
         .from("user_profiles")
         .select("*")
@@ -53,7 +75,10 @@ export default function Topbar() {
     loadUser();
   }, []);
 
-  // Close menu when clicking outside
+  /* ============================
+     CLOSE ON OUTSIDE CLICK
+  ============================ */
+
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -64,7 +89,10 @@ export default function Topbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Dropdown animation
+  /* ============================
+     DROPDOWN ANIMATION
+  ============================ */
+
   useEffect(() => {
     if (open) {
       gsap.fromTo(
@@ -77,18 +105,17 @@ export default function Topbar() {
 
   return (
     <header className={styles.topbar}>
-      {/* Search Bar */}
+      {/* SEARCH */}
       <div className={styles.searchWrapper}>
         <Search size={16} className={styles.searchIcon} />
         <input
           className={styles.searchInput}
-          placeholder="Search projects, tasks, files..."
+          placeholder="Search projects, tasks, files…"
         />
       </div>
 
-      {/* Right section */}
+      {/* RIGHT */}
       <div className={styles.right}>
-        {/* Avatar / Initial */}
         <button className={styles.avatar} onClick={toggleMenu}>
           {avatarUrl ? (
             <img src={avatarUrl} alt="avatar" className={styles.avatarImg} />
@@ -99,10 +126,9 @@ export default function Topbar() {
           )}
         </button>
 
-        {/* Dropdown */}
         {open && (
           <div className={`${styles.menu} user-menu`} ref={menuRef}>
-            {/* PROFILE INFO */}
+            {/* PROFILE */}
             <div className={styles.profileSection}>
               <div className={styles.profileAvatarWrapper}>
                 {avatarUrl ? (
@@ -124,7 +150,6 @@ export default function Topbar() {
                   <p className={styles.username}>{profile.username}</p>
                 )}
                 <p className={styles.email}>{profile?.email}</p>
-
                 {profile?.joined && (
                   <p className={styles.joined}>
                     Joined: {new Date(profile.joined).toDateString()}
@@ -135,6 +160,15 @@ export default function Topbar() {
 
             <div className={styles.menuDivider} />
 
+            {/* THEME TOGGLE */}
+            <button className={styles.themeToggle} onClick={toggleTheme}>
+              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+              <span>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+            </button>
+
+            <div className={styles.menuDivider} />
+
+            {/* LOGOUT */}
             <button className={styles.menuItem} onClick={handleLogout}>
               Logout
             </button>
