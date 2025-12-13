@@ -163,6 +163,7 @@
   top: 52px;
   right: 0;
   width: 280px;
+  z-index: 900;
 
   background: var(--surface);
   border: 1px solid var(--border);
@@ -315,6 +316,7 @@
   border-radius: 16px;
   padding: 26px;
   position: relative;
+  z-index: 100;
 
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.22);
   backdrop-filter: blur(5px);
@@ -376,7 +378,7 @@
   opacity: 0.6;
   padding: 22px;
   font-size: 15px;
-  z-index: inherit;
+  z-index: 200;
 }
 
 /* FAB BUTTON */
@@ -388,6 +390,7 @@
   border-radius: 50%;
   background: var(--primary);
   color: black;
+  z-index: 600;
 
   display: flex;
   align-items: center;
