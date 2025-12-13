@@ -22,6 +22,18 @@ export default function OTPPage() {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+
+    const root = document.documentElement;
+
+    if (!root.dataset.theme) {
+      root.dataset.theme = prefersDark ? "dark" : "light";
+    }
+  }, []);
+
+  useEffect(() => {
     gsap.fromTo(
       ".otp-card",
       { opacity: 0, y: 20 },

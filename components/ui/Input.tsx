@@ -11,7 +11,7 @@ type InputProps = {
   placeholder?: string;
   rightIcon?: React.ReactNode;
   onRightIconClick?: (e: React.MouseEvent) => void;
-  disabled?: boolean; // NEW
+  disabled?: boolean;
 };
 
 export default function Input({
@@ -35,7 +35,7 @@ export default function Input({
           value={value}
           onChange={onChange}
           placeholder={placeholder}
-          disabled={disabled} // NEW
+          disabled={disabled}
         />
 
         {rightIcon && (

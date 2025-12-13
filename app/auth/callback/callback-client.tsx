@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabaseClient } from "@/lib/supabase/client";
 import ErrorMessage from "@/components/ui/ErrorMessage";
+import Loader from "@/components/ui/Loader";
 
 export default function CallbackClient() {
   const params = useSearchParams();
@@ -60,5 +61,5 @@ export default function CallbackClient() {
     );
   }
 
-  return <p>Loading…</p>;
+  return <Loader />;
 }

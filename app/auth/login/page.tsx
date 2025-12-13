@@ -10,12 +10,14 @@ import { supabaseClient } from "@/lib/supabase/client";
 import gsap from "gsap";
 import Image from "next/image";
 import styles from "./login.module.scss";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const supabase = supabaseClient();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -127,10 +129,14 @@ export default function LoginPage() {
           <div className={styles.inputWrap}>
             <Input
               label="Password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              rightIcon={
+                showPassword ? <EyeOff size={18} /> : <Eye size={18} />
+              }
+              onRightIconClick={() => setShowPassword((p) => !p)}
             />
           </div>
 

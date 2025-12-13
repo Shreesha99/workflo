@@ -9,6 +9,19 @@ import Image from "next/image";
 
 export default function Home() {
   useEffect(() => {
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+
+    const root = document.documentElement;
+
+    // only set if user hasn't explicitly chosen before
+    if (!root.dataset.theme) {
+      root.dataset.theme = prefersDark ? "dark" : "light";
+    }
+  }, []);
+
+  useEffect(() => {
     // Hero fade-in
     gsap.fromTo(
       ".hero-section",

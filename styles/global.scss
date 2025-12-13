@@ -8,9 +8,9 @@
 
   --border: #e2e2e2;
 
-  --primary: #ffd600;   /* yellow accent */
-  --danger: #ff3b30;    /* red */
-  --accent: #000000;    /* black */
+  --primary: #ffd600; /* yellow accent */
+  --danger: #ff3b30; /* red */
+  --accent: #000000; /* black */
 
   --card-bg: #ffffff;
   --card-border: #e7e7e7;
@@ -39,7 +39,7 @@ html[data-theme="light"] {
 
   --border: #e2e2e2;
 
-  --primary: #ffd600;   /* yellow accent */
+  --primary: #ffd600; /* yellow accent */
   --danger: #ff3b30;
   --accent: #000000;
 
@@ -105,9 +105,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  transition:
-    background-color 0.25s ease,
-    color 0.25s ease;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 code,
@@ -163,8 +161,7 @@ pre,
   color: var(--success-text);
   padding: 12px 14px;
   border-radius: 8px;
-  border: 1px solid
-    color-mix(in srgb, var(--success-text), transparent 70%);
+  border: 1px solid color-mix(in srgb, var(--success-text), transparent 70%);
   margin-top: 16px;
   font-size: 14px;
   animation: fadeIn 0.25s ease forwards;
@@ -176,8 +173,7 @@ pre,
   color: var(--error-text);
   padding: 12px 14px;
   border-radius: 8px;
-  border: 1px solid
-    color-mix(in srgb, var(--error-text), transparent 70%);
+  border: 1px solid color-mix(in srgb, var(--error-text), transparent 70%);
   margin-top: 16px;
   font-size: 14px;
   animation: fadeIn 0.25s ease forwards;
@@ -223,8 +219,8 @@ pre,
   font-family: var(--font-roboto), sans-serif !important;
 }
 
-
-html, body {
+html,
+body {
   font-family: var(--font-roboto), sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -238,7 +234,6 @@ pre,
 .mono {
   font-family: var(--font-geist-mono);
 }
-
 
 body {
   background: var(--bg);
@@ -281,7 +276,6 @@ body {
   }
 }
 
-
 .successBox {
   background: #fff9c4;
   color: #8a6d00;
@@ -295,5 +289,7 @@ body {
 }
 
 @keyframes fadeIn {
-  to { opacity: 1; }
+  to {
+    opacity: 1;
+  }
 }

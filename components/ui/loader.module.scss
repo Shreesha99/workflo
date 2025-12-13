@@ -1,0 +1,92 @@
+/* --------------------------------------------- */
+/* Premium SaaS Loader (Asana + Linear inspired) */
+/* --------------------------------------------- */
+
+.loaderOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.34);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.25s ease-out;
+}
+
+.loaderWrapper {
+  position: relative;
+  width: 86px;
+  height: 86px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Soft glowing aura */
+.glow {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 214, 0, 0.25),
+    rgba(255, 214, 0, 0.05)
+  );
+  filter: blur(14px);
+  animation: pulseGlow 1.8s infinite ease-in-out;
+}
+
+/* Orb in center */
+.orb {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffe36e, #ffd000);
+  box-shadow: 0 0 20px rgba(255, 214, 0, 0.45),
+    inset 0 0 8px rgba(0, 0, 0, 0.18);
+  animation: rotateOrb 1.2s infinite linear;
+}
+
+/* Label */
+.label {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.75;
+  color: var(--text);
+  letter-spacing: 0.3px;
+}
+
+/* -------------------- Animations -------------------- */
+
+@keyframes pulseGlow {
+  0%,
+  100% {
+    transform: scale(0.9);
+    opacity: 0.65;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+}
+
+@keyframes rotateOrb {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

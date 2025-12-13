@@ -56,8 +56,8 @@
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: saturate(180%) blur(20px);
-  border: 1px solid rgba(255,255,255,0.55);
-  box-shadow: 0 12px 34px rgba(0,0,0,0.06);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.06);
   max-width: 720px;
   text-align: center;
   margin: 0 auto;
@@ -70,8 +70,14 @@
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(18px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* TEXT BLOCK */
@@ -115,8 +121,8 @@
   font-weight: 600;
   color: #000;
   text-decoration: none;
-  transition: opacity 0.22s ease, transform 0.24s cubic-bezier(.22, 1, .36, 1);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  transition: opacity 0.22s ease, transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 
   &:hover {
     opacity: 0.9;
@@ -132,7 +138,8 @@
   color: var(--text);
   font-weight: 500;
   text-decoration: none;
-  transition: background 0.22s ease, border-color 0.22s ease, transform 0.24s ease;
+  transition: background 0.22s ease, border-color 0.22s ease,
+    transform 0.24s ease;
 
   &:hover {
     background: var(--bg-soft);
@@ -168,7 +175,6 @@
     font-size: 16px;
   }
 }
-
 
 /* =========================
    3D FLOATING BACKGROUND BLOBS
@@ -209,12 +215,6 @@
   border-radius: 50%;
 }
 
-/* Ensure hero stays above blobs */
-.heroSection {
-  position: relative;
-  z-index: 2;
-}
-
 /* Floating 3D Elements */
 .cursor,
 .chart,
@@ -227,26 +227,22 @@
   filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.15));
 }
 
-/* Positions */
 .cursor {
   top: 12%;
   left: 6%;
   width: 300px;
 }
-
 .chart {
   top: 18%;
   right: 10%;
   width: 300px;
   opacity: 0.95;
 }
-
 .message {
   bottom: 14%;
   left: 12%;
   width: 300px;
 }
-
 .spark {
   bottom: 20%;
   right: 18%;
@@ -258,4 +254,83 @@
 .heroSection {
   position: relative;
   z-index: 5;
+}
+
+/* ============================================================
+   DARK MODE OVERRIDES — Premium SaaS Glass UI
+============================================================ */
+html[data-theme="dark"] {
+  .pageWrapper {
+    background: radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 214, 0, 0.1) 0%,
+      #0d0d0d 65%
+    );
+  }
+
+  .pageWrapper::before {
+    background: rgba(255, 214, 0, 0.35);
+    opacity: 0.45;
+  }
+
+  .pageWrapper::after {
+    background: rgba(120, 170, 255, 0.35);
+    opacity: 0.45;
+  }
+
+  /* Dark glowing blobs */
+  .blob1 {
+    background: radial-gradient(circle at 30% 30%, #ffe55c55, #ffd60033);
+    opacity: 0.35;
+  }
+
+  .blob2 {
+    background: radial-gradient(circle at 70% 70%, #8b9095, #6a6f75);
+    opacity: 0.28;
+  }
+
+  /* Floating elements shadow depth */
+  .cursor,
+  .chart,
+  .message,
+  .spark {
+    opacity: 0.75;
+    filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.55));
+  }
+
+  /* Hero glass container */
+  .heroSection {
+    background: rgba(26, 26, 26, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.55);
+    backdrop-filter: saturate(170%) blur(22px);
+  }
+
+  .title {
+    color: #fff;
+  }
+
+  .subtitle {
+    color: var(--text-soft);
+  }
+
+  .secondaryBtn {
+    background: rgba(255, 255, 255, 0.04);
+    color: #eee;
+    border-color: rgba(255, 255, 255, 0.12);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--primary);
+    }
+  }
+
+  .linkBtn {
+    color: var(--text-soft);
+
+    &:hover {
+      color: #fff;
+      opacity: 1;
+    }
+  }
 }
