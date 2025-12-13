@@ -1,50 +1,106 @@
+/* ============================================================================
+   PREMIUM SAAS MODAL — DELETE CONFIRMATION
+   Matches NewProjectModal (Option B solid surface-alt)
+============================================================================ */
+
+:root {
+  --modal-bg: var(--surface-alt);
+  --modal-border: rgba(255, 255, 255, 0.08);
+  --modal-hover: rgba(255, 255, 255, 0.06);
+}
+
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(2px);
   z-index: 1000;
-  backdrop-filter: blur(3px);
 }
 
+/* MODAL PANEL -------------------------------------------------------------- */
+
 .modal {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  padding: 26px;
+  background: var(--modal-bg);
+  border: 1px solid var(--modal-border);
   width: 420px;
-  border-radius: 14px;
+  padding: 28px;
+  border-radius: 16px;
+
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.45);
+  animation: modalIn 0.22s ease-out;
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+
+  p {
+    margin: 0;
+    opacity: 0.75;
+    line-height: 1.45;
+    font-size: 15px;
+  }
+
+  strong {
+    color: var(--text);
+  }
 }
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ACTION BUTTONS ----------------------------------------------------------- */
 
 .actions {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+  margin-top: 6px;
 }
 
+/* Cancel Button (soft neutral) */
 .cancelBtn {
-  padding: 10px 16px;
-  background: var(--bg-soft);
-  border-radius: 8px;
-  cursor: pointer;
+  padding: 10px 16px !important;
+  border-radius: 10px !important;
+
+  background: var(--surface) !important;
+  border: 1px solid var(--modal-border) !important;
+
+  transition: 0.15s ease !important;
 
   &:hover {
-    background: var(--card-bg);
+    background: var(--modal-hover) !important;
   }
 }
 
+/* Delete Button (danger) */
 .deleteBtn {
-  padding: 10px 16px;
-  background: #ff5252;
-  font-weight: 450;
-  border-radius: 8px;
-  cursor: pointer;
+  padding: 10px 18px !important;
+  border-radius: 10px !important;
+  background: #ff4d4d !important;
+  color: white !important;
+  border: 1px solid rgba(255, 100, 100, 0.3) !important;
+
+  transition: 0.15s ease !important;
 
   &:hover {
-    filter: brightness(0.9);
+    filter: brightness(1.07);
   }
 }

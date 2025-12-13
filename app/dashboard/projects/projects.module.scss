@@ -1,18 +1,20 @@
 /* ============================================================================
-   FAMILIAR MODERN SAAS DESIGN (Notion + Asana + Trello combined)
-   Clean. Predictable. Familiar. Professional.
+   MODERN PREMIUM SAAS STYLE (Asana + Linear + Notion)
+   Bigger sizing, darker hover, premium feel.
 ============================================================================ */
 
 :root {
   --surface: var(--card-bg);
   --surface-alt: var(--bg-soft);
-  --border: rgba(255, 255, 255, 0.08);
-  --hover: rgba(255, 255, 255, 0.06);
+  --border: rgba(49, 49, 49, 0.18);
+  --hover: rgba(0, 0, 0, 0.18); /* DARK hover */
+  --hover-active: rgba(255, 255, 255, 0.06);
+  --scale: 1.08; /* Global scale bump */
 }
 
 /* PAGE CONTAINER */
 .container {
-  padding: 32px 40px;
+  padding: 40px 48px;
   width: 100%;
 }
 
@@ -21,31 +23,31 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 
   h1 {
-    font-size: 28px;
+    font-size: calc(30px * var(--scale));
     font-weight: 700;
-    letter-spacing: -0.2px;
+    letter-spacing: -0.3px;
   }
 }
 
 /* VIEW TOGGLE */
 .viewToggle {
   display: flex;
-  gap: 6px;
+  gap: 8px;
 }
 
 .smallIconBtn {
-  padding: 8px;
-  border-radius: 6px;
+  padding: 10px;
+  border-radius: 8px;
   background: var(--surface-alt);
   border: 1px solid var(--border);
   cursor: pointer;
   transition: 0.15s ease;
 
   &:hover {
-    background: var(--hover);
+    background: rgba(0, 0, 0, 0.18);
   }
 }
 
@@ -55,29 +57,34 @@
   color: black;
 }
 
+.smallIconBtnActive:hover {
+  background: var(--primary);
+  filter: brightness(1.05);
+}
+
 /* FILTER BAR */
 .filtersRow {
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin-bottom: 20px;
+  gap: 18px;
+  margin-bottom: 26px;
 }
 
-/* SEARCH INPUT — Notion-style */
+/* SEARCH INPUT */
 .searchBar {
-  width: 260px;
+  width: 300px;
   position: relative;
 
   input {
     width: 100%;
-    padding: 10px 12px 10px 38px;
-    border-radius: 6px;
+    padding: 14px 16px 14px 46px;
+    border-radius: 8px;
     border: 1px solid var(--border);
     background: var(--surface-alt);
-    font-size: 14px;
+    font-size: 15px;
 
     &:hover {
-      background: var(--hover);
+      background: rgba(0, 0, 0, 0.18);
     }
 
     &:focus {
@@ -91,24 +98,25 @@
 .searchIcon {
   position: absolute;
   top: 50%;
-  left: 12px;
-  opacity: 0.5;
+  left: 14px;
+  opacity: 0.55;
   transform: translateY(-50%);
 }
 
-/* FILTER PILLS — Trello/Asana style */
+/* FILTER PILLS */
 .pills {
   display: flex;
-  gap: 8px;
+  gap: 10px;
 }
 
 .pill {
-  padding: 6px 14px;
-  font-size: 13px;
+  padding: 8px 18px;
+  font-size: 14px;
   background: var(--surface-alt);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: 18px;
   cursor: pointer;
+  transition: 0.15s ease;
 
   &:hover {
     background: var(--hover);
@@ -121,156 +129,244 @@
   border-color: var(--primary);
 }
 
+.pillActive:hover {
+  background: var(--primary);
+  filter: brightness(1.04);
+}
+
 /* FILTER DROPDOWN */
 .filterWrap {
   position: relative;
 }
 
+/* Button that opens dropdown */
 .filterBtn {
-  padding: 8px 12px;
-  font-size: 13px;
+  padding: 12px 16px;
+  font-size: 15px;
   background: var(--surface-alt);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 6px;
-}
-
-.filterDropdown {
-  position: absolute;
-  top: 42px;
-  right: 0;
-  width: 220px;
-
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 14px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-
-  animation: fadeIn 0.15s ease;
-}
-
-.dropdownItem {
-  padding: 8px 10px;
-  font-size: 13px;
-  border-radius: 6px;
-  cursor: pointer;
+  gap: 8px;
+  transition: 0.15s ease;
 
   &:hover {
     background: var(--hover);
   }
 }
 
+/* DROPDOWN PANEL */
+.filterDropdown {
+  position: absolute;
+  top: 52px;
+  right: 0;
+  width: 280px;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 18px 22px 18px;
+
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px);
+
+  animation: dropdownIn 0.18s ease;
+}
+
+/* Close button */
+.filterCloseBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  width: 26px;
+  height: 26px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 16px;
+  opacity: 0.7;
+  cursor: pointer;
+
+  border-radius: 6px;
+  z-index: 20; /* ensures no overlap */
+
+  transition: 0.15s ease;
+
+  &:hover {
+    opacity: 1;
+    background: var(--hover);
+  }
+}
+
+/* Each filter section */
+.dropdownSection {
+  margin-bottom: 18px;
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0.75;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+}
+
+/* Dropdown items */
+.dropdownItem {
+  padding: 10px 12px;
+  font-size: 15px;
+
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.15s;
+
+  &:hover {
+    background: var(--hover);
+  }
+}
+
+/* Active item (selected filter) */
 .activeItem {
   background: var(--primary);
   color: black;
 }
 
-/* PROJECT GRID — Trello layout */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 18px;
+.activeItem:hover {
+  background: var(--primary); /* do NOT darken */
+  filter: brightness(1.04); /* tiny effect */
 }
 
-/* CARD — Updated for perfect modern SaaS feel */
+/* Divider between sections */
+.divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 12px 0 18px 0;
+  border-radius: 2px;
+}
+
+/* Clear single filter */
+.dropdownClear {
+  margin-top: 6px;
+  font-size: 13px;
+  opacity: 0.7;
+  cursor: pointer;
+  padding: 4px 2px;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+/* Clear ALL filters button */
+.clearAllBtn {
+  margin-top: 6px;
+  width: 100%;
+  padding: 10px;
+
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.15s ease;
+
+  &:hover {
+    background: var(--hover);
+  }
+}
+
+/* Animation */
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* PROJECT GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 22px;
+}
+
+/* CARD */
 .card {
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.05),
+    rgba(255, 255, 255, 0.04),
     rgba(255, 255, 255, 0.02)
-  ); /* subtle surface texture */
+  );
 
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-
-  padding: 20px;
+  border-radius: 16px;
+  padding: 26px;
   position: relative;
 
-  /* The key: BASE SHADOW (always on) */
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
-
-  backdrop-filter: blur(4px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(5px);
 
   transition: 0.25s ease, border-color 0.2s ease, background 0.25s ease;
 
   &:hover {
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.12),
-      rgba(255, 255, 255, 0.05)
-    );
     border-color: var(--primary);
-
-    /* Zing comes from this deeper hover shadow */
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
-
-    transform: translateY(-3px);
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px) scale(1.02);
   }
 }
 
-/* Improve headers, gives personality */
-.cardBody h3 {
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: -0.2px;
-  margin-bottom: 6px;
-}
-
-/* Give metadata stronger rhythm */
-.metaRow {
-  margin-top: 12px;
-  display: flex;
-  justify-content: space-between;
-
-  opacity: 0.75;
-  font-size: 14px;
-}
-
-/* DELETE ICON — subtle, not loud */
-.deleteIcon {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-
-  padding: 5px;
-  border-radius: 6px;
-  background: #ffe8e8;
-  border: 1px solid #ffcdcd;
-  cursor: pointer;
-
-  &:hover {
-    background: #ffd6d6;
-  }
-}
-
-/* CARD CONTENT */
 .cardBody {
   text-decoration: none;
   color: inherit;
 
   h3 {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 600;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 }
 
 .clientRow {
-  font-size: 13px;
+  font-size: 14px;
   opacity: 0.6;
 }
 
 .metaRow {
-  margin-top: 10px;
-  font-size: 13px;
-  opacity: 0.7;
-
+  margin-top: 14px;
+  font-size: 14.5px;
+  opacity: 0.75;
   display: flex;
   justify-content: space-between;
+}
+
+/* DELETE ICON */
+.deleteIcon {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 6px;
+  border-radius: 8px;
+  background: rgba(255, 80, 80, 0.12);
+  border: 1px solid rgba(255, 100, 100, 0.28);
+  cursor: pointer;
+  transition: 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 80, 80, 0.22);
+  }
 }
 
 /* EMPTY STATE */
@@ -278,60 +374,64 @@
   grid-column: 1 / -1;
   text-align: center;
   opacity: 0.6;
-  padding: 18px;
+  padding: 22px;
+  font-size: 15px;
+  z-index: inherit;
 }
 
-/* FAB — familiar floating button */
+/* FAB BUTTON */
 .fab {
   position: fixed;
-  bottom: 26px;
-
-  width: 58px;
-  height: 58px;
+  bottom: 32px;
+  width: 68px;
+  height: 68px;
   border-radius: 50%;
   background: var(--primary);
+  color: black;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  color: black;
-  font-size: 28px;
-
+  font-size: 34px;
   cursor: pointer;
   border: none;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 
-  transition: 0.2s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  transition: 0.25s ease;
 
   &:hover {
-    transform: translateY(-4px);
+    transform: translateY(-6px) scale(1.06);
   }
 }
 
-/* KANBAN COLUMNS — Trello-like */
+/* KANBAN COLUMNS */
 .kanbanColumn {
   background: var(--surface-alt);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 12px;
+  border-radius: 10px;
+  padding: 16px;
 
   transition: 0.15s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.18);
+  }
 }
 
 .kanbanColumnDragOver {
-  background: var(--hover);
+  background: rgba(0, 0, 0, 0.18);
   border-color: var(--primary);
 }
 
 .dragOverlay {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;

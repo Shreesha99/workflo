@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import styles from "./DeleteProjectModal.module.scss";
 import ErrorMessage from "@/components/ui/ErrorMessage";
 import { supabaseClient } from "@/lib/supabase/client";
@@ -12,6 +12,8 @@ export default function DeleteProjectModal({
   onConfirm,
 }: any) {
   const isOpen = !!project;
+
+  const modalRef = useRef<HTMLDivElement | null>(null);
 
   const projectId = typeof project === "string" ? project : project?.id;
 
@@ -37,6 +39,19 @@ export default function DeleteProjectModal({
     }
 
     load();
+
+    // premium modal animate-in (same as create modal)
+    if (modalRef.current) {
+      modalRef.current.style.opacity = "0";
+      modalRef.current.style.transform = "translateY(8px) scale(0.97)";
+
+      requestAnimationFrame(() => {
+        modalRef.current.style.transition =
+          "opacity 0.22s ease, transform 0.22s ease";
+        modalRef.current.style.opacity = "1";
+        modalRef.current.style.transform = "translateY(0) scale(1)";
+      });
+    }
   }, [project]);
 
   async function handleDelete() {
@@ -73,7 +88,11 @@ export default function DeleteProjectModal({
         if (!loading) onClose();
       }}
     >
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+      <div
+        ref={modalRef}
+        className={styles.modal}
+        onClick={(e) => e.stopPropagation()}
+      >
         <h2>Delete Project</h2>
 
         <ErrorMessage message={localError} />

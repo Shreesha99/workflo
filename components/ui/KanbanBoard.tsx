@@ -155,7 +155,7 @@ export default function KanbanBoard<T extends KanbanItem>({
                   ))}
 
                   {list.length === 0 && (
-                    <div className={styles.empty}>No tasks here.</div>
+                    <div className={styles.empty}>Nothing here</div>
                   )}
                 </div>
               </SortableContext>

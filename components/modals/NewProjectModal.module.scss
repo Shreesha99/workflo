@@ -1,31 +1,40 @@
+/* ============================================================================
+   PREMIUM SAAS MODAL — SOLID (Option B)
+   Matches Projects Page Design (surface-alt base)
+============================================================================ */
+
+:root {
+  --modal-bg: var(--surface-alt);
+  --modal-border: rgba(255, 255, 255, 0.08);
+  --modal-hover: rgba(255, 255, 255, 0.06);
+}
+
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(3px);
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(2px);
   z-index: 900;
 }
 
 .modal {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  padding: 28px;
+  background: var(--modal-bg);
+  border: 1px solid var(--modal-border);
   width: 420px;
+  padding: 28px;
   border-radius: 16px;
 
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
 }
 
-/* Prevent GSAP from fading children */
-.modal * {
-  opacity: 1 !important;
-}
-
+/* Header -------------------------------------------------- */
 .modalHeader {
   display: flex;
   justify-content: space-between;
@@ -35,62 +44,56 @@
   h2 {
     margin: 0;
     font-size: 20px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
   }
 }
 
 .closeBtn {
-  background: none;
+  background: transparent;
   border: none;
   cursor: pointer;
   color: var(--text-soft);
+  padding: 6px;
+  border-radius: 8px;
+  transition: 0.15s;
 
   &:hover {
+    background: var(--modal-hover);
     color: var(--text);
   }
 }
 
-.createBtn {
-  margin-top: 6px;
-  width: 100%;
-  display: flex !important;
-  justify-content: center !important;
-}
-
+/* Status Select ------------------------------------------- */
 .selectWrap {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-top: 4px;
 
   label {
     font-size: 14px;
     color: var(--text-soft);
 
     span {
-      color: var(--text-soft);
+      opacity: 0.7;
     }
   }
 
   select {
-    padding: 10px 12px;
-    padding-right: 32px;
+    padding: 12px;
     border-radius: 10px;
-    border: 1px solid var(--card-border);
-    background: var(--bg-soft);
+    border: 1px solid var(--modal-border);
+    background: var(--surface);
     font-size: 14px;
     cursor: not-allowed;
-    color: var(--text);
 
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='18' viewBox='0 0 24 24' width='18' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-image: url("data:image/svg+xml;utf8,<svg fill='gray' width='16' height='16' viewBox='0 0 24 24'><path d='M7 10l5 5 5-5z'/></svg>");
     background-repeat: no-repeat;
-    background-position: right 10px center;
-    background-size: 14px;
+    background-position: right 12px center;
   }
 }
 
+/* Date Picker --------------------------------------------- */
 .datePickerWrap {
   display: flex;
   flex-direction: column;
@@ -103,60 +106,37 @@
 }
 
 .dateInput {
-  padding: 10px 12px;
-  background: var(--bg-soft);
-  border: 1px solid var(--card-border);
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--modal-border);
   border-radius: 10px;
   font-size: 14px;
   cursor: pointer;
-  user-select: none;
-}
-
-.calendar {
-  margin-top: 6px;
-  padding: 12px;
-  background: var(--card-bg);
-  border-radius: 12px;
-  border: 1px solid var(--card-border);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.13);
-  animation: fadeIn 0.2s ease-out;
-
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.calendarHeader {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 600;
-  margin-bottom: 8px;
-
-  button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-  }
-}
-
-.calendarGrid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 6px;
-}
-
-.day {
-  padding: 8px;
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: center;
-  background: var(--bg-soft);
+  transition: 0.15s ease;
 
   &:hover {
-    background: var(--primary-soft);
-    color: var(--primary);
+    background: var(--modal-hover);
+    border: 1px solid white;
   }
+}
+
+/* Create Button ------------------------------------------- */
+.createBtn {
+  margin-top: 8px;
+  width: 100%;
+  display: flex !important;
+  justify-content: center !important;
+}
+
+/* Calendar (container is internal) ------------------------ */
+.calendar {
+  margin-top: 8px;
+  padding: 14px;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--modal-border);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.35);
+  animation: fadeIn 0.2s ease-out;
 }
 
 @keyframes fadeIn {
@@ -168,45 +148,4 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.inlineWarningBox {
-  margin-top: 10px;
-  background: #fff4c4;
-  border: 1px solid #ffdd80;
-  padding: 12px;
-  border-radius: 10px;
-  color: #7a5a00;
-  font-size: 14px;
-}
-
-.inlineWarningActions {
-  margin-top: 10px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-}
-
-.inlineCancel {
-  background: var(--bg-soft);
-  border: 1px solid var(--card-border);
-  padding: 6px 12px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.inlineConfirm {
-  background: #ff4444;
-  color: white;
-  padding: 6px 12px;
-  border: 1px solid var(--card-border);
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.today {
-  background: rgba(255, 223, 94, 0.22); // soft yellow glow
-  border: 1px solid rgba(255, 199, 0, 0.35);
-  font-weight: 600;
-  color: var(--text);
 }

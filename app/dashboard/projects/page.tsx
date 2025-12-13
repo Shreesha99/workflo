@@ -56,6 +56,22 @@ export default function ProjectsPage() {
   // Column statuses for kanban (correct order)
   const STATUS: Array<Project["status"]> = ["active", "pending", "completed"];
 
+  // close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        filtersOpen &&
+        filterRef.current &&
+        !filterRef.current.contains(e.target as Node)
+      ) {
+        setFiltersOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [filtersOpen]);
+
   useEffect(() => {
     loadProjects();
   }, []);
@@ -125,7 +141,9 @@ export default function ProjectsPage() {
           className={styles.deleteIcon}
           onClick={() => setDeleteTarget(p.id)}
         >
-          <Trash2 size={16} />
+          <span title="Delete project">
+            <Trash2 size={16} />
+          </span>
         </button>
 
         <a href={`/dashboard/projects/${p.id}`} className={styles.cardBody}>
@@ -183,7 +201,9 @@ export default function ProjectsPage() {
             }`}
             onClick={() => setViewMode("list")}
           >
-            <ListIcon size={16} />
+            <span title="List view">
+              <ListIcon size={16} />
+            </span>
           </button>
           <button
             className={`${styles.smallIconBtn} ${
@@ -191,7 +211,9 @@ export default function ProjectsPage() {
             }`}
             onClick={() => setViewMode("kanban")}
           >
-            <Columns size={16} />
+            <span title="Kanban board view">
+              <Columns size={16} />
+            </span>
           </button>
         </div>
       </div>
@@ -232,7 +254,10 @@ export default function ProjectsPage() {
             className={styles.filterBtn}
             onClick={() => setFiltersOpen((p) => !p)}
           >
-            <Filter size={16} /> Filters
+            <span title="Open filters">
+              <Filter size={16} />
+            </span>
+            Filters
           </button>
 
           {filtersOpen && (
@@ -241,33 +266,40 @@ export default function ProjectsPage() {
               <div
                 className={styles.filterCloseBtn}
                 onClick={() => setFiltersOpen(false)}
+                title="Close filters"
               >
                 ✕
               </div>
 
               {/* CLIENT FILTER */}
-              <div className={styles.dropdownSection}>
-                <label>Client</label>
+              {uniqueClients.length > 0 && (
+                <div className={styles.dropdownSection}>
+                  <label>Client</label>
 
-                {uniqueClients.map((c) => (
-                  <div
-                    key={c}
-                    className={`${styles.dropdownItem} ${
-                      clientFilter === c ? styles.activeItem : ""
-                    }`}
-                    onClick={() => setClientFilter(c)}
-                  >
-                    {c}
-                  </div>
-                ))}
+                  {uniqueClients.map((c) => (
+                    <div
+                      key={c}
+                      className={`${styles.dropdownItem} ${
+                        clientFilter === c ? styles.activeItem : ""
+                      }`}
+                      title={`Filter by client: ${c}`}
+                      onClick={() => setClientFilter(c)}
+                    >
+                      {c}
+                    </div>
+                  ))}
 
-                <div
-                  className={styles.dropdownClear}
-                  onClick={() => setClientFilter("")}
-                >
-                  Clear
+                  {clientFilter && (
+                    <div
+                      className={styles.dropdownClear}
+                      title="Clear client filter"
+                      onClick={() => setClientFilter("")}
+                    >
+                      Clear
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               <div className={styles.divider}></div>
 
@@ -279,6 +311,7 @@ export default function ProjectsPage() {
                   className={`${styles.dropdownItem} ${
                     dueFilter === "upcoming" ? styles.activeItem : ""
                   }`}
+                  title="Show upcoming projects"
                   onClick={() => setDueFilter("upcoming")}
                 >
                   Upcoming
@@ -288,6 +321,7 @@ export default function ProjectsPage() {
                   className={`${styles.dropdownItem} ${
                     dueFilter === "overdue" ? styles.activeItem : ""
                   }`}
+                  title="Show overdue projects"
                   onClick={() => setDueFilter("overdue")}
                 >
                   Overdue
@@ -297,33 +331,44 @@ export default function ProjectsPage() {
                   className={`${styles.dropdownItem} ${
                     dueFilter === "none" ? styles.activeItem : ""
                   }`}
+                  title="Show projects without due date"
                   onClick={() => setDueFilter("none")}
                 >
                   No Due Date
                 </div>
 
-                <div
-                  className={styles.dropdownClear}
-                  onClick={() => setDueFilter("")}
-                >
-                  Clear
-                </div>
+                {dueFilter && (
+                  <div
+                    className={styles.dropdownClear}
+                    title="Clear due-date filter"
+                    onClick={() => setDueFilter("")}
+                  >
+                    Clear
+                  </div>
+                )}
               </div>
 
-              <button
-                className={styles.clearAllBtn}
-                onClick={() => {
-                  setClientFilter("");
-                  setDueFilter("");
-                  setStatusFilter("");
-                }}
-              >
-                Clear All Filters
-              </button>
+              {(clientFilter || dueFilter || statusFilter) && (
+                <button
+                  className={styles.clearAllBtn}
+                  title="Clear all filters"
+                  onClick={() => {
+                    setClientFilter("");
+                    setDueFilter("");
+                    setStatusFilter("");
+                  }}
+                >
+                  Clear All Filters
+                </button>
+              )}
             </div>
           )}
         </div>
       </div>
+
+      {projects.length === 0 && (
+        <div className={styles.empty}>No projects.</div>
+      )}
 
       {/* LIST VIEW */}
       {viewMode === "list" && (
@@ -366,7 +411,11 @@ export default function ProjectsPage() {
       />
 
       {/* FAB */}
-      <button className={styles.fab} onClick={() => setOpenModal(true)}>
+      <button
+        className={styles.fab}
+        title="Create new project"
+        onClick={() => setOpenModal(true)}
+      >
         <Plus size={30} />
       </button>
     </div>
