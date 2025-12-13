@@ -1,3 +1,69 @@
+/* ========================================================= */
+/*                   DARK MODE OVERRIDES                     */
+/* ========================================================= */
+
+html[data-theme="dark"] {
+  /* ----- PAGE BACKGROUND ----- */
+  .authPage {
+    background: radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 214, 0, 0.08) 0%,
+      #0d0d0d 65%
+    );
+  }
+
+  /* Color blobs */
+  .authPage::before {
+    background: rgba(255, 214, 0, 0.35);
+    opacity: 0.45;
+  }
+
+  .authPage::after {
+    background: rgba(120, 170, 255, 0.35);
+    opacity: 0.45;
+  }
+
+  /* ----- FLOATING ILLUSTRATIONS ----- */
+  .float1,
+  .float2,
+  .login-float1,
+  .login-float2 {
+    filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+    opacity: 0.75;
+  }
+
+  /* ----- LOGIN CARD ----- */
+  .card {
+    background: rgba(26, 26, 26, 0.72);
+    backdrop-filter: saturate(160%) blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.55);
+  }
+
+  /* ----- TEXT ----- */
+  .title {
+    color: #ffffff;
+  }
+
+  .subtitle {
+    color: var(--text-soft);
+  }
+
+  /* ----- LINKS ----- */
+  .links {
+    a {
+      color: var(--text-soft);
+
+      &:hover {
+        color: #ffffff;
+        opacity: 1;
+      }
+    }
+  }
+}
+
+
 /* ----- LOGIN PAGE WRAPPER ----- */
 .authPage {
   display: flex;

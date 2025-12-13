@@ -21,6 +21,19 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+
+    const root = document.documentElement;
+
+    // only set if user hasn't explicitly chosen before
+    if (!root.dataset.theme) {
+      root.dataset.theme = prefersDark ? "dark" : "light";
+    }
+  }, []);
+
+  useEffect(() => {
     gsap.fromTo(
       ".auth-card",
       { opacity: 0, y: 20 },
