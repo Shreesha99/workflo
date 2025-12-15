@@ -8,7 +8,7 @@ export default function SuccessMessage({ message }: { message: string }) {
   return (
     <div className={styles.success}>
       <CheckCircle size={18} className={styles.icon} />
-      <span>{message}</span>
+      <p className={styles.text}>{message}</p>
     </div>
   );
 }

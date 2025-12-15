@@ -111,7 +111,8 @@ export default function SetPasswordPage() {
           savePassword();
         }}
       >
-        <h2 className={styles.title}>Set Your Password</h2>
+        <h2 className={styles.title}>Account verified!</h2>
+        <p className={styles.subtitle}>Set Your Password</p>
 
         <ErrorMessage message={error} />
         <SuccessMessage message={success} />

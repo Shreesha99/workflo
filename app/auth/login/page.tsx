@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Card from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
@@ -14,6 +14,7 @@ import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginPage() {
   const supabase = supabaseClient();
+  const submittingRef = useRef(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -62,16 +63,21 @@ export default function LoginPage() {
   }, []);
 
   async function handleLogin() {
+    if (submittingRef.current) return;
+
+    submittingRef.current = true; // 🔒 LOCK IMMEDIATELY
     setError("");
     setSuccess("");
 
     if (!email || !password) {
       setError("Please enter both email and password.");
+      submittingRef.current = false;
       return;
     }
 
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError("Please enter a valid email address.");
+      submittingRef.current = false;
       return;
     }
 
@@ -82,14 +88,15 @@ export default function LoginPage() {
       password,
     });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       setError(error.message);
+      submittingRef.current = false; // 🔓 unlock on error
       return;
     }
 
     setSuccess("Login successful! Redirecting...");
+
     setTimeout(() => {
       window.location.href = "/dashboard";
     }, 800);
@@ -119,7 +126,9 @@ export default function LoginPage() {
           className={`auth-card ${styles.card}`}
           onSubmit={(e) => {
             e.preventDefault();
-            handleLogin();
+            if (!submittingRef.current) {
+              handleLogin();
+            }
           }}
         >
           <h2 className={styles.title}>Welcome Back</h2>
