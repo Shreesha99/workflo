@@ -1,3 +1,7 @@
+/* ========================================================= */
+/*                    SUCCESS MESSAGE                        */
+/* ========================================================= */
+
 .success {
   display: flex;
   align-items: center;
@@ -15,6 +19,8 @@
   font-weight: 500;
 
   backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
   box-shadow: 0 4px 12px rgba(0, 200, 120, 0.08);
 
   opacity: 0;
@@ -26,6 +32,28 @@
   stroke-width: 2.4;
   color: #0c7c47;
 }
+
+/* ========================================================= */
+/*                   DARK MODE OVERRIDES                     */
+/* ========================================================= */
+
+html[data-theme="dark"] {
+  .success {
+    background: rgba(20, 120, 80, 0.45); // muted emerald glass
+    border: 1px solid rgba(80, 220, 160, 0.28);
+    color: #7de6b5;
+
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+  }
+
+  .icon {
+    color: #8af0c3;
+  }
+}
+
+/* ========================================================= */
+/*                        ANIMATION                          */
+/* ========================================================= */
 
 @keyframes fadeSlideIn {
   to {

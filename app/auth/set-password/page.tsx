@@ -87,7 +87,13 @@ export default function SetPasswordPage() {
         className={`password-float2 ${styles.float2}`}
       />
 
-      <div className={`password-card ${styles.card}`}>
+      <form
+        className={`password-card ${styles.card}`}
+        onSubmit={(e) => {
+          e.preventDefault();
+          savePassword();
+        }}
+      >
         <h2 className={styles.title}>Set Your Password</h2>
 
         <ErrorMessage message={error} />
@@ -102,11 +108,11 @@ export default function SetPasswordPage() {
             placeholder="••••••••"
           />
 
-          <Button onClick={savePassword} className={styles.fullWidthBtn}>
+          <Button type="submit" className={styles.fullWidthBtn}>
             Save Password
           </Button>
         </div>
-      </div>
+      </form>
     </div>
   );
 }

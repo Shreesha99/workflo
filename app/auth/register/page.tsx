@@ -19,6 +19,8 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  let [disableBtn, btnDisable] = useState(false);
+
   useEffect(() => {
     const prefersDark = window.matchMedia(
       "(prefers-color-scheme: dark)"
@@ -67,6 +69,11 @@ export default function SignupPage() {
       return;
     }
 
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     const tempPassword = crypto.randomUUID();
 
     setLoading(true);
@@ -97,6 +104,7 @@ export default function SignupPage() {
       }
 
       setLoading(false);
+      disableBtn = true;
       setSuccess((data as any).message || "Account created. Check your email.");
     } catch (err: any) {
       setLoading(false);
@@ -124,7 +132,13 @@ export default function SignupPage() {
       />
 
       <Card>
-        <div className={`signup-card ${styles.card}`}>
+        <form
+          className={`signup-card ${styles.card}`}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSignup();
+          }}
+        >
           <h2 className={styles.title}>Create Your Account</h2>
           <p className={styles.subtitle}>Start your journey with Proflo.</p>
 
@@ -150,9 +164,9 @@ export default function SignupPage() {
           </div>
 
           <Button
-            onClick={handleSignup}
+            type="submit"
             loading={loading}
-            disabled={loading}
+            disabled={loading || disableBtn}
             className={styles.fullWidthBtn}
           >
             Sign Up
@@ -161,7 +175,7 @@ export default function SignupPage() {
           <div className={styles.authLink}>
             <a href="/auth/login">Already have an account? Login</a>
           </div>
-        </div>
+        </form>
       </Card>
     </div>
   );

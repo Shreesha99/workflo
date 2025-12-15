@@ -69,6 +69,11 @@ export default function OTPPage() {
       return;
     }
 
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     setLoading(true);
 
     const res = await fetch("/api/auth/otp", {
@@ -117,7 +122,13 @@ export default function OTPPage() {
       />
 
       <Card>
-        <div className={`otp-card ${styles.card}`}>
+        <form
+          className={`otp-card ${styles.card}`}
+          onSubmit={(e) => {
+            e.preventDefault();
+            sendOTP();
+          }}
+        >
           <h2 className={styles.title}>Login with Magic Link</h2>
           <p className={styles.subtitle}>We’ll send a secure login link.</p>
 
@@ -134,8 +145,8 @@ export default function OTPPage() {
           </div>
 
           <Button
+            type="submit"
             className={styles.fullWidthBtn}
-            onClick={sendOTP}
             loading={loading}
             disabled={loading}
           >
@@ -145,7 +156,7 @@ export default function OTPPage() {
           <div className={styles.authLink}>
             <a href="/auth/login">Back to Login</a>
           </div>
-        </div>
+        </form>
       </Card>
     </div>
   );

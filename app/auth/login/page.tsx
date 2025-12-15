@@ -70,6 +70,11 @@ export default function LoginPage() {
       return;
     }
 
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
@@ -110,7 +115,13 @@ export default function LoginPage() {
       />
 
       <Card>
-        <div className={`auth-card ${styles.card}`}>
+        <form
+          className={`auth-card ${styles.card}`}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}
+        >
           <h2 className={styles.title}>Welcome Back</h2>
           <p className={styles.subtitle}>Log in to continue your work.</p>
 
@@ -141,8 +152,8 @@ export default function LoginPage() {
           </div>
 
           <Button
+            type="submit"
             className={styles.actionBtn}
-            onClick={handleLogin}
             loading={loading}
             disabled={loading}
           >
@@ -153,7 +164,7 @@ export default function LoginPage() {
             <a href="/auth/otp">Login with magic link</a>
             <a href="/auth/register">Create an account</a>
           </div>
-        </div>
+        </form>
       </Card>
     </div>
   );
