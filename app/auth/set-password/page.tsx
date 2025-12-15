@@ -17,6 +17,23 @@ export default function SetPasswordPage() {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const root = document.documentElement;
+
+    const applyTheme = (e: MediaQueryList | MediaQueryListEvent) => {
+      root.dataset.theme = e.matches ? "dark" : "light";
+    };
+
+    applyTheme(media);
+
+    media.addEventListener("change", applyTheme);
+
+    return () => {
+      media.removeEventListener("change", applyTheme);
+    };
+  }, []);
+
+  useEffect(() => {
     // fade in card
     gsap.fromTo(
       ".password-card",
