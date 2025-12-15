@@ -16,7 +16,7 @@
   max-width: 480px;
   padding: 40px;
   text-align: center;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.06);
 }
 
 .code {
@@ -62,5 +62,54 @@
 
   &:hover {
     background: var(--bg-soft);
+  }
+}
+
+html[data-theme="dark"] {
+  /* ----- PAGE BACKGROUND ----- */
+  .container {
+    background: radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 214, 0, 0.08) 0%,
+      #0d0d0d 65%
+    );
+  }
+
+  /* ----- CARD ----- */
+  .card {
+    background: rgba(26, 26, 26, 0.72);
+    backdrop-filter: saturate(160%) blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.55);
+  }
+
+  /* ----- 404 CODE ----- */
+  .code {
+    color: #ffd600;
+  }
+
+  /* ----- TEXT ----- */
+  .text {
+    color: var(--text-soft);
+  }
+
+  /* ----- BUTTONS ----- */
+  .primaryBtn {
+    background: #ffd600;
+    color: #000;
+
+    &:hover {
+      filter: brightness(0.92);
+    }
+  }
+
+  .secondaryBtn {
+    border-color: rgba(255, 255, 255, 0.14);
+    color: var(--text-soft);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.06);
+    }
   }
 }

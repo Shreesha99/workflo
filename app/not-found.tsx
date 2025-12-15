@@ -20,6 +20,19 @@ export default function NotFound() {
     );
   }, []);
 
+  useEffect(() => {
+    const prefersDark = window.matchMedia(
+      "(prefers-color-scheme: dark)"
+    ).matches;
+
+    const root = document.documentElement;
+
+    // only set if user hasn't explicitly chosen before
+    if (!root.dataset.theme) {
+      root.dataset.theme = prefersDark ? "dark" : "light";
+    }
+  }, []);
+
   return (
     <div className={`nf-container ${styles.container}`}>
       <div className={styles.card}>
