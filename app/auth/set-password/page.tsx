@@ -15,6 +15,7 @@ export default function SetPasswordPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
@@ -62,11 +63,15 @@ export default function SetPasswordPage() {
   }, []);
 
   async function savePassword() {
+    if (loading) return; // 🔒 prevent double submit
+
     setError("");
     setSuccess("");
+    setLoading(true); // 🔒 lock immediately
 
     if (password.length < 6) {
       setError("Password must be at least 6 characters.");
+      setLoading(false); // ❌ unlock only on validation error
       return;
     }
 
@@ -74,6 +79,7 @@ export default function SetPasswordPage() {
 
     if (error) {
       setError(error.message);
+      setLoading(false); // ❌ unlock only on error
       return;
     }
 
@@ -82,7 +88,11 @@ export default function SetPasswordPage() {
     });
 
     setSuccess("Password saved! Redirecting...");
-    setTimeout(() => (window.location.href = "/dashboard"), 1200);
+
+    // ✅ keep loading true until redirect
+    setTimeout(() => {
+      window.location.href = "/dashboard";
+    }, 1200);
   }
 
   return (
@@ -126,7 +136,12 @@ export default function SetPasswordPage() {
             placeholder="••••••••"
           />
 
-          <Button type="submit" className={styles.fullWidthBtn}>
+          <Button
+            type="submit"
+            loading={loading}
+            disabled={loading}
+            className={styles.fullWidthBtn}
+          >
             Save Password
           </Button>
         </div>

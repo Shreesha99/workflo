@@ -97,14 +97,27 @@ export default function SignupPage() {
         throw new Error("Server returned unexpected response.");
       }
 
-      if (!res.ok) {
-        setError((data as any).error || "Signup failed.");
+      if (res.status === 409) {
         setLoading(false);
+        btnDisable(true);
+        console.log((data as any).hasPassword);
+        if (!(data as any).hasPassword) {
+          setSuccess(
+            "A setup link has already been sent. Please check your inbox or you can login if you finished setting up"
+          );
+        }
+
+        return;
+      }
+
+      if (!res.ok) {
+        setLoading(false);
+        setError((data as any).error || "Signup failed.");
         return;
       }
 
       setLoading(false);
-      disableBtn = true;
+      btnDisable(true);
       setSuccess((data as any).message || "Account created. Check your email.");
     } catch (err: any) {
       setLoading(false);
