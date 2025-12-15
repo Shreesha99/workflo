@@ -1,16 +1,17 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { getUser } from "@/lib/auth";
 
-export async function proxy() {
-  // ❗ getUser already knows how to read cookies internally
-  const session = await getUser();
+export async function proxy(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-  // We must get the current request URL using "nextUrl"
-  const url = new URL(globalThis.location?.href || "http://localhost:3000");
+  // 🔒 Protect dashboard
+  if (pathname.startsWith("/dashboard")) {
+    const user = await getUser();
 
-  // Protect dashboard route
-  if (!session && url.pathname.startsWith("/dashboard")) {
-    return NextResponse.redirect(new URL("/auth/login", url.origin));
+    if (!user) {
+      return NextResponse.redirect(new URL("/auth/login", req.url));
+    }
   }
 
   return NextResponse.next();

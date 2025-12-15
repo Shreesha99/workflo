@@ -20,6 +20,8 @@ export default function OTPPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const MAGIC_LINK_EXPIRY = 60 * 30;
+  const [cooldown, setCooldown] = useState(0);
 
   useEffect(() => {
     const prefersDark = window.matchMedia(
@@ -99,7 +101,47 @@ export default function OTPPage() {
       return;
     }
 
-    setSuccess("Magic login link sent! Check your email.");
+    setSuccess("Magic login link valid for 30 mins sent! Check your email.");
+    const expiresAt = Date.now() + MAGIC_LINK_EXPIRY * 1000;
+    localStorage.setItem("magic_link_expires_at", expiresAt.toString());
+
+    setCooldown(MAGIC_LINK_EXPIRY);
+  }
+
+  useEffect(() => {
+    const expiresAt = localStorage.getItem("magic_link_expires_at");
+
+    if (!expiresAt) return;
+
+    const remaining = Math.floor((Number(expiresAt) - Date.now()) / 1000);
+
+    if (remaining > 0) {
+      setCooldown(remaining);
+    } else {
+      localStorage.removeItem("magic_link_expires_at");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+
+    const interval = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          localStorage.removeItem("magic_link_expires_at");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [cooldown]);
+
+  function formatTime(seconds: number) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
   }
 
   return (
@@ -148,9 +190,11 @@ export default function OTPPage() {
             type="submit"
             className={styles.fullWidthBtn}
             loading={loading}
-            disabled={loading}
+            disabled={loading || cooldown > 0}
           >
-            Send Magic Link
+            {cooldown > 0
+              ? `Resend in ${formatTime(cooldown)}`
+              : "Send Magic Link"}
           </Button>
 
           <div className={styles.authLink}>
