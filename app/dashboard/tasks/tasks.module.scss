@@ -1,12 +1,24 @@
-/* =============================================================
-   TASKS PAGE — MODERN PREMIUM SAAS (ALIGNED WITH PROJECTS)
-   Subtle surfaces, calm borders, clean elevation
-============================================================= */
+/* ============================================================================
+   MODERN PREMIUM SAAS STYLE (MATCHES PROJECTS PAGE EXACTLY)
+   Asana + Linear + Notion inspired
+============================================================================ */
+
+:root {
+  --surface: var(--card-bg);
+  --surface-alt: var(--bg-soft);
+  --border: rgba(49, 49, 49, 0.18);
+  --hover: rgba(0, 0, 0, 0.18);
+  --hover-active: rgba(255, 255, 255, 0.06);
+  --scale: 1.08;
+}
+
+/* ===============================
+   PAGE CONTAINER
+=============================== */
 
 .container {
-  width: 100%;
   padding: 40px 48px;
-  color: var(--text);
+  width: 100%;
 }
 
 /* ===============================
@@ -17,14 +29,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 
   h1 {
-    font-size: 30px;
+    font-size: calc(30px * var(--scale));
     font-weight: 700;
     letter-spacing: -0.3px;
   }
 }
+
+/* VIEW TOGGLE */
 
 .viewToggle {
   display: flex;
@@ -33,7 +47,7 @@
 
 .smallIconBtn {
   padding: 10px;
-  border-radius: 10px;
+  border-radius: 8px;
   background: var(--surface-alt);
   border: 1px solid var(--border);
   cursor: pointer;
@@ -48,10 +62,11 @@
   background: var(--primary);
   border-color: var(--primary);
   color: black;
+}
 
-  &:hover {
-    filter: brightness(1.05);
-  }
+.smallIconBtnActive:hover {
+  background: var(--primary);
+  filter: brightness(1.05);
 }
 
 /* ===============================
@@ -65,18 +80,23 @@
   margin-bottom: 26px;
 }
 
+/* SEARCH */
+
 .searchBar {
-  position: relative;
   width: 300px;
+  position: relative;
 
   input {
     width: 100%;
-    padding: 14px 16px 14px 44px;
-    border-radius: 12px;
+    padding: 14px 16px 14px 46px;
+    border-radius: 8px;
     border: 1px solid var(--border);
     background: var(--surface-alt);
     font-size: 15px;
-    transition: 0.15s ease;
+
+    &:hover {
+      background: var(--hover);
+    }
 
     &:focus {
       background: var(--surface);
@@ -88,13 +108,13 @@
 
 .searchIcon {
   position: absolute;
-  left: 14px;
   top: 50%;
-  transform: translateY(-50%);
+  left: 14px;
   opacity: 0.55;
+  transform: translateY(-50%);
 }
 
-/* Pills */
+/* PILLS */
 
 .pills {
   display: flex;
@@ -106,7 +126,7 @@
   font-size: 14px;
   background: var(--surface-alt);
   border: 1px solid var(--border);
-  border-radius: 999px;
+  border-radius: 18px;
   cursor: pointer;
   transition: 0.15s ease;
 
@@ -117,12 +137,13 @@
 
 .pillActive {
   background: var(--primary);
-  border-color: var(--primary);
   color: black;
+  border-color: var(--primary);
+}
 
-  &:hover {
-    filter: brightness(1.05);
-  }
+.pillActive:hover {
+  background: var(--primary);
+  filter: brightness(1.04);
 }
 
 /* ===============================
@@ -135,13 +156,14 @@
 
 .filterBtn {
   padding: 12px 16px;
+  font-size: 15px;
   background: var(--surface-alt);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 10px;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: 8px;
-  cursor: pointer;
   transition: 0.15s ease;
 
   &:hover {
@@ -153,36 +175,45 @@
   position: absolute;
   top: 52px;
   right: 0;
-  width: 260px;
-  background: var(--surface);
-  border-radius: 14px;
-  padding: 18px;
-  z-index: 200;
+  width: 280px;
+  z-index: 900;
 
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 18px 22px;
+
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px);
+
   animation: dropdownIn 0.18s ease;
 }
 
-@keyframes dropdownIn {
-  from {
-    opacity: 0;
-    transform: translateY(-6px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
+/* Close button */
 .filterCloseBtn {
   position: absolute;
   top: 10px;
-  right: 12px;
+  right: 10px;
+
+  width: 26px;
+  height: 26px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 16px;
+  opacity: 0.7;
   cursor: pointer;
-  opacity: 0.6;
+
+  border-radius: 6px;
+  z-index: 20; /* ensures no overlap */
+
+  transition: 0.15s ease;
 
   &:hover {
     opacity: 1;
+    background: var(--hover);
   }
 }
 
@@ -190,11 +221,11 @@
   margin-bottom: 18px;
 
   label {
-    font-size: 12px;
-    font-weight: 600;
-    opacity: 0.65;
-    margin-bottom: 8px;
     display: block;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0.75;
+    margin-bottom: 8px;
     text-transform: uppercase;
     letter-spacing: 0.6px;
   }
@@ -202,9 +233,10 @@
 
 .dropdownItem {
   padding: 10px 12px;
+  font-size: 15px;
   border-radius: 8px;
   cursor: pointer;
-  transition: 0.15s ease;
+  transition: 0.15s;
 
   &:hover {
     background: var(--hover);
@@ -216,10 +248,23 @@
   color: black;
 }
 
+.activeItem:hover {
+  background: var(--primary);
+  filter: brightness(1.04);
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 12px 0 18px;
+  border-radius: 2px;
+}
+
 .dropdownClear {
   margin-top: 6px;
   font-size: 13px;
-  opacity: 0.65;
+  opacity: 0.7;
   cursor: pointer;
 
   &:hover {
@@ -229,30 +274,32 @@
 
 .clearAllBtn {
   margin-top: 6px;
+  width: 100%;
   padding: 10px;
-  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
   border: none;
-  background: rgba(255, 80, 80, 0.12);
-  color: #b00000;
+  font-size: 14px;
   cursor: pointer;
+  transition: 0.15s ease;
 
   &:hover {
-    background: rgba(255, 80, 80, 0.18);
+    background: var(--hover);
   }
 }
 
 /* ===============================
-   GRID / LIST
+   GRID
 =============================== */
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
   gap: 22px;
 }
 
 /* ===============================
-   TASK CARD
+   TASK CARD (MATCHES PROJECT CARD)
 =============================== */
 
 .card {
@@ -261,42 +308,44 @@
     rgba(255, 255, 255, 0.04),
     rgba(255, 255, 255, 0.02)
   );
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 16px;
-  padding: 22px;
+  padding: 26px;
   position: relative;
+  z-index: 100;
   cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(5px);
 
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
-  transition: 0.25s ease;
+  transition: 0.25s ease, border-color 0.2s ease, background 0.25s ease;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
+    border-color: var(--primary);
+    box-shadow: 0 10px 10px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px) scale(1.02);
   }
 }
 
 .cardBody {
   h3 {
-    font-size: 18px;
+    font-size: 20px;
     font-weight: 600;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
   }
 }
 
 .desc {
   font-size: 14px;
-  color: var(--text-soft);
-  margin-bottom: 12px;
+  opacity: 0.6;
+  margin-bottom: 10px;
 }
 
 .metaRow {
+  margin-top: 14px;
+  font-size: 14.5px;
+  opacity: 0.75;
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
-}
-
-.due {
-  color: var(--text-soft);
 }
 
 .projectRow {
@@ -305,7 +354,7 @@
   opacity: 0.6;
 }
 
-/* Delete */
+/* DELETE */
 
 .deleteBtn {
   position: absolute;
@@ -313,14 +362,13 @@
   right: 12px;
   padding: 6px;
   border-radius: 8px;
-  background: rgba(255, 60, 60, 0.14);
-  border: none;
+  background: rgba(255, 80, 80, 0.12);
+  border: 1px solid rgba(255, 100, 100, 0.28);
   cursor: pointer;
   transition: 0.15s ease;
 
   &:hover {
-    background: rgba(255, 60, 60, 0.22);
-    transform: translateY(-2px);
+    background: rgba(255, 80, 80, 0.22);
   }
 }
 
@@ -332,7 +380,8 @@
   grid-column: 1 / -1;
   text-align: center;
   opacity: 0.6;
-  padding: 30px;
+  padding: 22px;
+  font-size: 15px;
 }
 
 /* ===============================
@@ -341,19 +390,23 @@
 
 .kanbanColumn {
   background: var(--surface-alt);
-  border-radius: 14px;
-  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
   transition: 0.15s ease;
+
+  &:hover {
+    background: var(--hover);
+  }
 }
 
 .kanbanColumnDragOver {
-  background: rgba(255, 215, 0, 0.08);
-  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.45);
+  background: var(--hover);
+  border-color: var(--primary);
 }
 
 .dragOverlay {
-  transform: scale(1.03);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
 }
 
 /* ===============================
@@ -368,17 +421,35 @@
   border-radius: 50%;
   background: var(--primary);
   color: black;
-  border: none;
-  cursor: pointer;
+  z-index: 600;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28);
+  font-size: 34px;
+  cursor: pointer;
+  border: none;
+
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
   transition: 0.25s ease;
 
   &:hover {
     transform: translateY(-6px) scale(1.06);
+  }
+}
+
+/* ===============================
+   ANIMATIONS
+=============================== */
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }

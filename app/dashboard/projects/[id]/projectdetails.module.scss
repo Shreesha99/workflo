@@ -76,7 +76,6 @@
   box-shadow: 0 0 18px rgba(120, 140, 255, 0.35);
 }
 
-
 /* ============================================================================
    LEFT COLUMN
 ============================================================================ */
@@ -552,13 +551,22 @@
 ============================================================================ */
 
 .actionBarFloating {
+  position: fixed; /* 🔥 viewport-relative */
+  left: 50%;
+  bottom: 28px; /* spacing from bottom */
+  transform: translateX(-50%); /* true centering */
+
   display: flex;
   gap: 10px;
   padding: 12px;
+
+  width: fit-content; /* shrink to content */
   border-radius: var(--radius);
   background: var(--surface);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-soft);
+
+  z-index: 50; /* above content, below modals */
 }
 
 .actionBtn,

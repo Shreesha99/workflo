@@ -64,6 +64,21 @@ export default function TasksPage() {
     "completed",
   ];
 
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        filtersOpen &&
+        filterRef.current &&
+        !filterRef.current.contains(e.target as Node)
+      ) {
+        setFiltersOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [filtersOpen]);
+
   // Load tasks
   useEffect(() => {
     loadTasks();

@@ -511,30 +511,26 @@ export default function ProjectDetails() {
             </div>
           )}
         </div>
+      </div>
+      <div className={styles.actionBarFloating}>
+        <button className={styles.actionBtn} onClick={() => setEditOpen(true)}>
+          <Pencil size={16} /> Edit
+        </button>
 
-        <div className={styles.actionBarFloating}>
-          <button
-            className={styles.actionBtn}
-            onClick={() => setEditOpen(true)}
-          >
-            <Pencil size={16} /> Edit
-          </button>
+        <button
+          className={styles.actionBtn}
+          onClick={generatePortalLink}
+          disabled={!!portalUrl}
+        >
+          <Link2 size={16} /> Generate Link
+        </button>
 
-          <button
-            className={styles.actionBtn}
-            onClick={generatePortalLink}
-            disabled={!!portalUrl}
-          >
-            <Link2 size={16} /> Generate Link
-          </button>
-
-          <button
-            className={styles.actionBtnDanger}
-            onClick={() => setDeleteTarget(project.id)}
-          >
-            <Trash2 size={16} /> Delete
-          </button>
-        </div>
+        <button
+          className={styles.actionBtnDanger}
+          onClick={() => setDeleteTarget(project.id)}
+        >
+          <Trash2 size={16} /> Delete
+        </button>
       </div>
 
       {/* MODALS */}

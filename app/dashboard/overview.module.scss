@@ -1,161 +1,146 @@
-.page {
-  padding: 14px;
-  color: var(--text);
+/* =====================================================
+   THEME VARIABLES
+   ===================================================== */
+
+:root {
+  /* Light */
+  --bg-page: #ffffff;
+  --bg-card: #ffffff;
+  --border: #e5e5e7;
+
+  --text-primary: #111111;
+  --text-secondary: #666666;
+
+  --bar-bg: #eeeeee;
+  --bar-fill: #111111;
 }
 
-.headerRow {
-  display: flex;
-  justify-content: space-between;
-  align-items: start;
+/* Dark theme override */
+html[data-theme="dark"] {
+  --bg-page: #0d0d0d;
+  --bg-card: #161618;
+  --border: #242428;
+
+  --text-primary: #ffffff;
+  --text-secondary: #9a9aa3;
+
+  --bar-bg: #242428;
+  --bar-fill: #ffffff;
+}
+
+/* =====================================================
+     PAGE
+     ===================================================== */
+
+.page {
+  padding: 20px;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* =====================================================
+     KPI ROW
+     ===================================================== */
+
+.kpiRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 14px;
   margin-bottom: 18px;
 }
-.title {
-  font-size: 26px;
-  font-weight: 800;
-  margin: 0;
-}
-.subtitle {
-  margin: 4px 0 0;
-  opacity: 0.75;
-  color: var(--text-soft);
-}
 
-.headerRight {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.counters {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-
-.gridRow {
-  display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 20px;
-  align-items: start;
-}
-
-.leftCol {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-.rightCol {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.statsRow {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 12px;
-}
-.statCard {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  padding: 18px;
+.kpiCard {
+  background: var(--bg-card);
   border-radius: 12px;
-  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.03);
-}
-.statValue {
-  font-weight: 800;
-  font-size: 22px;
-  margin-top: 6px;
-}
-
-.chartsRow {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-}
-.chartCard {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  padding: 18px;
-  border-radius: 12px;
-}
-
-.sectionTitle {
-  margin-top: 6px;
-  font-size: 16px;
-  font-weight: 700;
-}
-
-.projectsRow {
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-}
-.projectCard {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 10px;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid var(--card-border);
-  background: var(--card-bg);
-}
-.projectLeft {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-}
-.projectAvatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  background: #f3f3f3;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-}
-.projectName {
-  font-weight: 700;
-}
-.projectMeta {
-  font-size: 12px;
-  opacity: 0.7;
-}
-
-.activityCard {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
   padding: 14px;
-  border-radius: 12px;
-  min-height: 180px;
-}
-.quickCard {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  padding: 14px;
-  border-radius: 12px;
-}
-.quickActions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.quickBtn {
-  background: var(--primary);
-  color: #000;
-  border: none;
-  padding: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-}
+  border: 1px solid var(--border);
 
-@media (max-width: 980px) {
-  .gridRow {
-    grid-template-columns: 1fr;
+  span {
+    font-size: 12px;
+    color: var(--text-secondary);
   }
-  .chartsRow {
+
+  strong {
+    display: block;
+    font-size: 22px;
+    margin: 6px 0;
+    color: var(--text-primary);
+  }
+}
+
+.kpiProgress {
+  height: 6px;
+  background: var(--bar-bg);
+  border-radius: 4px;
+  overflow: hidden;
+
+  div {
+    height: 100%;
+    width: 60%;
+    background: var(--bar-fill);
+  }
+}
+
+/* =====================================================
+     MAIN GRID
+     ===================================================== */
+
+.mainRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.cardLarge,
+.cardSmall {
+  background: var(--bg-card);
+  border-radius: 14px;
+  padding: 16px;
+  border: 1px solid var(--border);
+}
+
+/* =====================================================
+     WORKER LIST
+     ===================================================== */
+
+.worker {
+  margin-top: 12px;
+
+  span {
+    font-size: 13px;
+    color: var(--text-primary);
+  }
+
+  small {
+    font-size: 11px;
+    color: var(--text-secondary);
+  }
+}
+
+.workerBar {
+  height: 6px;
+  background: var(--bar-bg);
+  border-radius: 4px;
+  margin: 6px 0;
+
+  div {
+    height: 100%;
+    background: var(--bar-fill);
+  }
+}
+
+/* =====================================================
+     RESPONSIVE
+     ===================================================== */
+
+@media (max-width: 900px) {
+  .kpiRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .mainRow {
     grid-template-columns: 1fr;
   }
 }

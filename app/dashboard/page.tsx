@@ -1,409 +1,229 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import gsap from "gsap";
+import ReactECharts from "echarts-for-react";
 import styles from "./overview.module.scss";
 import { supabaseClient } from "@/lib/supabase/client";
 
-import { Doughnut, Line } from "react-chartjs-2";
-import {
-  Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Filler,
-  ChartOptions,
-} from "chart.js";
+type KPI = {
+  projects: number;
+  tasks: number;
+  completed: number;
+  files: number;
+};
 
-import SkeletonCard from "@/components/overview/SkeletonCard";
-import AnimatedCounter from "@/components/overview/AnimatedCounter";
-import ActivityFeed from "@/components/overview/ActivityFeed";
-
-ChartJS.register(
-  ArcElement,
-  Tooltip,
-  Legend,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Filler
-);
+type MonthlyPoint = number[];
 
 export default function OverviewPage() {
   const supabase = supabaseClient();
 
-  const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    activeProjects: 0,
-    tasksDue: 0,
-    approvals: 0,
+  const [kpi, setKpi] = useState<KPI>({
+    projects: 0,
+    tasks: 0,
+    completed: 0,
+    files: 0,
   });
-  const [recentProjects, setRecentProjects] = useState<any[]>([]);
-  const [statusCounts, setStatusCounts] = useState({
-    todo: 0,
+
+  const [tasksByMonth, setTasksByMonth] = useState<MonthlyPoint>(
+    Array(12).fill(0)
+  );
+
+  const [statusSplit, setStatusSplit] = useState({
+    pending: 0,
     progress: 0,
     completed: 0,
   });
-  const [tasksOverTime, setTasksOverTime] = useState<[string, number][]>([]);
-  const [activity, setActivity] = useState<any[]>([]);
 
-  // Load initial data
+  /* ================= INITIAL LOAD ================= */
   useEffect(() => {
-    let mounted = true;
-
     async function load() {
-      setLoading(true);
+      const [{ data: projects }, { data: tasks }, { data: files }] =
+        await Promise.all([
+          supabase.from("projects").select("id"),
+          supabase.from("tasks").select("status,created_at"),
+          supabase.from("files").select("id"),
+        ]);
 
-      // counts (head requests)
-      const { count: active } = await supabase
-        .from("projects")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "active");
+      if (!projects || !tasks || !files) return;
 
-      const today = new Date().toISOString().split("T")[0];
-      const { count: due } = await supabase
-        .from("tasks")
-        .select("*", { count: "exact", head: true })
-        .eq("due_date", today);
+      const months = Array(12).fill(0);
+      const split = { pending: 0, progress: 0, completed: 0 };
 
-      const { count: approvals } = await supabase
-        .from("approvals")
-        .select("*", { count: "exact", head: true })
-        .eq("status", "pending");
+      tasks.forEach((t) => {
+        months[new Date(t.created_at).getMonth()]++;
 
-      // recent projects
-      const { data: recent } = await supabase
-        .from("projects")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(6);
-
-      // status counts
-      const { data: tasks } = await supabase.from("tasks").select("status");
-      const counts = { todo: 0, progress: 0, completed: 0 };
-      (tasks || []).forEach((t: any) => {
-        const s = (t.status || "todo").toLowerCase();
-        if (s === "todo") counts.todo++;
-        else if (s === "in progress") counts.progress++;
-        else counts.completed++;
+        if (t.status === "completed") split.completed++;
+        else if (t.status === "in progress") split.progress++;
+        else split.pending++;
       });
 
-      // tasks over time (last 14 days)
-      const since = new Date();
-      since.setDate(since.getDate() - 13);
-      const { data: created } = await supabase
-        .from("tasks")
-        .select("created_at")
-        .gte("created_at", since.toISOString());
-
-      const map: Record<string, number> = {};
-      for (let i = 13; i >= 0; i--) {
-        const d = new Date();
-        d.setDate(d.getDate() - i);
-        const label = d.toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        });
-        map[label] = 0;
-      }
-      (created || []).forEach((t: any) => {
-        const label = new Date(t.created_at).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-        });
-        if (label in map) map[label] += 1;
+      setKpi({
+        projects: projects.length,
+        tasks: tasks.length,
+        completed: split.completed,
+        files: files.length,
       });
 
-      const series = Object.entries(map);
-
-      // activity feed - latest messages, files, tasks, approvals (sample)
-      const { data: messages } = await supabase
-        .from("messages")
-        .select("id, text, created_at, author_id, project_id")
-        .order("created_at", { ascending: false })
-        .limit(10);
-
-      const act = (messages || []).map((m: any) => ({
-        id: `msg-${m.id}`,
-        type: "message",
-        text: m.text,
-        created_at: m.created_at,
-        project_id: m.project_id,
-      }));
-
-      if (!mounted) return;
-
-      setStats({
-        activeProjects: active ?? 0,
-        tasksDue: due ?? 0,
-        approvals: approvals ?? 0,
-      });
-      setRecentProjects(recent || []);
-      setStatusCounts(counts);
-      setTasksOverTime(series);
-      setActivity(act);
-      setLoading(false);
+      setTasksByMonth(months);
+      setStatusSplit(split);
     }
 
     load();
-
-    return () => {
-      mounted = false;
-    };
   }, [supabase]);
 
-  // Realtime subscription (D)
+  /* ================= REALTIME ================= */
   useEffect(() => {
-    const sup = supabase
-      .channel("public:overview")
+    const channel = supabase
+      .channel("overview-analytics")
+
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages" },
-        (payload) => {
-          // prepend message into activity
-          setActivity((prev) =>
-            [
-              {
-                id: `msg-${payload.new.id}`,
-                type: "message",
-                text: payload.new.text,
-                created_at: payload.new.created_at,
-                project_id: payload.new.project_id,
-              },
-              ...prev,
-            ].slice(0, 20)
-          );
-        }
+        { event: "*", schema: "public", table: "tasks" },
+        () => refreshTasks()
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "projects" },
+        () => refreshProjects()
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "files" },
+        () => refreshFiles()
       )
       .subscribe();
 
+    async function refreshTasks() {
+      const { data } = await supabase.from("tasks").select("status,created_at");
+
+      if (!data) return;
+
+      const months = Array(12).fill(0);
+      const split = { pending: 0, progress: 0, completed: 0 };
+
+      data.forEach((t) => {
+        months[new Date(t.created_at).getMonth()]++;
+
+        if (t.status === "completed") split.completed++;
+        else if (t.status === "in progress") split.progress++;
+        else split.pending++;
+      });
+
+      setTasksByMonth(months);
+      setStatusSplit(split);
+      setKpi((p) => ({ ...p, tasks: data.length, completed: split.completed }));
+    }
+
+    async function refreshProjects() {
+      const { count } = await supabase
+        .from("projects")
+        .select("*", { count: "exact", head: true });
+
+      setKpi((p) => ({ ...p, projects: count ?? 0 }));
+    }
+
+    async function refreshFiles() {
+      const { count } = await supabase
+        .from("files")
+        .select("*", { count: "exact", head: true });
+
+      setKpi((p) => ({ ...p, files: count ?? 0 }));
+    }
+
     return () => {
-      sup.unsubscribe();
+      supabase.removeChannel(channel);
     };
   }, [supabase]);
 
-  // GSAP fade
-  useEffect(() => {
-    gsap.fromTo(
-      ".overview-fade",
-      { opacity: 0, y: 8 },
-      { opacity: 1, y: 0, duration: 0.45, stagger: 0.06, ease: "power2.out" }
-    );
-  }, [loading]);
+  /* ================= CHART OPTIONS ================= */
 
-  // Chart data (memoized)
-  const doughnutData = useMemo(() => {
-    return {
-      labels: ["To Do", "In Progress", "Completed"],
-      datasets: [
+  const monthlyChart = useMemo(
+    () => ({
+      tooltip: { trigger: "axis" },
+      grid: { left: 30, right: 20, bottom: 30, top: 30 },
+      xAxis: {
+        type: "category",
+        data: [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ],
+      },
+      yAxis: { type: "value" },
+      series: [
         {
-          data: [
-            statusCounts.todo,
-            statusCounts.progress,
-            statusCounts.completed,
-          ],
-          backgroundColor: ["#FFF4C5", "#CFE8FF", "#CFF8D8"],
-          borderWidth: 0,
-          hoverOffset: 8,
-        },
-      ],
-    };
-  }, [statusCounts]);
-
-  const lineData = useMemo(() => {
-    return {
-      labels: tasksOverTime.map((t) => t[0]),
-      datasets: [
-        {
-          data: tasksOverTime.map((t) => t[1]),
-          borderColor: "#5DA9E9",
-          backgroundColor: function (context: any) {
-            const ctx = context.chart.ctx;
-            const gradient = ctx.createLinearGradient(0, 0, 0, 300);
-            gradient.addColorStop(0, "rgba(93,169,233,0.2)");
-            gradient.addColorStop(1, "rgba(93,169,233,0.02)");
-            return gradient;
+          data: tasksByMonth,
+          type: "bar",
+          barWidth: 18,
+          itemStyle: {
+            color: "#ffd600",
+            borderRadius: [6, 6, 0, 0],
           },
-          fill: true,
-          tension: 0.35,
-          pointRadius: 0,
         },
       ],
-    };
-  }, [tasksOverTime]);
+    }),
+    [tasksByMonth]
+  );
 
-  const doughnutOptions: ChartOptions<"doughnut"> = {
-    cutout: "72%",
-    animation: {
-      animateScale: true,
-      animateRotate: true,
-      duration: 1200,
-      easing: "easeOutQuint",
-    },
-    plugins: {
-      legend: { display: true, position: "bottom" },
-    },
-  };
-
-  const lineOptions: ChartOptions<"line"> = {
-    animation: {
-      duration: 1400,
-      easing: "easeOutQuint",
-    },
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { ticks: { color: "var(--text-soft)" }, grid: { display: false } },
-      y: { ticks: { color: "var(--text-soft)" } },
-    },
-  };
+  const statusChart = useMemo(
+    () => ({
+      tooltip: { trigger: "item" },
+      series: [
+        {
+          type: "pie",
+          radius: ["55%", "75%"],
+          label: { show: false },
+          data: [
+            { value: statusSplit.completed, name: "Completed" },
+            { value: statusSplit.progress, name: "In Progress" },
+            { value: statusSplit.pending, name: "Pending" },
+          ],
+        },
+      ],
+    }),
+    [statusSplit]
+  );
 
   return (
     <div className={styles.page}>
-      <div className={styles.headerRow + " overview-fade"}>
-        <div>
-          <h1 className={styles.title}>Overview</h1>
-          <p className={styles.subtitle}>A quick snapshot of your workspace.</p>
-        </div>
-
-        <div className={styles.headerRight}>
-          {/* Animated counters */}
-          <div className={styles.counters}>
-            {loading ? (
-              <>
-                <SkeletonCard small />
-                <SkeletonCard small />
-                <SkeletonCard small />
-              </>
-            ) : (
-              <>
-                <AnimatedCounter
-                  label="Projects"
-                  value={stats.activeProjects}
-                />
-                <AnimatedCounter label="Due Today" value={stats.tasksDue} />
-                <AnimatedCounter label="Approvals" value={stats.approvals} />
-              </>
-            )}
-          </div>
-        </div>
+      {/* KPI */}
+      <div className={styles.kpiRow}>
+        <Kpi label="Projects" value={kpi.projects} />
+        <Kpi label="Tasks" value={kpi.tasks} />
+        <Kpi label="Completed" value={kpi.completed} />
+        <Kpi label="Files" value={kpi.files} />
       </div>
 
-      {/* STAT + CHARTS */}
-      <div className={styles.gridRow}>
-        <div className={styles.leftCol}>
-          <div className={styles.statsRow}>
-            {loading ? (
-              <>
-                <SkeletonCard />
-                <SkeletonCard />
-                <SkeletonCard />
-              </>
-            ) : (
-              <>
-                <div className={`${styles.statCard} overview-fade`}>
-                  <h4>Active Projects</h4>
-                  <p className={styles.statValue}>{stats.activeProjects}</p>
-                </div>
-
-                <div className={`${styles.statCard} overview-fade`}>
-                  <h4>Tasks Due Today</h4>
-                  <p className={styles.statValue}>{stats.tasksDue}</p>
-                </div>
-
-                <div className={`${styles.statCard} overview-fade`}>
-                  <h4>Pending approvals</h4>
-                  <p className={styles.statValue}>{stats.approvals}</p>
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className={styles.chartsRow}>
-            <div className={`${styles.chartCard} overview-fade`}>
-              <h4>Task Status</h4>
-              {loading ? (
-                <SkeletonCard height={220} />
-              ) : (
-                <Doughnut data={doughnutData} options={doughnutOptions} />
-              )}
-            </div>
-
-            <div className={`${styles.chartCard} overview-fade`}>
-              <h4>Tasks Created (14d)</h4>
-              {loading ? (
-                <SkeletonCard height={220} />
-              ) : (
-                <Line data={lineData} options={lineOptions} />
-              )}
-            </div>
-          </div>
-
-          <h3 className={`${styles.sectionTitle} overview-fade`}>
-            Recent Projects
-          </h3>
-          <div className={styles.projectsRow}>
-            {loading ? (
-              <>
-                <SkeletonCard height={100} />
-                <SkeletonCard height={100} />
-                <SkeletonCard height={100} />
-              </>
-            ) : (
-              recentProjects.map((p: any) => (
-                <div
-                  key={p.id}
-                  className={`${styles.projectCard} overview-fade`}
-                >
-                  <div className={styles.projectLeft}>
-                    <div className={styles.projectAvatar}>
-                      {p.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <div className={styles.projectName}>{p.name}</div>
-                      <div className={styles.projectMeta}>
-                        {p.client_name || "—"}
-                      </div>
-                    </div>
-                  </div>
-                  <div className={styles.projectRight}>
-                    {new Date(p.created_at).toLocaleDateString()}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+      {/* ANALYTICS */}
+      <div className={styles.mainRow}>
+        <div className={styles.cardLarge}>
+          <h3>Tasks Created Per Month</h3>
+          <ReactECharts option={monthlyChart} style={{ height: 320 }} />
         </div>
 
-        <aside className={styles.rightCol}>
-          <div className={`${styles.activityCard} overview-fade`}>
-            <h4>Activity</h4>
-            <ActivityFeed items={activity} loading={loading} />
-          </div>
-
-          <div className={`${styles.quickCard} overview-fade`}>
-            <h4>Quick Actions</h4>
-            <div className={styles.quickActions}>
-              <button
-                className={styles.quickBtn}
-                onClick={() => (location.href = "/dashboard/projects")}
-              >
-                New Project
-              </button>
-              <button
-                className={styles.quickBtn}
-                onClick={() => (location.href = "/dashboard/tasks")}
-              >
-                New Task
-              </button>
-            </div>
-          </div>
-        </aside>
+        <div className={styles.cardSmall}>
+          <h3>Task Status Breakdown</h3>
+          <ReactECharts option={statusChart} style={{ height: 320 }} />
+        </div>
       </div>
+    </div>
+  );
+}
+
+function Kpi({ label, value }: { label: string; value: number }) {
+  return (
+    <div className={styles.kpiCard}>
+      <span>{label}</span>
+      <strong>{value}</strong>
     </div>
   );
 }
