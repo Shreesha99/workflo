@@ -1,48 +1,86 @@
-/* ============================= */
-/* PAGE CONTAINER */
-/* ============================= */
-.container {
-  padding: 40px 32px 80px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 36px;
-  width: 100%;
-  animation: fadeIn 0.28s ease-out;
+/* ============================================================================
+   TASK DETAILS — PREMIUM DRUX SAAS STYLE
+   IDENTICAL TO PROJECT DETAILS
+============================================================================ */
+
+:root {
+  --surface: var(--card-bg);
+  --surface-alt: var(--bg-soft);
+  --border: var(--card-border);
+  --hover: rgba(255, 255, 255, 0.06);
+
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-lg: 18px;
+
+  --shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.12);
+  --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.18);
 }
 
-/* ============================= */
-/* BACK BUTTON */
-/* ============================= */
+/* ============================================================================
+   WRAPPER (70 / 30)
+============================================================================ */
+
+.wrapper {
+  display: grid;
+  grid-template-columns: 70% 30%;
+  gap: 28px;
+  width: 100%;
+  padding: 40px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+/* ============================================================================
+   LEFT COLUMN
+============================================================================ */
+
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ============================================================================
+   BACK BUTTON
+============================================================================ */
+
 .backBtn {
-  width: fit-content;
   padding: 10px 16px;
-  background: var(--bg-soft);
-  border: 1px solid var(--card-border);
-  border-radius: 10px;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   color: var(--text-soft);
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
   cursor: pointer;
-  transition: 0.18s ease;
+
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+
+  width: fit-content;
+
+  transition: 0.15s ease;
 
   &:hover {
-    background: var(--card-bg);
+    background: var(--surface);
     color: var(--text);
+    box-shadow: var(--shadow-soft);
     transform: translateX(-4px);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.12);
   }
 }
 
-/* ============================= */
-/* HEADER */
-/* ============================= */
+/* ============================================================================
+   HEADER
+============================================================================ */
+
 .header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  padding-bottom: 12px;
+  padding-bottom: 8px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 
   h1 {
     margin: 0;
@@ -53,26 +91,29 @@
   }
 }
 
-/* ============================= */
-/* INFO CARD */
-/* ============================= */
+/* ============================================================================
+   INFO CARD
+============================================================================ */
+
 .infoCard {
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   padding: 22px 26px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  transition: box-shadow 0.25s ease;
+  gap: 8px;
+  transition: 0.25s ease;
+  backdrop-filter: blur(4px);
 
   &:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.16);
+    box-shadow: var(--shadow-medium);
   }
 
   p {
     margin: 0;
     font-size: 15.5px;
+    line-height: 1.45;
     color: var(--text-soft);
 
     strong {
@@ -81,77 +122,187 @@
   }
 }
 
-/* ============================= */
-/* FLOATING ACTION BAR */
-/* ============================= */
+/* ============================================================================
+   RIGHT COLUMN
+============================================================================ */
+
+.right {
+  position: sticky;
+  top: 40px;
+  height: fit-content;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* ============================================================================
+   CHAT PANEL
+============================================================================ */
+
+.chatSection {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  height: 68vh;
+  box-shadow: var(--shadow-soft);
+}
+
+.chatSection h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.chatMessages {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding-right: 6px;
+}
+
+.chatMessage {
+  max-width: 85%;
+  display: flex;
+  flex-direction: column;
+}
+
+.chatBubble {
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-size: 15px;
+  line-height: 1.45;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+}
+
+.myMessage {
+  align-self: flex-end;
+
+  .chatBubble {
+    background: linear-gradient(135deg, #ffe36e, #ffd000);
+    border: none;
+    color: #000;
+  }
+}
+
+.theirMessage {
+  align-self: flex-start;
+}
+
+/* ============================================================================
+   CHAT INPUT
+============================================================================ */
+
+.chatInputRow {
+  display: flex;
+  gap: 10px;
+  padding-top: 12px;
+
+  input {
+    flex: 1;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    color: var(--text);
+
+    &:focus {
+      outline: 1px solid var(--primary);
+      background: var(--surface);
+    }
+  }
+
+  button {
+    padding: 10px 16px;
+    background: var(--primary);
+    border-radius: var(--radius-sm);
+    color: black;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+
+    &:hover {
+      filter: brightness(0.95);
+    }
+  }
+}
+
+/* ============================================================================
+   FLOATING ACTION BAR (BOTTOM CENTER)
+============================================================================ */
+
 .actionBarFloating {
   position: fixed;
-  bottom: 26px;
   left: 50%;
+  bottom: 28px;
   transform: translateX(-50%);
-  padding: 14px 18px;
+
   display: flex;
-  gap: 12px;
-  background: var(--card-bg);
-  border: 1px solid var(--card-border);
-  border-radius: 14px;
-  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.22);
+  gap: 10px;
+  padding: 12px;
+
+  width: fit-content;
+
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
   z-index: 50;
 }
 
-/* ACTION BUTTON BASE */
 .actionBtn,
 .actionBtnDanger {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: 0.18s ease;
-}
-
-/* EDIT BUTTON */
-.actionBtn {
-  background: var(--bg-soft);
-  border: 1px solid var(--card-border);
-  color: var(--text);
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  transition: 0.15s ease;
 
   &:hover {
-    background: var(--card-bg);
-    transform: translateY(-2px);
+    background: var(--hover);
   }
 }
 
-/* DELETE BUTTON */
 .actionBtnDanger {
   background: #ffe5e5;
-  border: 1px solid #ffbaba;
-  color: #b71c1c;
+  border-color: #ffbaba;
+  color: #b40000;
 
   &:hover {
     background: #ffdede;
-    transform: translateY(-2px);
   }
 }
 
-/* LOADING STATE */
+/* ============================================================================
+   LOADING
+============================================================================ */
+
 .loading {
-  padding: 32px;
   text-align: center;
-  color: var(--text-soft);
+  padding: 40px;
+  opacity: 0.6;
 }
 
-/* ============================= */
-/* ANIMATION */
-/* ============================= */
+/* ============================================================================
+   ANIMATION
+============================================================================ */
+
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
