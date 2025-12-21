@@ -9,7 +9,7 @@ import StatusBadge from "@/components/ui/StatusBadge";
 import EditTaskModal from "@/components/modals/EditTaskModal";
 import DeleteTaskModal from "@/components/modals/DeleteTaskModal";
 
-import { ArrowLeft, Pencil, Trash2, Send } from "lucide-react";
+import { ArrowLeft, Pencil, Trash2 } from "lucide-react";
 
 import styles from "./taskdetails.module.scss";
 
@@ -56,9 +56,8 @@ export default function TaskDetailsPage() {
   const editingRef = useRef<HTMLTextAreaElement | null>(null);
   const [savingNoteId, setSavingNoteId] = useState<string | null>(null);
 
-  /* ========= CHAT (PROJECT CHAT) ========= */
+  /* ========= CHAT ========= */
   const [chat, setChat] = useState<ChatMessage[]>([]);
-  const [chatInput, setChatInput] = useState("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
   const idsRef = useRef<Set<string>>(new Set());
 
@@ -81,8 +80,11 @@ export default function TaskDetailsPage() {
 
       setTask(data);
       loadNotes(data.id);
-      if (data.project_id) loadChat(data.project_id);
-      subscribeToChat(data.project_id);
+
+      if (data.project_id) {
+        loadChat(data.project_id);
+        subscribeToChat(data.project_id);
+      }
     }
 
     if (id) load();
@@ -115,7 +117,7 @@ export default function TaskDetailsPage() {
     setSavingNoteId(null);
   }
 
-  /* ================= CHAT (PROJECT CHAT) ================= */
+  /* ================= CHAT ================= */
   async function loadChat(projectId: string) {
     const res = await fetch(`/api/projects/${projectId}?chat=true`);
     const json = await res.json();
@@ -127,9 +129,7 @@ export default function TaskDetailsPage() {
     }
   }
 
-  function subscribeToChat(projectId?: string | null) {
-    if (!projectId) return;
-
+  function subscribeToChat(projectId: string) {
     const channel = supabase
       .channel("task-project-chat:" + projectId)
       .on(
@@ -141,32 +141,18 @@ export default function TaskDetailsPage() {
           filter: `project_id=eq.${projectId}`,
         },
         (payload: any) => {
-          if (payload.eventType === "INSERT") {
-            if (!idsRef.current.has(payload.new.id)) {
-              idsRef.current.add(payload.new.id);
-              setChat((p) => [...p, payload.new]);
-            }
+          if (
+            payload.eventType === "INSERT" &&
+            !idsRef.current.has(payload.new.id)
+          ) {
+            idsRef.current.add(payload.new.id);
+            setChat((p) => [...p, payload.new]);
           }
         }
       )
       .subscribe();
 
     return () => supabase.removeChannel(channel);
-  }
-
-  async function sendMessage() {
-    if (!chatInput.trim() || !task?.project_id) return;
-
-    await fetch(`/api/projects/${task.project_id}?chat=true`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        message: chatInput,
-        author: "Admin",
-      }),
-    });
-
-    setChatInput("");
   }
 
   useEffect(() => {
@@ -176,14 +162,14 @@ export default function TaskDetailsPage() {
   if (!task) return <p className={styles.loading}>Loading…</p>;
 
   return (
-    <div className={styles.wrapper}>
-      {/* LEFT */}
+    <div className={`${styles.wrapper} ${styles[`status-${task.status}`]}`}>
+      {/* LEFT COLUMN */}
       <div className={styles.left}>
         <button
           className={styles.backBtn}
           onClick={() => router.push("/dashboard/tasks")}
         >
-          <ArrowLeft size={16} /> Back
+          <ArrowLeft size={16} />
         </button>
 
         <div className={styles.header}>
@@ -211,10 +197,12 @@ export default function TaskDetailsPage() {
         </div>
       </div>
 
-      {/* RIGHT — PROJECT CHAT */}
+      {/* RIGHT COLUMN — CHAT */}
       <div className={styles.right}>
         <div className={styles.chatSection}>
-          <h3>Project Chat</h3>
+          <div className={styles.chatHeader}>
+            <h3>Project Chat</h3>
+          </div>
 
           <div className={styles.chatMessages}>
             {chat.map((msg) => (
@@ -226,9 +214,24 @@ export default function TaskDetailsPage() {
                     : styles.theirMessage
                 }`}
               >
-                <div className={styles.chatBubble}>{msg.message}</div>
+                <div className={styles.chatBubbleWrapper}>
+                  <div className={styles.chatBubble}>
+                    <p className={styles.chatText}>{msg.message}</p>
+                  </div>
+                </div>
+
+                <div className={styles.chatMetaRow}>
+                  <span className={styles.chatAuthor}>{msg.author}</span>
+                  <span className={styles.chatTime}>
+                    {new Date(msg.created_at).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
               </div>
             ))}
+
             <div ref={chatEndRef} />
           </div>
         </div>

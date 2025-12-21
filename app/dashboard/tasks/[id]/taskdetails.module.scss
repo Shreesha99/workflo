@@ -1,6 +1,5 @@
 /* ============================================================================
-   TASK DETAILS — PREMIUM DRUX SAAS STYLE
-   IDENTICAL TO PROJECT DETAILS
+   TASK DETAILS — EXACT PROJECT DETAILS REPLICA
 ============================================================================ */
 
 :root {
@@ -8,6 +7,7 @@
   --surface-alt: var(--bg-soft);
   --border: var(--card-border);
   --hover: rgba(255, 255, 255, 0.06);
+  --hover2: rgba(255, 255, 255, 0.1);
 
   --radius: 14px;
   --radius-sm: 10px;
@@ -18,7 +18,7 @@
 }
 
 /* ============================================================================
-   WRAPPER (70 / 30)
+   WRAPPER
 ============================================================================ */
 
 .wrapper {
@@ -28,6 +28,52 @@
   width: 100%;
   padding: 40px;
   animation: fadeIn 0.25s ease-out;
+}
+
+/* ============================================================================
+   STATUS AMBIENCE — SAME COLORS AS STATUS BADGE
+============================================================================ */
+
+.header {
+  position: relative;
+}
+
+/* TODO / ACTIVE */
+.wrapper.status-active .header::after,
+.wrapper.status-todo .header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 2px;
+  background: rgba(40, 199, 111, 0.8);
+  box-shadow: 0 0 18px rgba(40, 199, 111, 0.35);
+}
+
+/* IN PROGRESS / PENDING */
+.wrapper.status-in-progress .header::after,
+.wrapper.status-pending .header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 2px;
+  background: rgba(255, 193, 7, 0.8);
+  box-shadow: 0 0 18px rgba(255, 193, 7, 0.35);
+}
+
+/* COMPLETED */
+.wrapper.status-completed .header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 2px;
+  background: rgba(0, 123, 255, 0.8);
+  box-shadow: 0 0 18px rgba(0, 123, 255, 0.35);
 }
 
 /* ============================================================================
@@ -57,6 +103,7 @@
   gap: 8px;
 
   width: fit-content;
+  max-width: fit-content;
 
   transition: 0.15s ease;
 
@@ -136,7 +183,7 @@
 }
 
 /* ============================================================================
-   CHAT PANEL
+   CHAT PANEL — THIS WAS MISSING BEFORE
 ============================================================================ */
 
 .chatSection {
@@ -150,8 +197,8 @@
   box-shadow: var(--shadow-soft);
 }
 
-.chatSection h3 {
-  margin: 0 0 10px 0;
+.chatHeader h3 {
+  margin: 0;
   font-size: 18px;
   font-weight: 600;
 }
@@ -163,12 +210,21 @@
   flex-direction: column;
   gap: 18px;
   padding-right: 6px;
+
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
+
+/* MESSAGE STRUCTURE — IDENTICAL TO PROJECT DETAILS */
 
 .chatMessage {
   max-width: 85%;
   display: flex;
   flex-direction: column;
+}
+
+.chatBubbleWrapper {
+  display: inline-flex;
 }
 
 .chatBubble {
@@ -180,6 +236,11 @@
   border: 1px solid var(--border);
 }
 
+.chatText {
+  margin: 0;
+}
+
+/* ADMIN MESSAGE (RIGHT) */
 .myMessage {
   align-self: flex-end;
 
@@ -190,50 +251,22 @@
   }
 }
 
+/* CLIENT MESSAGE (LEFT) */
 .theirMessage {
   align-self: flex-start;
 }
 
-/* ============================================================================
-   CHAT INPUT
-============================================================================ */
-
-.chatInputRow {
+/* META */
+.chatMetaRow {
+  margin-top: 4px;
+  font-size: 11px;
+  opacity: 0.7;
   display: flex;
-  gap: 10px;
-  padding-top: 12px;
-
-  input {
-    flex: 1;
-    padding: 12px 14px;
-    border-radius: var(--radius-sm);
-    background: var(--surface-alt);
-    border: 1px solid var(--border);
-    color: var(--text);
-
-    &:focus {
-      outline: 1px solid var(--primary);
-      background: var(--surface);
-    }
-  }
-
-  button {
-    padding: 10px 16px;
-    background: var(--primary);
-    border-radius: var(--radius-sm);
-    color: black;
-    font-weight: 600;
-    border: none;
-    cursor: pointer;
-
-    &:hover {
-      filter: brightness(0.95);
-    }
-  }
+  justify-content: space-between;
 }
 
 /* ============================================================================
-   FLOATING ACTION BAR (BOTTOM CENTER)
+   FLOATING ACTION BAR
 ============================================================================ */
 
 .actionBarFloating {
@@ -247,7 +280,6 @@
   padding: 12px;
 
   width: fit-content;
-
   border-radius: var(--radius);
   background: var(--surface);
   border: 1px solid var(--border);
@@ -283,7 +315,17 @@
 }
 
 /* ============================================================================
-   LOADING
+   DARK MODE — NOTHING CUSTOM, SAME TOKENS
+============================================================================ */
+
+html[data-theme="dark"] {
+  .actionBtn:hover {
+    background: var(--hover2);
+  }
+}
+
+/* ============================================================================
+   LOADING + ANIMATION
 ============================================================================ */
 
 .loading {
@@ -291,10 +333,6 @@
   padding: 40px;
   opacity: 0.6;
 }
-
-/* ============================================================================
-   ANIMATION
-============================================================================ */
 
 @keyframes fadeIn {
   from {
